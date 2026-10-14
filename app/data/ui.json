@@ -20,7 +20,10 @@
     "lessons": "មេរៀន",
     "clear": "លុប",
     "again": "ម្តងទៀត",
-    "streak": "ថ្ងៃជាប់គ្នា"
+    "streak": "ថ្ងៃជាប់គ្នា",
+    "checkTitle": "ពិនិត្យសំឡេងខ្មែរ",
+    "checkHelp": "ស្តាប់ពាក្យនីមួយៗ។ ចុចសញ្ញាធីក បើត្រឹមត្រូវ។ ចុចសញ្ញាខ្វែង បើខុស។",
+    "goal": "គោលដៅថ្ងៃនេះ"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -43,6 +46,9 @@
     "clear": "Clear",
     "again": "Again",
     "streak": "day streak",
-    "alphabet": "Alphabet"
+    "alphabet": "Alphabet",
+    "goal": "Today's goal",
+    "checkTitle": "Native check",
+    "checkHelp": "Hand the phone to a native speaker: listen to each word and mark it right or wrong."
   }
 }

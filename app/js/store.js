@@ -92,3 +92,20 @@ export function importData(json) {
   state = parsed;
   save();
 }
+
+// ---------- native-speaker content check ----------
+
+/** Verdicts from the native check screen: { key: 'ok' | 'bad' }. */
+export function checks() {
+  state.checks ||= {};
+  return state.checks;
+}
+
+export function setCheck(key, verdict) {
+  checks()[key] = verdict;
+  save();
+}
+
+export function todayCount(pid) {
+  return profile(pid).days[today()] || 0;
+}

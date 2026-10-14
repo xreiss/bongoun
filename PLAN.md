@@ -30,7 +30,7 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 
 - [x] **Step 1 — Core app (Khmer ↔ English).** 120 shared concepts with emoji, 26 letters, 33 consonants, 24 vowels,
       subscripts, 695 audio clips, SRS engine, both courses, alphabet reference, offline PWA, progress backup.
-- [ ] **Step 2 — Validate content with a native speaker.** She checks the Khmer words, romanizations and audio
+- [ ] **Step 2 — Validate content with a native speaker.** Use the in-app "Native check" (Khmer course): she checks the Khmer words, romanizations and audio
       (TTS can misread single consonants). Fix anything in `app/data/*.json`, then re-run the audio build.
 - [ ] **Step 3 — Deploy** to GitHub Pages (or Netlify) so both phones can "Add to Home Screen".
 - [ ] **Step 4 — Her next level:** phonics (short vowel sounds, CVC blending), sight words, short stories with

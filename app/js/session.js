@@ -177,7 +177,17 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         h('button.btn.primary.wide', { onclick: () => onExit(done) }, '✓'),
       ),
     );
+    if (stars >= 2) confetti(root);
     if (isKmUI) play('km', ui.km.done, { slow: false });
+  }
+
+  function confetti(parent) {
+    const colors = ['#db2777', '#e8a317', '#4338ca', '#16a34a', '#f472b6', '#6366f1'];
+    const layer = h('div.confetti', Array.from({ length: 60 }, () => h('i', {
+      style: `left:${Math.random() * 100}%;background:${pick(colors)};--d:${1.6 + Math.random() * 1.6}s;--dx:${(Math.random() - 0.5) * 160}px;--r:${Math.random() * 720}deg;animation-delay:${Math.random() * 0.4}s`,
+    })));
+    parent.append(layer);
+    setTimeout(() => layer.remove(), 4000);
   }
 
   // ---------- shared widgets ----------
