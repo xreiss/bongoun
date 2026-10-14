@@ -46,8 +46,13 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 - [ ] **Khmer stroke order:** no reliable dataset exists. The 🎥 Record tab (your Writing screen) lets a native
       writer record each letter once; "Copy all recordings" → send to Claude → saved in `app/data/khmer-strokes.json`
       for both phones. Reference: Michigan State "Basic Khmer" consonant worksheet with directional arrows.
-- [ ] **Pronunciation upgrade (next):** evaluate Google Cloud Text-to-Speech km-KH voices (paid, API key) vs the
-      current Microsoft neural voices, and add speech recognition so she can be scored when speaking.
+- [x] **Native voice for Khmer:** Google Cloud TTS and Gemini Live have no Khmer voice, so the best Khmer audio is a
+      native speaker. In "Native check" she can record each word (🎙️); her recording replaces the computer voice on
+      that phone at once. "Download recordings" → AirDrop to the Mac → `recordings/` → `python3 tools/import_voice.py
+      recordings/*.json` → commit, and both phones get her voice.
+- [ ] **Azure Speech (needs an account):** true phonics sounds via SSML phonemes, and pronunciation scoring of her
+      spoken English. Needs a free Cloudflare Worker to keep the key private.
+- [ ] **Gemini (needs an AI Studio key):** check her spoken English words; a translator/tutor for Xavier.
 - [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
       digraphs (sh, ch, th), recording her voice to compare with the model.
 - [x] **Step 5a — Khmer handwriting:** same three-mode Writing screen (33 consonants + subscript words) in the

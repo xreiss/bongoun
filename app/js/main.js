@@ -1,7 +1,8 @@
 // App shell: profile picker, course path, Khmer alphabet reference, native-speaker check.
 
 import { h } from './dom.js';
-import { loadAudioIndex, play, audioSettings, stop, tone } from './audio.js';
+import { loadAudioIndex, loadLocalVoices, setLocalVoice, nativeVoice, play, audioSettings, stop, tone } from './audio.js';
+import { record, saveClip, deleteClip, exportClips, allClips } from './voice.js';
 import * as store from './store.js';
 import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
@@ -23,7 +24,7 @@ async function init() {
   const [concepts, script, ui] = await Promise.all(
     ['concepts', 'khmer-script', 'ui'].map((f) => fetch(`data/${f}.json`).then((r) => r.json())),
   );
-  await Promise.all([loadAudioIndex(), loadRecorded()]);
+  await Promise.all([loadAudioIndex(), loadRecorded(), loadLocalVoices()]);
   data = { ...buildCourses(concepts, script), concepts, script, ui };
   const last = PROFILES.find((p) => p.id === store.lastProfile());
   last ? dashboard(last) : home();
@@ -448,29 +449,69 @@ function nativeCheck(p) {
     ),
   );
   render(false);
-  play('km', data.ui.km.checkHelp, { slow: false }).then(() => play('km', items[i].km));
+  play('km', data.ui.km.checkHelp, { slow: false }).then(() => play('km', items[i].km, { machine: true }));
 
   function render(speak = true) {
     if (i >= items.length) return checkSummary(p, items);
     const it = items[i];
+    const key = `km|${it.km}`;
     counter.textContent = `${i + 1} / ${items.length}`;
     const mark = (v) => {
       store.setCheck(it.key, v);
       i++;
       render();
     };
+    // The ✓/✗ judges the computer voice, so always play that one here.
+    const machine = (slow = false) => play('km', it.km, { slow, machine: true });
+
+    // 🎙️ Her own voice: tap to record, tap again (or wait 4 s) to stop. It replaces the computer voice.
+    const voiceRow = h('div.voice-row');
+    const drawVoice = () => {
+      const has = Boolean(nativeVoice('km', it.km));
+      voiceRow.replaceChildren(
+        h('button.mic', { onclick: startRecording, 'aria-label': 'Record my voice' }, '🎙️'),
+        has ? h('button.speaker', { onclick: () => play('km', it.km), 'aria-label': 'My recording' }, '👩') : '',
+        has ? h('button.mini', { onclick: async () => { await deleteClip(key); setLocalVoice(key, null); drawVoice(); }, 'aria-label': 'Delete recording' }, '🗑') : '',
+        h('div.voice-hint', { lang: 'km' }, has ? '✓ ' : '', data.ui.km.recordHint),
+      );
+    };
+    async function startRecording() {
+      stop();
+      let session;
+      try {
+        session = await record({ maxMs: 4000 });
+      } catch {
+        voiceRow.querySelector('.voice-hint').textContent = '🎙️ ✗ microphone';
+        return;
+      }
+      const mic = voiceRow.querySelector('.mic');
+      mic.classList.add('recording');
+      mic.textContent = '■';
+      mic.onclick = () => session.stop();
+      const blob = await session.done;
+      if (blob.size > 1000) {
+        await saveClip(key, blob);
+        setLocalVoice(key, blob);
+      }
+      drawVoice();
+      play('km', it.km); // play it back
+    }
+    drawVoice();
+
     stage.replaceChildren(
       h('div.check-card', h('div.big-emoji', it.emoji), h('div.khmer-big', { lang: 'km' }, it.km), h('div.muted', it.en)),
-      h('div.row', h('button.speaker.big', { onclick: () => play('km', it.km) }, '🔊'), h('button.speaker', { onclick: () => play('km', it.km, { slow: true }) }, '🐢')),
+      h('div.row', h('button.speaker.big', { onclick: () => machine(), 'aria-label': 'Computer voice' }, '🔊'), h('button.speaker', { onclick: () => machine(true), 'aria-label': 'Slow' }, '🐢')),
       h('div.verdict', h('button.vbtn.bad', { onclick: () => mark('bad'), 'aria-label': 'Wrong' }, '✗'), h('button.vbtn.ok', { onclick: () => mark('ok'), 'aria-label': 'Correct' }, '✓')),
+      voiceRow,
       i > 0 ? h('button.link', { onclick: () => { i--; render(); } }, '← back') : '',
     );
-    if (speak) play('km', it.km);
+    if (speak) machine();
   }
 }
 
-function checkSummary(p, items) {
+async function checkSummary(p, items) {
   setTheme(p.theme);
+  const voiceCount = Object.keys(await allClips()).length;
   const verdicts = store.checks();
   const bad = items.filter((it) => verdicts[it.key] === 'bad');
   const done = items.filter((it) => verdicts[it.key]).length;
@@ -482,6 +523,12 @@ function checkSummary(p, items) {
       h('section.card', h('h3', `${done} / ${items.length} checked · ${bad.length} flagged`), h('p.muted', data.ui.en.checkHelp),
         h('div.row', h('button.btn.primary', { onclick: () => nativeCheck(p) }, done < items.length ? 'Continue checking' : 'Review again'),
           done ? h('button.btn', { onclick: () => { if (confirm('Clear all verdicts?')) { Object.keys(verdicts).forEach((k) => store.setCheck(k, undefined)); checkSummary(p, items); } } }, 'Reset') : null)),
+      h(
+        'section.card',
+        h('h3', `🎙️ ${voiceCount} voice recording${voiceCount === 1 ? '' : 's'} on this phone`),
+        h('p.muted', 'Recordings play instead of the computer voice on this phone right away. To put them on both phones: download the file, send it to your Mac (AirDrop), save it in the project\'s “recordings” folder and ask Claude to import it.'),
+        voiceCount ? h('button.btn.primary.wide', { onclick: async (e) => { const btn = e.currentTarget; const n = await exportClips(); btn.textContent = `Downloaded ${n} ✓`; } }, '⬇ Download recordings') : '',
+      ),
       bad.length
         ? h(
             'section.card',

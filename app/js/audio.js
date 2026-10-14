@@ -1,4 +1,7 @@
-// Plays pre-generated neural audio clips. Falls back to the device voice if a clip is missing.
+// Plays audio: a native speaker's recording when one exists, else the pre-generated neural clip,
+// else the device voice.
+
+import { allClips } from './voice.js';
 
 let index = {};
 let current = null;
@@ -8,6 +11,26 @@ export const audioSettings = { slow: false };
 export async function loadAudioIndex() {
   const res = await fetch('data/audio-index.json');
   index = await res.json();
+}
+
+// Recordings made on this phone (object URLs), keyed like the index: "km|សួស្តី".
+const local = {};
+
+export async function loadLocalVoices() {
+  const clips = await allClips();
+  for (const [key, blob] of Object.entries(clips)) local[key] = URL.createObjectURL(blob);
+}
+
+/** Register (or remove, with null) a recording made on this phone. */
+export function setLocalVoice(key, blob) {
+  if (local[key]) URL.revokeObjectURL(local[key]);
+  if (blob) local[key] = URL.createObjectURL(blob);
+  else delete local[key];
+}
+
+/** A native recording for this text, if any (this phone first, then ones shipped with the app). */
+export function nativeVoice(lang, text) {
+  return local[`${lang}|${text}`] || index[`${lang}|${text}|native`] || null;
 }
 
 export function hasAudio(lang, text) {
@@ -23,12 +46,18 @@ export function stop() {
 }
 
 /** Play a clip; resolves when playback ends (or fails). */
-export function play(lang, text, { slow = audioSettings.slow } = {}) {
+export function play(lang, text, { slow = audioSettings.slow, machine = false } = {}) {
   stop();
-  const src = (slow && index[`${lang}|${text}|slow`]) || index[`${lang}|${text}`];
+  const native = machine ? null : nativeVoice(lang, text);
+  const src = native || (slow && index[`${lang}|${text}|slow`]) || index[`${lang}|${text}`];
   if (!src) return speakFallback(lang, text, slow);
   return new Promise((resolve) => {
     const a = new Audio(src);
+    // Recordings have no slow version: slow them down while keeping the voice's pitch.
+    if (native && slow) {
+      a.preservesPitch = true;
+      a.playbackRate = 0.7;
+    }
     current = a;
     a.onended = a.onerror = () => resolve();
     a.play().catch(() => resolve());

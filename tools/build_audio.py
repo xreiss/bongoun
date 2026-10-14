@@ -99,7 +99,12 @@ async def main():
     results = await asyncio.gather(*tasks)
     failed = results.count(False)
     index = {k: v for k, v in index.items() if (APP / v).exists()}
-    (DATA / "audio-index.json").write_text(json.dumps(index, ensure_ascii=False, indent=0))
+    # Keep native-speaker recordings imported by tools/import_voice.py.
+    index_path = DATA / "audio-index.json"
+    if index_path.exists():
+        old = json.loads(index_path.read_text())
+        index.update({k: v for k, v in old.items() if k.endswith("|native") and (APP / v).exists()})
+    index_path.write_text(json.dumps(index, ensure_ascii=False, indent=0))
     print(f"done, {failed} failed, index has {len(index)} entries")
 
 
