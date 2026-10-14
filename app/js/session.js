@@ -345,8 +345,8 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       renderTrace(stage, ex, item, glyph, 'system-ui, sans-serif', `${item.L} ${item.L.toLowerCase()}`, 0.55);
     } else if (t === 'consonant_trace') {
       stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
-      document.fonts.load('600 100px "Kantumruy Pro"').finally(() =>
-        renderTrace(stage, ex, item, item.ch, '"Kantumruy Pro", "Khmer Sangam MN", sans-serif', `${item.ch} — ${item.rom}`, 0.5));
+      document.fonts.load('400 100px Battambang').finally(() =>
+        renderTrace(stage, ex, item, item.ch, 'Battambang, "Khmer Sangam MN", serif', `${item.ch} — ${item.rom}`, 0.55));
     } else if (t === 'first_sound') {
       const word = c.en.toLowerCase();
       const pool = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
@@ -441,7 +441,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
   }
 
   function renderTrace(stage, ex, item, glyph, font, answerLabel, threshold) {
-    const pad = tracePad(glyph, { font });
+    const pad = tracePad(glyph, { font, ink: course.target === 'km' ? 0.045 : 0.07 });
     const checkBtn = h('button.btn.primary', {
       onclick: () => {
         if (pad.empty) return;

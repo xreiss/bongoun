@@ -370,3 +370,20 @@ h3 { margin: 0 0 10px; font-size: 1.05rem; }
 .options.three { grid-template-columns: repeat(3, 1fr); }
 .options.three .opt-emoji { font-size: 3.4rem; }
 .opt.speaking { border-color: var(--accent); box-shadow: 0 4px 0 var(--accent); transform: scale(1.04); }
+
+/* ---------- writing ---------- */
+.center-text { text-align: center; }
+.glyph-strip { display: flex; gap: 8px; overflow-x: auto; padding: 6px 2px 12px; scrollbar-width: none; scroll-snap-type: x proximity; }
+.glyph-strip::-webkit-scrollbar { display: none; }
+.gchip {
+  flex: none; min-width: 52px; height: 64px; padding: 0 10px; border-radius: 14px; background: var(--card);
+  font-size: 1.6rem; display: grid; place-items: center; line-height: 1.2; box-shadow: var(--shadow); scroll-snap-align: center;
+}
+.gchip.sA { color: var(--sA); }
+.gchip.sO { color: var(--sO); }
+.gchip.on { background: var(--accent); color: var(--accent-ink); }
+.gstar { font-size: 0.55rem; color: var(--gold); font-family: 'Nunito', sans-serif; line-height: 1; }
+.gchip.on .gstar { color: var(--accent-ink); }
+.write-label { display: flex; align-items: center; gap: 6px; }
+.trace-result { min-height: 44px; display: flex; align-items: center; gap: 8px; }
+.gchip, .writing .krom { font-family: Battambang, var(--khmer); }

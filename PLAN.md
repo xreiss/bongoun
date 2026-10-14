@@ -33,9 +33,14 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 - [ ] **Step 2 — Validate content with a native speaker.** Use the in-app "Native check" (Khmer course): she checks the Khmer words, romanizations and audio
       (TTS can misread single consonants). Fix anything in `app/data/*.json`, then re-run the audio build.
 - [ ] **Step 3 — Deploy** to GitHub Pages (or Netlify) so both phones can "Add to Home Screen".
-- [ ] **Step 4 — Her next level:** phonics (short vowel sounds, CVC blending), sight words, short stories with
-      karaoke highlighting, and recording her voice to compare with the model.
-- [ ] **Step 5 — Your next level:** Khmer handwriting tracing, more subscripts, classifiers, polite registers
+- [x] **Step 4a — Phonics:** 5 short-vowel units (a e i o u, 36 CVC words) right after the alphabet: blending
+      animation, first-letter, missing-vowel (c_t), rhyme matching (options read aloud), then spelling.
+      Neural TTS can't say isolated phonemes reliably, so every clip is a real word (analytic phonics / word families).
+- [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
+      digraphs (sh, ch, th), recording her voice to compare with the model.
+- [x] **Step 5a — Khmer handwriting:** consonant tracing in the review ladder (4th level) + a Writing screen
+      (33 consonants + subscript words, star scores) using the traditional Battambang typeface.
+- [ ] **Step 5b — Your next level:** stroke-order animations, more subscripts, classifiers, polite registers
       (បាទ/ចាស, kinship pronouns បង/អូន), and dialogue units.
 - [ ] **Step 6 — AI tutor (optional):** a Gemini or Claude key in settings to translate any sentence into Khmer with a breakdown.
       It needs a small proxy so audio can be made for new text.

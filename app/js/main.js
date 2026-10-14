@@ -5,6 +5,7 @@ import { loadAudioIndex, play, audioSettings, stop } from './audio.js';
 import * as store from './store.js';
 import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
+import { tracePad } from './trace.js';
 
 const PROFILES = [
   { id: 'her', course: 'en', theme: 'lotus', glyph: 'Aa', title: 'English', sub: 'រៀនភាសាអង់គ្លេស', subLang: 'km' },
@@ -95,6 +96,7 @@ function dashboard(p) {
       ? h(
           'div.chips',
           h('button.chip', { onclick: () => alphabet(p) }, h('span', { lang: 'km' }, 'កខគ'), ' Alphabet'),
+          h('button.chip', { onclick: () => writing(p) }, '✍️ ', t('writing')),
           h('button.chip', { onclick: () => nativeCheck(p) }, '🎧 ', t('checkTitle')),
         )
       : null,
@@ -206,6 +208,73 @@ function alphabet(p) {
       ),
     ),
   );
+}
+
+// ---------- Khmer handwriting practice ----------
+const KHMER_FONT = 'Battambang, "Khmer Sangam MN", serif'; // traditional forms with the "heads" you write
+
+async function writing(p, start = 0) {
+  setTheme(p.theme);
+  await document.fonts.load(`400 100px ${KHMER_FONT}`).catch(() => {});
+  const { consonants, subscripts } = data.script;
+  const glyphs = [
+    ...consonants.map((c) => ({ g: c.ch, label: c.rom, s: c.s })),
+    ...subscripts.map((w) => ({ g: w.word, label: `${w.rom} — ${w.en}` })),
+  ];
+  const best = (() => { try { return JSON.parse(localStorage.getItem('learnering:writing')) || {}; } catch { return {}; } })();
+  let i = start;
+
+  const strip = h('div.glyph-strip');
+  const stage = h('div.stage');
+  show(
+    h(
+      'div.screen.writing',
+      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', '✍️ Writing'), slowToggle()),
+      h('p.muted.small.center-text', 'Start each letter at its small circle or hook — the “head” (ក្បាល) — then flow down and to the right.'),
+      strip,
+      stage,
+    ),
+  );
+
+  function drawStrip() {
+    strip.replaceChildren(...glyphs.map((x, j) =>
+      h(`button.gchip${j === i ? '.on' : ''}${x.s ? `.s${x.s === 1 ? 'A' : 'O'}` : ''}`, { onclick: () => { i = j; render(); }, lang: 'km' },
+        x.g, best[x.g] ? h('small.gstar', '★'.repeat(best[x.g])) : '')));
+    strip.children[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }
+
+  function render() {
+    drawStrip();
+    const x = glyphs[i];
+    const pad = tracePad(x.g, { font: KHMER_FONT, ink: 0.045 });
+    const result = h('div.trace-result');
+    stage.replaceChildren(
+      h('div.row', h('button.speaker', { onclick: () => play('km', x.g) }, '🔊'), h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : '')),
+      pad.el,
+      result,
+      h(
+        'div.row',
+        h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); } }, '↺ Clear'),
+        h('button.btn.primary', {
+          onclick: () => {
+            if (pad.empty) return;
+            const score = pad.score();
+            const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
+            if (stars > (best[x.g] || 0)) {
+              best[x.g] = stars;
+              try { localStorage.setItem('learnering:writing', JSON.stringify(best)); } catch { /* ignore */ }
+            }
+            result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)), h('span.muted', stars ? '' : ' Trace over the grey letter'));
+            if (stars) play('km', x.g);
+            drawStrip();
+          },
+        }, 'Check'),
+        h('button.btn', { onclick: () => { i = (i + 1) % glyphs.length; render(); } }, 'Next →'),
+      ),
+    );
+    play('km', x.g);
+  }
+  render();
 }
 
 // ---------- native-speaker check: listen to every Khmer clip, mark ✓ / ✗ ----------
