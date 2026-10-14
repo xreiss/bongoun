@@ -1,4 +1,4 @@
-# Learnering — plan
+# BongOun (បងអូន) — plan
 
 Two learners, one app (offline PWA, works on both phones):
 

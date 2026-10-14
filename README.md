@@ -1,4 +1,4 @@
-# Learnering
+# BongOun (បងអូន)
 
 Offline language-learning PWA: English for a Khmer speaker (audio-first), Khmer for an English speaker.
 See [PLAN.md](PLAN.md) for the roadmap.

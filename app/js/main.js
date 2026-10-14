@@ -30,7 +30,7 @@ function home() {
   app.replaceChildren(
     h(
       'div.screen.home',
-      h('h1', 'Learnering'),
+      h('h1', 'BongOun'),
       h(
         'div.profiles',
         PROFILES.map((p) =>
