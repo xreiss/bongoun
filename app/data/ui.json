@@ -9,7 +9,7 @@
     "read_pick": "អានពាក្យនេះ ហើយចុចលើរូបភាពដែលត្រូវ",
     "pick_word": "តើពាក្យមួយណាត្រូវនឹងរូបភាពនេះ?",
     "spell": "សរសេរពាក្យនេះ ដោយចុចលើអក្សរ",
-    "trace": "គូរតាមអក្សរនេះ ដោយប្រើម្រាមដៃ",
+    "trace": "មើលរបៀបសរសេរ ហើយគូរតាមម្តងមួយខ្សែ ចាប់ពីចំណុចពណ៌បៃតង",
     "letter_listen": "ស្តាប់ ហើយចុចលើអក្សរដែលត្រូវ",
     "letter_word": "តើរូបភាពមួយណាចាប់ផ្តើមដោយអក្សរនេះ?",
     "sentence": "ស្តាប់ ហើយរៀបពាក្យឲ្យត្រូវលំដាប់",
@@ -32,11 +32,15 @@
     "modeTrace": "គូរតាម",
     "modeCopy": "ចម្លង",
     "modeMemory": "ចងចាំ",
-    "writeTrace": "គូរតាមអក្សរពណ៌ប្រផេះ",
+    "writeTrace": "មើលរបៀបសរសេរ ហើយគូរតាមម្តងមួយខ្សែ ចាប់ពីចំណុចពណ៌បៃតង",
     "writeCopy": "មើលគំរូ ហើយសរសេរវានៅក្នុងប្រអប់",
     "writeMemory": "ស្តាប់ ហើយសរសេរ ដោយមិនមើលគំរូ",
     "write_memory": "ស្តាប់ ហើយសរសេរ ដោយមិនមើលគំរូ",
-    "write_word": "ស្តាប់ពាក្យ ហើយសរសេរវា"
+    "write_word": "ស្តាប់ពាក្យ ហើយសរសេរវា",
+    "watch": "មើល",
+    "strokeStart": "ចាប់ផ្តើមនៅចំណុចពណ៌បៃតង",
+    "strokeDirection": "សរសេរតាមទិសព្រួញ",
+    "strokeShape": "សរសេរតាមខ្សែរបស់អក្សរ"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -63,14 +67,20 @@
     "goal": "Today's goal",
     "checkTitle": "Native check",
     "checkHelp": "Hand the phone to a native speaker: listen to each word and mark it right or wrong.",
-    "consonant_trace": "Write this letter — start from the small circle (the “head”)",
+    "consonant_trace": "Trace it — start at the small circle or hook (the “head”)",
     "writing": "Writing",
     "modeTrace": "Trace",
     "modeCopy": "Copy",
     "modeMemory": "Memory",
-    "writeTrace": "Trace over the grey model",
+    "writeTrace": "Watch, then trace one stroke at a time from the green dot",
     "writeCopy": "Look at the model, then write it in the box",
     "writeMemory": "Listen, then write it from memory",
-    "consonant_write": "Listen and write this letter from memory"
+    "consonant_write": "Listen and write this letter from memory",
+    "watch": "Watch",
+    "strokeStart": "Start at the green dot",
+    "strokeDirection": "Go the way the arrow points",
+    "strokeShape": "Follow the letter's line",
+    "record": "Record stroke order",
+    "recordHelp": "For a native writer: write this letter slowly, one stroke at a time, in the correct order. Save it, and it becomes the stroke-order lesson."
   }
 }

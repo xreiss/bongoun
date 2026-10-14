@@ -40,6 +40,14 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
       for A–Z, a–z and the phonics words, on ruled lines in the Andika school font, all instructions spoken in Khmer.
       In reviews: trace (level 3) → write the other case from memory (B → b, level 4); phonics words end with
       "hear it, write it". Copy/memory writing is scaled onto the model before scoring, so position and size don't matter.
+- [x] **Step 4d — Stroke order:** all 52 English letters have school stroke-order data (`app/js/strokes.js`).
+      ▶ Watch animates them with numbered start dots and arrows; tracing is now stroke-by-stroke: each stroke must
+      start at its green dot and go the right way, mistakes are explained (spoken in Khmer) and the stroke is replayed.
+- [ ] **Khmer stroke order:** no reliable dataset exists. The 🎥 Record tab (your Writing screen) lets a native
+      writer record each letter once; "Copy all recordings" → send to Claude → saved in `app/data/khmer-strokes.json`
+      for both phones. Reference: Michigan State "Basic Khmer" consonant worksheet with directional arrows.
+- [ ] **Pronunciation upgrade (next):** evaluate Google Cloud Text-to-Speech km-KH voices (paid, API key) vs the
+      current Microsoft neural voices, and add speech recognition so she can be scored when speaking.
 - [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
       digraphs (sh, ch, th), recording her voice to compare with the model.
 - [x] **Step 5a — Khmer handwriting:** same three-mode Writing screen (33 consonants + subscript words) in the

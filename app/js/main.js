@@ -6,6 +6,7 @@ import * as store from './store.js';
 import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
 import { tracePad, modelCanvas } from './trace.js';
+import { RECORDED, loadRecorded, saveRecording } from './strokes.js';
 
 const PROFILES = [
   { id: 'her', course: 'en', theme: 'lotus', glyph: 'Aa', title: 'English', sub: 'រៀនភាសាអង់គ្លេស', subLang: 'km' },
@@ -22,7 +23,7 @@ async function init() {
   const [concepts, script, ui] = await Promise.all(
     ['concepts', 'khmer-script', 'ui'].map((f) => fetch(`data/${f}.json`).then((r) => r.json())),
   );
-  await loadAudioIndex();
+  await Promise.all([loadAudioIndex(), loadRecorded()]);
   data = { ...buildCourses(concepts, script), concepts, script, ui };
   const last = PROFILES.find((p) => p.id === store.lastProfile());
   last ? dashboard(last) : home();
@@ -244,14 +245,15 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
   const lang = course.ui;
   const t = (k) => data.ui[lang][k];
   const font = km ? KHMER_FONT : LATIN_FONT;
-  const padOpts = km ? { font, ink: 0.045, fit: true } : { font, ink: 0.06, fit: false, lines: true };
+  const padOpts = km ? { font, ink: 0.045 } : { font, ink: 0.06, lines: true };
   await document.fonts.load(`400 100px ${font}`).catch(() => {});
   const sets = writingSets(course);
   const bestKey = `learnering:writing:${course.id}`;
   const best = (() => { try { return JSON.parse(localStorage.getItem(bestKey)) || {}; } catch { return {}; } })();
   const starKey = (g) => `${state.mode}:${g}`;
+  const modes = km ? [...MODES, { id: 'record', icon: '🎥' }] : MODES;
 
-  const tabs = h('div.mode-tabs');
+  const tabs = h('div.mode-tabs', { style: `grid-template-columns:repeat(${modes.length},1fr)` });
   const setTabs = h('div.set-tabs');
   const instr = h('div.instruction.center', { lang });
   const strip = h('div.glyph-strip');
@@ -268,22 +270,19 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     ),
   );
 
-  const modeKey = { trace: 'writeTrace', copy: 'writeCopy', memory: 'writeMemory' };
-  function speakInstruction() {
-    if (lang === 'km') return play('km', data.ui.km[modeKey[state.mode]], { slow: false });
-    return Promise.resolve();
-  }
+  const modeKey = { trace: 'writeTrace', copy: 'writeCopy', memory: 'writeMemory', record: 'recordHelp' };
+  const speak = (key) => (lang === 'km' && data.ui.km[key] ? play('km', data.ui.km[key], { slow: false }) : Promise.resolve());
 
   function drawTabs() {
     const capKey = { trace: 'modeTrace', copy: 'modeCopy', memory: 'modeMemory' };
-    tabs.replaceChildren(...MODES.map((m) =>
-      h(`button.mode-tab${m.id === state.mode ? '.on' : ''}`, { lang, onclick: () => { state.mode = m.id; render(true); } }, h('span.mode-icon', m.icon), t(capKey[m.id]))));
+    tabs.replaceChildren(...modes.map((m) =>
+      h(`button.mode-tab${m.id === state.mode ? '.on' : ''}`, { lang, onclick: () => { state.mode = m.id; render(true); } },
+        h('span.mode-icon', m.icon), m.id === 'record' ? 'Record' : t(capKey[m.id]))));
     setTabs.replaceChildren(...sets.map((st, j) =>
       h(`button.set-tab${j === state.set ? '.on' : ''}`, { lang: km ? 'km' : 'en', onclick: () => { state.set = j; state.i = 0; render(); } }, st.title)));
     instr.replaceChildren(
-      lang === 'km' ? h('button.mini', { onclick: speakInstruction }, '🔈') : '',
+      lang === 'km' ? h('button.mini', { onclick: () => speak(modeKey[state.mode]) }, '🔈') : '',
       t(modeKey[state.mode]),
-      km && state.mode === 'trace' ? h('div.muted.small', 'Start each letter at its small circle or hook — the “head” (ក្បាល).') : '',
     );
   }
 
@@ -292,8 +291,21 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     strip.replaceChildren(...items.map((x, j) =>
       h(`button.gchip${j === state.i ? '.on' : ''}${x.s ? `.s${x.s === 1 ? 'A' : 'O'}` : ''}${km ? '.khmer' : '.latin'}`,
         { onclick: () => { state.i = j; render(); } },
-        x.g, best[starKey(x.g)] ? h('small.gstar', '★'.repeat(best[starKey(x.g)])) : '')));
+        x.g,
+        state.mode === 'record'
+          ? (RECORDED[x.g] ? h('small.gstar', '●') : '')
+          : best[starKey(x.g)] ? h('small.gstar', '★'.repeat(best[starKey(x.g)])) : '')));
     strip.children[state.i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }
+
+  function award(x, stars, result) {
+    if (stars > (best[starKey(x.g)] || 0)) {
+      best[starKey(x.g)] = stars;
+      try { localStorage.setItem(bestKey, JSON.stringify(best)); } catch { /* ignore */ }
+    }
+    tone(stars >= 2);
+    result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)));
+    drawStrip();
   }
 
   function render(newMode = false) {
@@ -302,47 +314,105 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     const items = sets[state.set].items;
     const x = items[state.i];
     const say = () => play(...x.say);
-    const pad = tracePad(x.g, { ...padOpts, guide: state.mode === 'trace' });
     const result = h('div.trace-result');
     const prompt = h('div.write-prompt');
-    if (state.mode === 'copy') prompt.append(h('div.model-card', modelCanvas(x.g, { ...padOpts, px: 110 })));
+    const next = () => { state.i = (state.i + 1) % items.length; render(); };
+    const nextBtn = h('button.btn', { onclick: next, 'aria-label': 'Next' }, '→');
+    const feedback = { start: 'strokeStart', direction: 'strokeDirection', shape: 'strokeShape' };
+    const hint = h('div.stroke-hint', { lang });
+
+    if (state.mode === 'record') return renderRecorder(x, say);
+
+    const pad = tracePad(x.g, {
+      ...padOpts,
+      guide: state.mode === 'trace',
+      guided: state.mode === 'trace',
+      onStroke: (verdict, done, total) => {
+        hint.textContent = verdict === 'ok' ? (done < total ? `${done} / ${total}` : '') : t(feedback[verdict]);
+        hint.className = `stroke-hint ${verdict === 'ok' ? 'good' : 'bad'}`;
+        if (verdict !== 'ok') speak(feedback[verdict]);
+      },
+      onDone: (mistakes) => {
+        const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
+        award(x, stars, result);
+        hint.textContent = '';
+        (lang === 'km' ? speak(stars >= 2 ? 'correct' : 'wrong') : Promise.resolve()).then(say);
+      },
+    });
+
+    // "Watch" replays the stroke order; it starts by itself the first time a letter is shown.
+    let model = null;
+    const watch = () => (state.mode === 'copy' ? model?.demo() : pad.demo());
+    const canWatch = pad.hasStrokes;
+    if (state.mode === 'copy') {
+      model = modelCanvas(x.g, { ...padOpts, px: 110 });
+      prompt.append(h('div.model-card', model));
+    }
     if (state.mode === 'memory') prompt.append(h('button.speaker.big', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
     else prompt.append(h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
+    if (canWatch && state.mode !== 'memory') prompt.append(h('button.watch-btn', { onclick: watch, lang }, '▶ ', t('watch')));
     if (x.emoji) prompt.append(h('span.big-emoji.small', x.emoji));
     if (x.label) prompt.append(h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : ''));
+    if (km && !canWatch && state.mode === 'trace') prompt.append(h('div.muted.small.center-text', 'No recorded stroke order for this letter yet — start at its small circle or hook (the “head”). Use 🎥 Record to add it.'));
 
-    const next = () => { state.i = (state.i + 1) % items.length; render(); };
-    const checkBtn = h('button.btn.primary', {
-      lang,
-      onclick: () => {
-        if (pad.empty) return;
-        const score = pad.score();
-        const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
-        if (stars > (best[starKey(x.g)] || 0)) {
-          best[starKey(x.g)] = stars;
-          try { localStorage.setItem(bestKey, JSON.stringify(best)); } catch { /* ignore */ }
-        }
-        if (state.mode !== 'trace') pad.reveal();
-        tone(stars >= 2);
-        result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)));
-        if (lang === 'km') play('km', data.ui.km[stars >= 2 ? 'correct' : 'wrong'], { slow: false }).then(say);
-        else if (stars) say();
-        drawStrip();
-      },
-    }, t('check'));
+    const buttons = [h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); hint.textContent = ''; }, 'aria-label': 'Clear' }, '↺')];
+    if (!pad.guided) {
+      buttons.push(h('button.btn.primary', {
+        lang,
+        onclick: async () => {
+          if (pad.empty) return;
+          const score = pad.score();
+          const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
+          award(x, stars, result);
+          if (state.mode !== 'trace') {
+            pad.reveal();
+            await (lang === 'km' ? speak(stars >= 2 ? 'correct' : 'wrong') : Promise.resolve());
+            if (pad.hasStrokes) await pad.demo(); // show the right way to write it
+          }
+          say();
+        },
+      }, t('check')));
+    }
+    buttons.push(nextBtn);
+    stage.replaceChildren(prompt, pad.el, hint, result, h('div.row', ...buttons));
+
+    (async () => {
+      if (newMode) await speak(modeKey[state.mode]);
+      await say();
+      if (canWatch && state.mode !== 'memory') await watch();
+    })();
+  }
+
+  // 🎥 A native writer records the stroke order of a Khmer letter once; it then powers the lessons.
+  function renderRecorder(x, say) {
+    const pad = tracePad(x.g, { ...padOpts, guide: true, guided: false, ink: 0.03 });
+    const status = h('div.muted.small.center-text', RECORDED[x.g] ? 'Recorded ✓ — write it again to replace it.' : 'Not recorded yet.');
     stage.replaceChildren(
-      prompt,
+      h('div.write-prompt', h('button.speaker', { onclick: say }, '🔊'), x.label ? h('span.rom', x.label) : ''),
       pad.el,
-      result,
+      status,
       h(
         'div.row',
-        h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); }, 'aria-label': 'Clear' }, '↺'),
-        checkBtn,
-        h('button.btn', { onclick: next, 'aria-label': 'Next' }, '→'),
+        h('button.btn', { onclick: () => pad.clear() }, '↺'),
+        h('button.btn.primary', {
+          onclick: () => {
+            const strokes = pad.strokes;
+            if (!strokes.length) return;
+            // Thin out points so the recording stays small.
+            saveRecording(x.g, strokes.map((s) => s.filter((_, i) => i % 2 === 0 || i === s.length - 1)));
+            status.textContent = `Saved ✓ (${strokes.length} stroke${strokes.length > 1 ? 's' : ''})`;
+            drawStrip();
+          },
+        }, 'Save'),
+        RECORDED[x.g] ? h('button.btn', { onclick: () => { saveRecording(x.g, null); render(); } }, 'Delete') : '',
       ),
+      h('button.link', {
+        onclick: (e) => {
+          navigator.clipboard?.writeText(JSON.stringify(RECORDED));
+          e.currentTarget.textContent = `Copied ${Object.keys(RECORDED).length} recordings — paste them to Claude`;
+        },
+      }, 'Copy all recordings'),
     );
-    if (newMode) speakInstruction().then(say);
-    else say();
   }
 
   render(true);

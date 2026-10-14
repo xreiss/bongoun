@@ -407,3 +407,22 @@ h3 { margin: 0 0 10px; font-size: 1.05rem; }
 .case-cue { display: flex; align-items: center; gap: 16px; font-family: Andika, sans-serif; font-size: 3.4rem; font-weight: 700; }
 .cue-arrow { color: var(--muted); font-size: 2rem; }
 .cue-blank { color: var(--accent); border-bottom: 4px dashed var(--accent); min-width: 0.8em; text-align: center; line-height: 1.1; }
+.watch-btn { background: var(--ok); color: #fff; font-weight: 800; border-radius: 999px; padding: 10px 18px; box-shadow: 0 4px 0 var(--ok-deep); }
+.watch-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ok-deep); }
+.stroke-hint { min-height: 1.6em; font-weight: 800; text-align: center; }
+.stroke-hint.bad { color: var(--bad); }
+.stroke-hint.good { color: var(--ok); }
+canvas.shake { animation: shake 0.35s; }
+[hidden] { display: none !important; }
+/* writing screen: keep the pad on screen on phones */
+.writing .topbar { margin-bottom: 8px; min-height: 40px; }
+.writing .mode-tab { padding: 4px; font-size: 0.85rem; }
+.writing .mode-icon { font-size: 1.2rem; }
+.writing .set-tabs { margin: 8px 0 2px; }
+.writing .instruction { font-size: 0.9rem; margin: 2px 0; line-height: 1.4; }
+.writing .glyph-strip { padding: 4px 2px 6px; }
+.writing .gchip { height: 50px; min-width: 46px; font-size: 1.4rem; }
+.writing .stage { gap: 8px; padding-top: 6px; }
+.writing .write-prompt { min-height: 0; gap: 10px; }
+.writing .speaker { width: 52px; height: 52px; font-size: 1.3rem; }
+.writing .speaker.big { width: 76px; height: 76px; font-size: 2rem; }

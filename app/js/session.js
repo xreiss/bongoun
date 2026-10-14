@@ -5,8 +5,9 @@ import { play, playSeq, stop, tone } from './audio.js';
 import * as store from './store.js';
 import { tracePad } from './trace.js';
 
-const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.06, fit: false, lines: true };
-const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.045, fit: true };
+const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.06, lines: true };
+const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.045 };
+const STROKE_TIPS = { start: 'strokeStart', direction: 'strokeDirection', shape: 'strokeShape' };
 
 // Exercise ladders: the higher the box (memory strength), the harder the exercise.
 const LADDERS = {
@@ -345,7 +346,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       sayInstruction(t).then(() => sayTarget(item));
     } else if (t === 'trace') {
       const glyph = Math.random() < 0.5 ? item.L : item.L.toLowerCase();
-      renderTrace(stage, ex, item, glyph, { ...LATIN_PAD, guide: true }, `${item.L} ${item.L.toLowerCase()}`);
+      renderTrace(stage, ex, item, glyph, { ...LATIN_PAD, guide: true, guided: true }, `${item.L} ${item.L.toLowerCase()}`);
     } else if (t === 'write_memory') {
       // Case matching from memory: see "B", write "b" (or the other way round) with no model.
       const upper = Math.random() < 0.5;
@@ -360,7 +361,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       const guide = t === 'consonant_trace';
       stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
       document.fonts.load('400 100px Battambang').finally(() =>
-        renderTrace(stage, ex, item, item.ch, { ...KHMER_PAD, guide }, `${item.ch} — ${item.rom}`));
+        renderTrace(stage, ex, item, item.ch, { ...KHMER_PAD, guide, guided: guide }, `${item.ch} — ${item.rom}`));
     } else if (t === 'first_sound') {
       const word = c.en.toLowerCase();
       const pool = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
@@ -455,20 +456,43 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
   }
 
   function renderTrace(stage, ex, item, glyph, padOpts, answerLabel, threshold = 0.55) {
-    const pad = tracePad(glyph, padOpts);
+    const t = (k) => (isKmUI ? ui.km[k] : ui.en[k]);
+    const hint = h('div.stroke-hint', { lang: isKmUI ? 'km' : 'en' });
+    const finish = (ok) => {
+      checkBtn.remove();
+      clearBtn.remove();
+      answered(ex, item, ok, stage, answerLabel);
+    };
+    const pad = tracePad(glyph, {
+      ...padOpts,
+      // Guided tracing: each stroke must start at its dot and go the right way; mistakes replay the stroke.
+      onStroke: (verdict, done, total) => {
+        hint.textContent = verdict === 'ok' ? (done < total ? `${done} / ${total}` : '') : t(STROKE_TIPS[verdict]);
+        hint.className = `stroke-hint ${verdict === 'ok' ? 'good' : 'bad'}`;
+        if (verdict !== 'ok' && isKmUI) play('km', ui.km[STROKE_TIPS[verdict]], { slow: false });
+      },
+      onDone: (mistakes) => finish(mistakes <= 2),
+    });
     const checkBtn = h('button.btn.primary', {
-      onclick: () => {
+      onclick: async () => {
         if (pad.empty) return;
         const ok = pad.score() >= threshold;
-        if (!padOpts.guide) pad.reveal(); // show the model so the learner can compare
-        checkBtn.remove();
-        clearBtn.remove();
-        answered(ex, item, ok, stage, answerLabel);
+        finish(ok);
+        if (!padOpts.guide) {
+          pad.reveal(); // show the model so the learner can compare...
+          if (pad.hasStrokes) setTimeout(() => pad.demo(), 900); // ...and how it is written
+        }
       },
-    }, isKmUI ? ui.km.check : ui.en.check);
-    const clearBtn = h('button.btn', { onclick: () => pad.clear() }, '↺ ' + (isKmUI ? ui.km.clear : ui.en.clear));
-    stage.append(h('div.row', speakerBtn(() => sayTarget(item), !padOpts.guide)), pad.el, h('div.row', clearBtn, checkBtn));
-    sayInstruction(ex.type).then(() => sayTarget(item));
+    }, t('check'));
+    if (pad.guided) checkBtn.hidden = true; // guided tracing finishes by itself
+    const clearBtn = h('button.btn', { onclick: () => { pad.clear(); hint.textContent = ''; } }, '↺ ' + t('clear'));
+    const watchBtn = pad.hasStrokes && padOpts.guide ? h('button.watch-btn', { onclick: () => pad.demo(), lang: isKmUI ? 'km' : 'en' }, '▶ ', t('watch') || 'Watch') : '';
+    stage.append(h('div.row', speakerBtn(() => sayTarget(item), !padOpts.guide), watchBtn), pad.el, hint, h('div.row', clearBtn, checkBtn));
+    (async () => {
+      await sayInstruction(ex.type);
+      await sayTarget(item);
+      if (pad.guided) await pad.demo(); // watch first, then trace
+    })();
   }
 
   // Start once every helper above is initialised.
