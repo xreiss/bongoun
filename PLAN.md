@@ -52,7 +52,12 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
       recordings/*.json` → commit, and both phones get her voice.
 - [ ] **Azure Speech (needs an account):** true phonics sounds via SSML phonemes, and pronunciation scoring of her
       spoken English. Needs a free Cloudflare Worker to keep the key private.
-- [ ] **Gemini (needs an AI Studio key):** check her spoken English words; a translator/tutor for Xavier.
+- [x] **Gemini (AI Studio key, pasted in ⚙️ Settings on each phone, never in the code):**
+      🎤 "say it" speaking exercise in her reviews (Gemini listens; wrong sounds turn red; Khmer spoken feedback;
+      2 tries) and a 🌐 translator for Xavier (Khmer + romanization + word by word + examples, last 30 kept).
+      Model is picked automatically from the key's model list (prefers `gemini-flash-latest`).
+- [ ] **Phonics sounds (needs the key in `.env`):** `python3 tools/gemini_phonics.py` → listen → `--accept`;
+      the phonics intro then sounds words out (c… a… t). Fallback if they sound wrong: Azure SSML phonemes.
 - [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
       digraphs (sh, ch, th), recording her voice to compare with the model.
 - [x] **Step 5a — Khmer handwriting:** same three-mode Writing screen (33 consonants + subscript words) in the

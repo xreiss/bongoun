@@ -3,6 +3,7 @@
 import { h } from './dom.js';
 import { loadAudioIndex, loadLocalVoices, setLocalVoice, nativeVoice, play, audioSettings, stop, tone } from './audio.js';
 import { record, saveClip, deleteClip, exportClips, allClips } from './voice.js';
+import { hasGemini, connectGemini, forgetGemini, geminiModel, translateToKhmer } from './gemini.js';
 import * as store from './store.js';
 import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
@@ -62,7 +63,7 @@ function home() {
           ),
         ),
       ),
-      h('div.footer', h('button.link', { onclick: backupDialog }, 'Backup / restore progress')),
+      h('div.footer', h('button.link', { onclick: () => settingsScreen() }, '⚙️ Settings'), ' · ', h('button.link', { onclick: backupDialog }, 'Backup / restore progress')),
     ),
   );
 }
@@ -100,6 +101,7 @@ function dashboard(p) {
           h('button.chip', { onclick: () => alphabet(p) }, h('span', { lang: 'km' }, 'កខគ'), ' Alphabet'),
           h('button.chip', { onclick: () => writing(p) }, '✍️ ', t('writing')),
           h('button.chip', { onclick: () => nativeCheck(p) }, '🎧 ', t('checkTitle')),
+          h('button.chip', { onclick: () => translator(p) }, '🌐 ', t('translate')),
         )
       : h('div.chips', h('button.chip.big-chip', { onclick: () => writing(p), lang: 'km' }, h('span.chip-icon', '✍️'), ' ', t('writing'), h('span.chip-sample', 'Aa'))),
   );
@@ -538,6 +540,100 @@ async function checkSummary(p, items) {
           )
         : null,
     ),
+  );
+}
+
+// ---------- settings: Gemini key ----------
+function settingsScreen(back = home) {
+  setTheme('');
+  const input = h('input.key-input', { type: 'password', placeholder: 'Paste your Gemini API key', autocomplete: 'off', spellcheck: false });
+  const status = h('div.key-status', hasGemini() ? `✓ Connected — model ${geminiModel()}` : 'Not connected');
+  const connect = h('button.btn.primary', {
+    onclick: async () => {
+      const key = input.value.trim();
+      if (!key) return;
+      connect.disabled = true;
+      status.textContent = 'Checking…';
+      try {
+        const model = await connectGemini(key);
+        input.value = '';
+        status.textContent = `✓ Connected — model ${model}`;
+      } catch (err) {
+        status.textContent = `✗ ${err.message}`;
+      }
+      connect.disabled = false;
+    },
+  }, 'Connect');
+  show(
+    h(
+      'div.screen',
+      h('div.topbar', h('button.icon-btn', { onclick: () => back(), 'aria-label': 'Back' }, '←'), h('div.top-title', '⚙️ Settings'), h('span')),
+      h(
+        'section.card',
+        h('h3', '🤖 Google Gemini'),
+        h('p.muted', 'Turns on the 🎤 “say it” speaking exercise and the 🌐 Khmer translator. Get a free key at ',
+          h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener' }, 'aistudio.google.com/apikey'),
+          ', then paste it here — on each phone. The key stays on this phone only.'),
+        input,
+        h('div.row.start', connect, hasGemini() ? h('button.btn', { onclick: () => { forgetGemini(); settingsScreen(back); } }, 'Remove key') : ''),
+        status,
+        h('p.muted.small', 'Privacy: on the free tier Google may use what is sent (her voice clips, your sentences) to improve its products. A paid key (billing enabled, a few cents a month) avoids that.'),
+      ),
+    ),
+  );
+}
+
+// ---------- translator (Gemini): any sentence → Khmer with a word-by-word breakdown ----------
+function translator(p) {
+  setTheme(p.theme);
+  if (!hasGemini()) return settingsScreen(() => translator(p));
+  const HIST = 'learnering:translations';
+  const history = (() => { try { return JSON.parse(localStorage.getItem(HIST)) || []; } catch { return []; } })();
+  const input = h('textarea.translate-input', { rows: 3, placeholder: 'English or French… e.g. “Where is the market?”' });
+  const out = h('div');
+  const go = h('button.btn.primary.wide', {
+    onclick: async () => {
+      const text = input.value.trim();
+      if (!text) return;
+      go.disabled = true;
+      out.replaceChildren(h('p.muted.center-text', '…'));
+      try {
+        const r = await translateToKhmer(text);
+        history.unshift({ text, r });
+        try { localStorage.setItem(HIST, JSON.stringify(history.slice(0, 30))); } catch { /* ignore */ }
+        out.replaceChildren(translationCard(text, r));
+      } catch (err) {
+        out.replaceChildren(h('p.muted', `✗ ${err.message}`));
+      }
+      go.disabled = false;
+    },
+  }, '🌐 Translate to Khmer');
+  show(
+    h(
+      'div.screen',
+      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', '🌐 Translate'), h('button.icon-btn', { onclick: () => settingsScreen(() => translator(p)), 'aria-label': 'Settings' }, '⚙️')),
+      input,
+      go,
+      out,
+      history.length ? h('h3.section', 'Recent') : '',
+      history.slice(0, 30).map(({ text, r }) => h('details.history', h('summary', h('span', { lang: 'km' }, r.khmer), h('span.muted', ` — ${text}`)), translationCard(text, r))),
+    ),
+  );
+}
+
+function translationCard(text, r) {
+  // Play a word when we happen to have audio for it (known vocabulary); new sentences have no audio.
+  const known = new Set(data.concepts.map((c) => c.km));
+  const wordChip = (w) =>
+    h('div.tw', h('div', { lang: 'km' }, w.khmer, known.has(w.khmer) ? h('button.mini', { onclick: () => play('km', w.khmer) }, '🔈') : ''), h('div.rom', w.romanization), h('div.muted.small', w.english));
+  return h(
+    'section.card.translation',
+    h('div.muted.small', text),
+    h('div.khmer-big', { lang: 'km' }, r.khmer),
+    h('div.rom', r.romanization),
+    h('div.tw-row', (r.words || []).map(wordChip)),
+    r.notes ? h('p.muted', '💡 ', r.notes) : '',
+    (r.examples || []).length ? h('div', h('h3', 'Examples'), r.examples.map((e) => h('div.example-line', h('span', { lang: 'km' }, e.khmer), h('span.rom', ` ${e.romanization}`), h('div.muted.small', e.english)))) : '',
   );
 }
 

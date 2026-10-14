@@ -1,9 +1,11 @@
 // Builds a practice session (spaced repetition queue) and renders each exercise.
 
 import { h, shuffle, pick } from './dom.js';
-import { play, playSeq, stop, tone } from './audio.js';
+import { play, playSeq, stop, tone, hasAudio } from './audio.js';
 import * as store from './store.js';
 import { tracePad } from './trace.js';
+import { hasGemini, checkSpeech } from './gemini.js';
+import { record } from './voice.js';
 
 const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.06, lines: true };
 const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.045 };
@@ -12,9 +14,9 @@ const STROKE_TIPS = { start: 'strokeStart', direction: 'strokeDirection', shape:
 // Exercise ladders: the higher the box (memory strength), the harder the exercise.
 const LADDERS = {
   en: {
-    word: ['listen_pick', 'read_pick', 'pick_word', 'spell'],
-    phrase: ['listen_pick', 'read_pick', 'pick_word', 'sentence'],
-    phonics: ['listen_pick', 'first_sound', 'missing_vowel', 'rhyme', 'read_pick', 'spell', 'write_word'],
+    word: ['listen_pick', 'read_pick', 'pick_word', 'say_it', 'spell'],
+    phrase: ['listen_pick', 'read_pick', 'pick_word', 'say_it', 'sentence'],
+    phonics: ['listen_pick', 'first_sound', 'missing_vowel', 'rhyme', 'read_pick', 'say_it', 'spell', 'write_word'],
     letter: ['letter_listen', 'letter_word', 'trace', 'write_memory'],
   },
   km: {
@@ -28,7 +30,14 @@ const LADDERS = {
 const SESSION_REVIEWS = 10;
 const SESSION_NEW = 4;
 
+// Speaking needs a Gemini key (Settings); without one the exercise is simply left out.
+const withoutSpeaking = (ladder) => (hasGemini() ? ladder : ladder.filter((t) => t !== 'say_it'));
+
 function ladderFor(course, item) {
+  return withoutSpeaking(baseLadder(course, item));
+}
+
+function baseLadder(course, item) {
   const L = LADDERS[course.id];
   if (item.kind === 'word') {
     if (item.c.cat === 'phrases') return L.phrase;
@@ -247,7 +256,10 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       card = h('div.intro', h('div.big-emoji', item.c.emoji), blend, kmText(item.c.km, '.meaning'));
       delay = item.c.en.length * 450 + 300;
       setTimeout(() => blend.classList.add('merged'), delay);
-      speech = [['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
+      const letters = [...item.c.en.toLowerCase()];
+      // Sound it out (c… a… t) when every letter has a phonics sound, then say the word.
+      const sounds = letters.every((ch) => hasAudio('en', `sound:${ch}`)) ? letters.map((ch) => ['en', `sound:${ch}`]) : [];
+      speech = [...sounds, ['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
     } else if (item.kind === 'word' && course.target === 'en') {
       card = h('div.intro', h('div.big-emoji', item.c.emoji), h('div.word', item.c.en), kmText(item.c.km, '.meaning'));
       speech = [['en', item.c.en], ['km', item.c.km], ['en', item.c.en, { slow: true }]];
@@ -362,6 +374,8 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
       document.fonts.load('400 100px Battambang').finally(() =>
         renderTrace(stage, ex, item, item.ch, { ...KHMER_PAD, guide, guided: guide }, `${item.ch} — ${item.rom}`));
+    } else if (t === 'say_it') {
+      renderSayIt(stage, ex, item);
     } else if (t === 'first_sound') {
       const word = c.en.toLowerCase();
       const pool = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
@@ -493,6 +507,76 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       await sayTarget(item);
       if (pad.guided) await pad.demo(); // watch first, then trace
     })();
+  }
+
+  /** 🎤 Say it: she hears the word, records herself, Gemini listens; wrong sounds turn red. */
+  function renderSayIt(stage, ex, item) {
+    const word = item.c.en;
+    const letters = [...(item.phonics ? word.toLowerCase() : word)].map((ch) => h('span.say-letter', ch));
+    const result = h('div.say-result');
+    const mic = h('button.mic.big-mic', { 'aria-label': 'Record' }, '🎤');
+    const skip = h('button.link', { onclick: () => next() }, '→');
+    let tries = 0;
+    const say = (k) => (isKmUI ? play('km', ui.km[k], { slow: false }) : Promise.resolve());
+
+    stage.append(
+      h('div.prompt', h('div.big-emoji', item.c.emoji), h('div.say-word', letters), h('div.row', speakerBtn(() => sayTarget(item), false), slowBtn(item))),
+      mic,
+      result,
+      skip,
+    );
+
+    const ready = () => {
+      mic.textContent = '🎤';
+      mic.disabled = false;
+      mic.onclick = attempt;
+    };
+
+    async function attempt() {
+      stop();
+      let session;
+      try {
+        session = await record({ maxMs: Math.min(6000, 2500 + word.length * 150) });
+      } catch {
+        result.textContent = '🎤 ✗';
+        return;
+      }
+      mic.classList.add('recording');
+      mic.textContent = '■';
+      mic.onclick = () => session.stop();
+      const blob = await session.done;
+      mic.classList.remove('recording');
+      mic.textContent = '…';
+      mic.disabled = true;
+      let r;
+      try {
+        r = await checkSpeech(blob, word);
+      } catch (err) {
+        // No network / quota: don't punish her — show the problem and let her continue.
+        result.replaceChildren(h('div.muted.small', err.message));
+        await say('spkError');
+        ready();
+        skip.textContent = isKmUI ? `${ui.km.next} →` : 'Next →';
+        return;
+      }
+      tries++;
+      letters.forEach((el, i) => el.classList.toggle('bad', (r.wrongLetters || []).includes(i)));
+      const ok = r.verdict === 'correct' || r.verdict === 'close';
+      result.replaceChildren(
+        h(`div.say-verdict.${r.verdict}`, { correct: '✓', close: '≈', wrong: '✗', silent: '…' }[r.verdict] || '?'),
+        r.heard && r.verdict !== 'correct' ? h('div.say-heard', '👂 ', r.heard) : '',
+        r.tip ? h('div.muted.small', r.tip) : '',
+      );
+      await say({ correct: 'spkCorrect', close: 'spkClose', wrong: 'spkWrong', silent: 'spkSilent' }[r.verdict] || 'spkError');
+      await sayTarget(item, { slow: r.verdict !== 'correct' });
+      // Silence never counts; otherwise she gets a second try before it is graded.
+      if (r.verdict === 'silent' || (!ok && tries < 2)) return ready();
+      mic.remove();
+      skip.remove();
+      answered(ex, item, ok, stage, word);
+    }
+    mic.onclick = attempt;
+    sayInstruction('say_it').then(() => sayTarget(item));
   }
 
   // Start once every helper above is initialised.

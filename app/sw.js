@@ -1,8 +1,8 @@
 // Offline support: app shell is precached; audio is cached the first time it plays.
-const VERSION = 'v8';
+const VERSION = 'v9';
 const SHELL = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest', 'icon.svg',
-  'js/main.js', 'js/audio.js', 'js/store.js', 'js/courses.js', 'js/session.js', 'js/trace.js', 'js/strokes.js', 'js/voice.js', 'js/dom.js',
+  'js/main.js', 'js/audio.js', 'js/store.js', 'js/courses.js', 'js/session.js', 'js/trace.js', 'js/strokes.js', 'js/voice.js', 'js/gemini.js', 'js/dom.js',
   'data/concepts.json', 'data/khmer-script.json', 'data/ui.json', 'data/audio-index.json', 'data/khmer-strokes.json',
 ];
 

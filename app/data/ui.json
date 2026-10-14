@@ -41,7 +41,13 @@
     "strokeStart": "ចាប់ផ្តើមនៅចំណុចពណ៌បៃតង",
     "strokeDirection": "សរសេរតាមទិសព្រួញ",
     "strokeShape": "សរសេរតាមខ្សែរបស់អក្សរ",
-    "recordHint": "ចុចមីក្រូហ្វូន ហើយនិយាយពាក្យនេះ"
+    "recordHint": "ចុចមីក្រូហ្វូន ហើយនិយាយពាក្យនេះ",
+    "say_it": "ស្តាប់ ហើយនិយាយពាក្យនេះជាភាសាអង់គ្លេស",
+    "spkCorrect": "ល្អណាស់! អ្នកនិយាយបានត្រឹមត្រូវ",
+    "spkClose": "ជិតត្រូវហើយ! ស្តាប់សំឡេងពណ៌ក្រហម ហើយសាកម្តងទៀត",
+    "spkWrong": "មិនទាន់ត្រូវទេ ស្តាប់គំរូ ហើយនិយាយយឺតៗ",
+    "spkSilent": "ខ្ញុំមិនឮទេ សូមនិយាយខ្លាំងជាងនេះបន្តិច",
+    "spkError": "មិនអាចពិនិត្យបានទេ ពេលនេះ"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -82,6 +88,14 @@
     "strokeDirection": "Go the way the arrow points",
     "strokeShape": "Follow the letter's line",
     "record": "Record stroke order",
-    "recordHelp": "For a native writer: write this letter slowly, one stroke at a time, in the correct order. Save it, and it becomes the stroke-order lesson."
+    "recordHelp": "For a native writer: write this letter slowly, one stroke at a time, in the correct order. Save it, and it becomes the stroke-order lesson.",
+    "say_it": "Listen, then say it",
+    "spkCorrect": "Very good — that was right!",
+    "spkClose": "Almost! Listen to the red sound and try again",
+    "spkWrong": "Not yet — listen to the model and speak slowly",
+    "spkSilent": "I couldn't hear you — speak a little louder",
+    "spkError": "Can't check right now",
+    "translate": "Translate",
+    "settings": "Settings"
   }
 }

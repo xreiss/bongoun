@@ -433,3 +433,33 @@ canvas.shake { animation: shake 0.35s; }
 .mic.recording { background: var(--bad); color: #fff; animation: pulse-rec 1s infinite; box-shadow: none; }
 @keyframes pulse-rec { 50% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--bad) 25%, transparent); } }
 .voice-hint { font-weight: 700; color: var(--muted); flex-basis: 100%; text-align: center; font-size: 0.95rem; }
+
+/* ---------- say it (speaking) ---------- */
+.say-word { font-family: Andika, 'Nunito', sans-serif; font-size: 3.2rem; font-weight: 700; letter-spacing: 0.04em; }
+.say-letter.bad { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 8px; }
+.big-mic { width: 104px; height: 104px; font-size: 2.8rem; }
+.say-result { display: grid; justify-items: center; gap: 4px; min-height: 60px; }
+.say-verdict { font-size: 2.4rem; font-weight: 800; }
+.say-verdict.correct { color: var(--ok); }
+.say-verdict.close { color: var(--gold); }
+.say-verdict.wrong, .say-verdict.silent { color: var(--bad); }
+.say-heard { font-size: 1.2rem; font-weight: 700; color: var(--muted); }
+
+/* ---------- settings & translator ---------- */
+.key-input, .translate-input {
+  width: 100%; font: inherit; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line);
+  background: var(--bg); color: var(--text); margin: 8px 0;
+}
+.translate-input { resize: vertical; }
+.row.start { justify-content: flex-start; }
+.key-status { font-weight: 800; margin-top: 10px; }
+.translation .khmer-big { font-size: 2.2rem; line-height: 1.6; }
+.tw-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.tw { background: var(--accent-soft); border-radius: 12px; padding: 6px 10px; }
+.tw [lang='km'] { font-size: 1.3rem; }
+.tw .rom { font-size: 0.95rem; }
+.example-line { padding: 6px 0; border-top: 1px solid var(--line); }
+.example-line [lang='km'] { font-size: 1.2rem; }
+.history { background: var(--card); border-radius: 14px; padding: 10px 14px; margin-bottom: 8px; box-shadow: var(--shadow); }
+.history summary { cursor: pointer; }
+.history .card { box-shadow: none; padding: 8px 0 0; margin: 0; }
