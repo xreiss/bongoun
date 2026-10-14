@@ -5,18 +5,21 @@ import { play, playSeq, stop, tone } from './audio.js';
 import * as store from './store.js';
 import { tracePad } from './trace.js';
 
+const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.06, fit: false, lines: true };
+const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.045, fit: true };
+
 // Exercise ladders: the higher the box (memory strength), the harder the exercise.
 const LADDERS = {
   en: {
     word: ['listen_pick', 'read_pick', 'pick_word', 'spell'],
     phrase: ['listen_pick', 'read_pick', 'pick_word', 'sentence'],
-    phonics: ['listen_pick', 'first_sound', 'missing_vowel', 'rhyme', 'read_pick', 'spell'],
-    letter: ['letter_listen', 'letter_word', 'trace'],
+    phonics: ['listen_pick', 'first_sound', 'missing_vowel', 'rhyme', 'read_pick', 'spell', 'write_word'],
+    letter: ['letter_listen', 'letter_word', 'trace', 'write_memory'],
   },
   km: {
     word: ['listen_pick', 'read_pick', 'pick_word'],
     phrase: ['listen_pick', 'read_pick', 'pick_word'],
-    consonant: ['consonant_listen', 'consonant_sound', 'consonant_series', 'consonant_trace'],
+    consonant: ['consonant_listen', 'consonant_sound', 'consonant_series', 'consonant_trace', 'consonant_write'],
     vowel: ['vowel_sound'],
   },
 };
@@ -342,11 +345,22 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       sayInstruction(t).then(() => sayTarget(item));
     } else if (t === 'trace') {
       const glyph = Math.random() < 0.5 ? item.L : item.L.toLowerCase();
-      renderTrace(stage, ex, item, glyph, 'system-ui, sans-serif', `${item.L} ${item.L.toLowerCase()}`, 0.55);
-    } else if (t === 'consonant_trace') {
+      renderTrace(stage, ex, item, glyph, { ...LATIN_PAD, guide: true }, `${item.L} ${item.L.toLowerCase()}`);
+    } else if (t === 'write_memory') {
+      // Case matching from memory: see "B", write "b" (or the other way round) with no model.
+      const upper = Math.random() < 0.5;
+      const shown = upper ? item.L : item.L.toLowerCase();
+      const target = upper ? item.L.toLowerCase() : item.L;
+      stage.append(h('div.case-cue', h('span.cue-letter', shown), h('span.cue-arrow', '→'), h('span.cue-blank', '?')));
+      renderTrace(stage, ex, item, target, { ...LATIN_PAD, guide: false }, `${shown} → ${target}`);
+    } else if (t === 'write_word') {
+      stage.append(h('div.prompt', h('div.big-emoji', c.emoji)));
+      renderTrace(stage, ex, item, c.en.toLowerCase(), { ...LATIN_PAD, guide: false }, c.en.toLowerCase());
+    } else if (t === 'consonant_trace' || t === 'consonant_write') {
+      const guide = t === 'consonant_trace';
       stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
       document.fonts.load('400 100px Battambang').finally(() =>
-        renderTrace(stage, ex, item, item.ch, 'Battambang, "Khmer Sangam MN", serif', `${item.ch} — ${item.rom}`, 0.55));
+        renderTrace(stage, ex, item, item.ch, { ...KHMER_PAD, guide }, `${item.ch} — ${item.rom}`));
     } else if (t === 'first_sound') {
       const word = c.en.toLowerCase();
       const pool = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
@@ -440,20 +454,21 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     sayInstruction(ex.type).then(() => sayTarget(item));
   }
 
-  function renderTrace(stage, ex, item, glyph, font, answerLabel, threshold) {
-    const pad = tracePad(glyph, { font, ink: course.target === 'km' ? 0.045 : 0.07 });
+  function renderTrace(stage, ex, item, glyph, padOpts, answerLabel, threshold = 0.55) {
+    const pad = tracePad(glyph, padOpts);
     const checkBtn = h('button.btn.primary', {
       onclick: () => {
         if (pad.empty) return;
         const ok = pad.score() >= threshold;
+        if (!padOpts.guide) pad.reveal(); // show the model so the learner can compare
         checkBtn.remove();
         clearBtn.remove();
         answered(ex, item, ok, stage, answerLabel);
       },
     }, isKmUI ? ui.km.check : ui.en.check);
     const clearBtn = h('button.btn', { onclick: () => pad.clear() }, '↺ ' + (isKmUI ? ui.km.clear : ui.en.clear));
-    stage.append(h('div.row', speakerBtn(() => sayTarget(item), false)), pad.el, h('div.row', clearBtn, checkBtn));
-    sayInstruction('trace').then(() => sayTarget(item));
+    stage.append(h('div.row', speakerBtn(() => sayTarget(item), !padOpts.guide)), pad.el, h('div.row', clearBtn, checkBtn));
+    sayInstruction(ex.type).then(() => sayTarget(item));
   }
 
   // Start once every helper above is initialised.

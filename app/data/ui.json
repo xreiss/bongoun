@@ -27,7 +27,16 @@
     "first_sound": "តើពាក្យនេះចាប់ផ្តើមដោយអក្សរអ្វី?",
     "missing_vowel": "ស្តាប់ ហើយជ្រើសរើសអក្សរដែលបាត់",
     "rhyme": "តើរូបភាពមួយណាមានសំឡេងចុងដូចគ្នា?",
-    "phonics": "សំឡេងអក្សរ"
+    "phonics": "សំឡេងអក្សរ",
+    "writing": "សរសេរ",
+    "modeTrace": "គូរតាម",
+    "modeCopy": "ចម្លង",
+    "modeMemory": "ចងចាំ",
+    "writeTrace": "គូរតាមអក្សរពណ៌ប្រផេះ",
+    "writeCopy": "មើលគំរូ ហើយសរសេរវានៅក្នុងប្រអប់",
+    "writeMemory": "ស្តាប់ ហើយសរសេរ ដោយមិនមើលគំរូ",
+    "write_memory": "ស្តាប់ ហើយសរសេរ ដោយមិនមើលគំរូ",
+    "write_word": "ស្តាប់ពាក្យ ហើយសរសេរវា"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -55,6 +64,13 @@
     "checkTitle": "Native check",
     "checkHelp": "Hand the phone to a native speaker: listen to each word and mark it right or wrong.",
     "consonant_trace": "Write this letter — start from the small circle (the “head”)",
-    "writing": "Writing"
+    "writing": "Writing",
+    "modeTrace": "Trace",
+    "modeCopy": "Copy",
+    "modeMemory": "Memory",
+    "writeTrace": "Trace over the grey model",
+    "writeCopy": "Look at the model, then write it in the box",
+    "writeMemory": "Listen, then write it from memory",
+    "consonant_write": "Listen and write this letter from memory"
   }
 }

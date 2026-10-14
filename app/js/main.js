@@ -1,11 +1,11 @@
 // App shell: profile picker, course path, Khmer alphabet reference, native-speaker check.
 
 import { h } from './dom.js';
-import { loadAudioIndex, play, audioSettings, stop } from './audio.js';
+import { loadAudioIndex, play, audioSettings, stop, tone } from './audio.js';
 import * as store from './store.js';
 import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
-import { tracePad } from './trace.js';
+import { tracePad, modelCanvas } from './trace.js';
 
 const PROFILES = [
   { id: 'her', course: 'en', theme: 'lotus', glyph: 'Aa', title: 'English', sub: 'រៀនភាសាអង់គ្លេស', subLang: 'km' },
@@ -99,7 +99,7 @@ function dashboard(p) {
           h('button.chip', { onclick: () => writing(p) }, '✍️ ', t('writing')),
           h('button.chip', { onclick: () => nativeCheck(p) }, '🎧 ', t('checkTitle')),
         )
-      : null,
+      : h('div.chips', h('button.chip.big-chip', { onclick: () => writing(p), lang: 'km' }, h('span.chip-icon', '✍️'), ' ', t('writing'), h('span.chip-sample', 'Aa'))),
   );
 
   const current = course.units.findIndex((u) => u.items.some((id) => store.card(p.id, id).box === 0));
@@ -210,71 +210,142 @@ function alphabet(p) {
   );
 }
 
-// ---------- Khmer handwriting practice ----------
+// ---------- handwriting: trace → copy → write from memory ----------
 const KHMER_FONT = 'Battambang, "Khmer Sangam MN", serif'; // traditional forms with the "heads" you write
+const LATIN_FONT = 'Andika, "Avenir Next", sans-serif'; // school print: single-storey a and g
+const MODES = [
+  { id: 'trace', icon: '✏️' },
+  { id: 'copy', icon: '👀' },
+  { id: 'memory', icon: '🎧' },
+];
 
-async function writing(p, start = 0) {
-  setTheme(p.theme);
-  await document.fonts.load(`400 100px ${KHMER_FONT}`).catch(() => {});
-  const { consonants, subscripts } = data.script;
-  const glyphs = [
-    ...consonants.map((c) => ({ g: c.ch, label: c.rom, s: c.s })),
-    ...subscripts.map((w) => ({ g: w.word, label: `${w.rom} — ${w.en}` })),
+/** Writing sets per course: [{ title, items: [{ g, say: [lang, key], label }] }]. */
+function writingSets(course) {
+  if (course.id === 'km') {
+    const { consonants, subscripts } = data.script;
+    return [
+      { title: 'ក ខ គ', items: consonants.map((c) => ({ g: c.ch, say: ['km', c.ch], label: c.rom, s: c.s })) },
+      { title: 'ខ្ញុំ', items: subscripts.map((w) => ({ g: w.word, say: ['km', w.word], label: `${w.rom} — ${w.en}` })) },
+    ];
+  }
+  const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const phonicsWords = course.units.filter((u) => u.phonics).flatMap((u) => u.items).map((id) => data.items[id].c);
+  return [
+    { title: 'A B C', items: [...L].map((x) => ({ g: x, say: ['en', `letter:${x}`] })) },
+    { title: 'a b c', items: [...L.toLowerCase()].map((x) => ({ g: x, say: ['en', `letter:${x.toUpperCase()}`] })) },
+    { title: 'cat', items: phonicsWords.map((c) => ({ g: c.en.toLowerCase(), say: ['en', c.en], emoji: c.emoji })) },
   ];
-  const best = (() => { try { return JSON.parse(localStorage.getItem('learnering:writing')) || {}; } catch { return {}; } })();
-  let i = start;
+}
 
+async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
+  setTheme(p.theme);
+  const course = data.courses[p.course];
+  const km = course.id === 'km';
+  const lang = course.ui;
+  const t = (k) => data.ui[lang][k];
+  const font = km ? KHMER_FONT : LATIN_FONT;
+  const padOpts = km ? { font, ink: 0.045, fit: true } : { font, ink: 0.06, fit: false, lines: true };
+  await document.fonts.load(`400 100px ${font}`).catch(() => {});
+  const sets = writingSets(course);
+  const bestKey = `learnering:writing:${course.id}`;
+  const best = (() => { try { return JSON.parse(localStorage.getItem(bestKey)) || {}; } catch { return {}; } })();
+  const starKey = (g) => `${state.mode}:${g}`;
+
+  const tabs = h('div.mode-tabs');
+  const setTabs = h('div.set-tabs');
+  const instr = h('div.instruction.center', { lang });
   const strip = h('div.glyph-strip');
   const stage = h('div.stage');
   show(
     h(
       'div.screen.writing',
-      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', '✍️ Writing'), slowToggle()),
-      h('p.muted.small.center-text', 'Start each letter at its small circle or hook — the “head” (ក្បាល) — then flow down and to the right.'),
+      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', { lang }, '✍️ ', t('writing')), slowToggle()),
+      tabs,
+      setTabs,
+      instr,
       strip,
       stage,
     ),
   );
 
-  function drawStrip() {
-    strip.replaceChildren(...glyphs.map((x, j) =>
-      h(`button.gchip${j === i ? '.on' : ''}${x.s ? `.s${x.s === 1 ? 'A' : 'O'}` : ''}`, { onclick: () => { i = j; render(); }, lang: 'km' },
-        x.g, best[x.g] ? h('small.gstar', '★'.repeat(best[x.g])) : '')));
-    strip.children[i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  const modeKey = { trace: 'writeTrace', copy: 'writeCopy', memory: 'writeMemory' };
+  function speakInstruction() {
+    if (lang === 'km') return play('km', data.ui.km[modeKey[state.mode]], { slow: false });
+    return Promise.resolve();
   }
 
-  function render() {
+  function drawTabs() {
+    const capKey = { trace: 'modeTrace', copy: 'modeCopy', memory: 'modeMemory' };
+    tabs.replaceChildren(...MODES.map((m) =>
+      h(`button.mode-tab${m.id === state.mode ? '.on' : ''}`, { lang, onclick: () => { state.mode = m.id; render(true); } }, h('span.mode-icon', m.icon), t(capKey[m.id]))));
+    setTabs.replaceChildren(...sets.map((st, j) =>
+      h(`button.set-tab${j === state.set ? '.on' : ''}`, { lang: km ? 'km' : 'en', onclick: () => { state.set = j; state.i = 0; render(); } }, st.title)));
+    instr.replaceChildren(
+      lang === 'km' ? h('button.mini', { onclick: speakInstruction }, '🔈') : '',
+      t(modeKey[state.mode]),
+      km && state.mode === 'trace' ? h('div.muted.small', 'Start each letter at its small circle or hook — the “head” (ក្បាល).') : '',
+    );
+  }
+
+  function drawStrip() {
+    const items = sets[state.set].items;
+    strip.replaceChildren(...items.map((x, j) =>
+      h(`button.gchip${j === state.i ? '.on' : ''}${x.s ? `.s${x.s === 1 ? 'A' : 'O'}` : ''}${km ? '.khmer' : '.latin'}`,
+        { onclick: () => { state.i = j; render(); } },
+        x.g, best[starKey(x.g)] ? h('small.gstar', '★'.repeat(best[starKey(x.g)])) : '')));
+    strip.children[state.i]?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }
+
+  function render(newMode = false) {
+    drawTabs();
     drawStrip();
-    const x = glyphs[i];
-    const pad = tracePad(x.g, { font: KHMER_FONT, ink: 0.045 });
+    const items = sets[state.set].items;
+    const x = items[state.i];
+    const say = () => play(...x.say);
+    const pad = tracePad(x.g, { ...padOpts, guide: state.mode === 'trace' });
     const result = h('div.trace-result');
+    const prompt = h('div.write-prompt');
+    if (state.mode === 'copy') prompt.append(h('div.model-card', modelCanvas(x.g, { ...padOpts, px: 110 })));
+    if (state.mode === 'memory') prompt.append(h('button.speaker.big', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
+    else prompt.append(h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
+    if (x.emoji) prompt.append(h('span.big-emoji.small', x.emoji));
+    if (x.label) prompt.append(h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : ''));
+
+    const next = () => { state.i = (state.i + 1) % items.length; render(); };
+    const checkBtn = h('button.btn.primary', {
+      lang,
+      onclick: () => {
+        if (pad.empty) return;
+        const score = pad.score();
+        const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
+        if (stars > (best[starKey(x.g)] || 0)) {
+          best[starKey(x.g)] = stars;
+          try { localStorage.setItem(bestKey, JSON.stringify(best)); } catch { /* ignore */ }
+        }
+        if (state.mode !== 'trace') pad.reveal();
+        tone(stars >= 2);
+        result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)));
+        if (lang === 'km') play('km', data.ui.km[stars >= 2 ? 'correct' : 'wrong'], { slow: false }).then(say);
+        else if (stars) say();
+        drawStrip();
+      },
+    }, t('check'));
     stage.replaceChildren(
-      h('div.row', h('button.speaker', { onclick: () => play('km', x.g) }, '🔊'), h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : '')),
+      prompt,
       pad.el,
       result,
       h(
         'div.row',
-        h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); } }, '↺ Clear'),
-        h('button.btn.primary', {
-          onclick: () => {
-            if (pad.empty) return;
-            const score = pad.score();
-            const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
-            if (stars > (best[x.g] || 0)) {
-              best[x.g] = stars;
-              try { localStorage.setItem('learnering:writing', JSON.stringify(best)); } catch { /* ignore */ }
-            }
-            result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)), h('span.muted', stars ? '' : ' Trace over the grey letter'));
-            if (stars) play('km', x.g);
-            drawStrip();
-          },
-        }, 'Check'),
-        h('button.btn', { onclick: () => { i = (i + 1) % glyphs.length; render(); } }, 'Next →'),
+        h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); }, 'aria-label': 'Clear' }, '↺'),
+        checkBtn,
+        h('button.btn', { onclick: next, 'aria-label': 'Next' }, '→'),
       ),
     );
-    play('km', x.g);
+    if (newMode) speakInstruction().then(say);
+    else say();
   }
-  render();
+
+  render(true);
 }
 
 // ---------- native-speaker check: listen to every Khmer clip, mark ✓ / ✗ ----------

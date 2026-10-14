@@ -36,10 +36,14 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 - [x] **Step 4a — Phonics:** 5 short-vowel units (a e i o u, 36 CVC words) right after the alphabet: blending
       animation, first-letter, missing-vowel (c_t), rhyme matching (options read aloud), then spelling.
       Neural TTS can't say isolated phonemes reliably, so every clip is a real word (analytic phonics / word families).
+- [x] **Step 4c — Her handwriting:** Writing screen with three modes — ✏️ trace, 👀 copy, 🎧 from memory —
+      for A–Z, a–z and the phonics words, on ruled lines in the Andika school font, all instructions spoken in Khmer.
+      In reviews: trace (level 3) → write the other case from memory (B → b, level 4); phonics words end with
+      "hear it, write it". Copy/memory writing is scaled onto the model before scoring, so position and size don't matter.
 - [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
       digraphs (sh, ch, th), recording her voice to compare with the model.
-- [x] **Step 5a — Khmer handwriting:** consonant tracing in the review ladder (4th level) + a Writing screen
-      (33 consonants + subscript words, star scores) using the traditional Battambang typeface.
+- [x] **Step 5a — Khmer handwriting:** same three-mode Writing screen (33 consonants + subscript words) in the
+      traditional Battambang typeface; reviews add consonant tracing (level 4) and writing from memory (level 5).
 - [ ] **Step 5b — Your next level:** stroke-order animations, more subscripts, classifiers, polite registers
       (បាទ/ចាស, kinship pronouns បង/អូន), and dialogue units.
 - [ ] **Step 6 — AI tutor (optional):** a Gemini or Claude key in settings to translate any sentence into Khmer with a breakdown.
