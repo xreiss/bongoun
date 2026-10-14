@@ -1,0 +1,52 @@
+{
+  "consonants": [
+    {"ch":"ក","rom":"kâ","s":1},{"ch":"ខ","rom":"khâ","s":1},{"ch":"គ","rom":"kô","s":2},{"ch":"ឃ","rom":"khô","s":2},{"ch":"ង","rom":"ngô","s":2},
+    {"ch":"ច","rom":"châ","s":1},{"ch":"ឆ","rom":"chhâ","s":1},{"ch":"ជ","rom":"chô","s":2},{"ch":"ឈ","rom":"chhô","s":2},{"ch":"ញ","rom":"nhô","s":2},
+    {"ch":"ដ","rom":"dâ","s":1},{"ch":"ឋ","rom":"thâ","s":1},{"ch":"ឌ","rom":"dô","s":2},{"ch":"ឍ","rom":"thô","s":2},{"ch":"ណ","rom":"nâ","s":1},
+    {"ch":"ត","rom":"tâ","s":1},{"ch":"ថ","rom":"thâ","s":1},{"ch":"ទ","rom":"tô","s":2},{"ch":"ធ","rom":"thô","s":2},{"ch":"ន","rom":"nô","s":2},
+    {"ch":"ប","rom":"bâ","s":1},{"ch":"ផ","rom":"phâ","s":1},{"ch":"ព","rom":"pô","s":2},{"ch":"ភ","rom":"phô","s":2},{"ch":"ម","rom":"mô","s":2},
+    {"ch":"យ","rom":"yô","s":2},{"ch":"រ","rom":"rô","s":2},{"ch":"ល","rom":"lô","s":2},{"ch":"វ","rom":"vô","s":2},
+    {"ch":"ស","rom":"sâ","s":1},{"ch":"ហ","rom":"hâ","s":1},{"ch":"ឡ","rom":"lâ","s":1},{"ch":"អ","rom":"â","s":1}
+  ],
+  "vowels": [
+    {"v":"ា","r1":"aa","r2":"ie"},
+    {"v":"ិ","r1":"e","r2":"i"},
+    {"v":"ី","r1":"ei","r2":"ii"},
+    {"v":"ឹ","r1":"eu","r2":"eu (high)"},
+    {"v":"ឺ","r1":"eu (long)","r2":"euu"},
+    {"v":"ុ","r1":"o","r2":"u"},
+    {"v":"ូ","r1":"ou","r2":"uu"},
+    {"v":"ួ","r1":"uo","r2":"uo"},
+    {"v":"ើ","r1":"ae","r2":"eu (long)"},
+    {"v":"ឿ","r1":"eua","r2":"eua"},
+    {"v":"ៀ","r1":"ie","r2":"ie"},
+    {"v":"េ","r1":"ei","r2":"ee"},
+    {"v":"ែ","r1":"ae","r2":"ea (open)"},
+    {"v":"ៃ","r1":"ai","r2":"ey"},
+    {"v":"ោ","r1":"ao","r2":"oo"},
+    {"v":"ៅ","r1":"au","r2":"ov"},
+    {"v":"ុំ","r1":"om","r2":"um"},
+    {"v":"ំ","r1":"am","r2":"um"},
+    {"v":"ាំ","r1":"am","r2":"oam"},
+    {"v":"ះ","r1":"ah","r2":"eah"},
+    {"v":"ិះ","r1":"eh","r2":"ih"},
+    {"v":"ុះ","r1":"oh","r2":"uh"},
+    {"v":"េះ","r1":"eh (open)","r2":"ih (long)"},
+    {"v":"ោះ","r1":"aoh","r2":"uoh"}
+  ],
+  "subscripts": [
+    {"word":"ខ្ញុំ","rom":"knyom","en":"I / me","parts":[["ខ","khâ — base consonant (series A)"],["្ញ","foot of ញ (nhô) — written under"],["ុំ","vowel om"]]},
+    {"word":"ស្រី","rom":"srei","en":"woman / female","parts":[["ស","sâ — base"],["្រ","foot of រ (rô) — wraps to the left"],["ី","vowel ii (series 2 sound, from រ)"]]},
+    {"word":"ខ្មែរ","rom":"khmae","en":"Khmer","parts":[["ខ","khâ — base"],["្ម","foot of ម (mô)"],["ែ","vowel ae"],["រ","final r (silent)"]]},
+    {"word":"ស្វាយ","rom":"svaay","en":"mango","parts":[["ស","sâ — base"],["្វ","foot of វ (vô)"],["ា","vowel aa"],["យ","final y"]]},
+    {"word":"ម្តាយ","rom":"m'dai","en":"mother","parts":[["ម","mô — base"],["្ត","foot of ត (tâ) — sounds d here"],["ា","vowel"],["យ","final y"]]},
+    {"word":"ក្មេង","rom":"k'meng","en":"child","parts":[["ក","kâ — base"],["្ម","foot of ម (mô)"],["េ","vowel ei/ee"],["ង","final ng"]]}
+  ],
+  "seriesDemo": [
+    {"v":"ា","a":"កា","o":"គា"},
+    {"v":"ិ","a":"កិ","o":"គិ"},
+    {"v":"ុ","a":"កុ","o":"គុ"},
+    {"v":"េ","a":"កេ","o":"គេ"},
+    {"v":"ោ","a":"កោ","o":"គោ"}
+  ]
+}
