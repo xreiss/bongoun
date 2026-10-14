@@ -4,11 +4,23 @@ import { h } from './dom.js';
 
 const GRID = 96; // scoring resolution
 
-function drawGlyph(ctx, size, glyph, font) {
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.font = `600 ${size * 0.72}px ${font}`;
-  ctx.fillText(glyph, size / 2, size * 0.54);
+/** Draw `glyph` scaled and centred so its real ink box fills ~70% of the square. */
+function drawGlyph(ctx, size, glyph, font, stroke = false) {
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = `600 100px ${font}`;
+  const m = ctx.measureText(glyph);
+  const w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+  const ht = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  const scale = (size * 0.7) / Math.max(w, ht, 1);
+  ctx.save();
+  ctx.translate(size / 2, size / 2);
+  ctx.scale(scale, scale);
+  const x = -w / 2 + m.actualBoundingBoxLeft;
+  const y = ht / 2 - m.actualBoundingBoxDescent;
+  if (stroke) ctx.strokeText(glyph, x, y);
+  ctx.fillText(glyph, x, y);
+  ctx.restore();
 }
 
 export function tracePad(glyph, { font = 'system-ui, sans-serif' } = {}) {
@@ -67,13 +79,10 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif' } = {}) {
     const glyphCtx = mk();
     drawGlyph(glyphCtx, GRID, glyph, font);
     const zoneCtx = mk();
-    zoneCtx.lineWidth = GRID * 0.09;
     zoneCtx.strokeStyle = '#000';
-    zoneCtx.font = `600 ${GRID * 0.72}px ${font}`;
-    zoneCtx.textAlign = 'center';
-    zoneCtx.textBaseline = 'middle';
-    zoneCtx.fillText(glyph, GRID / 2, GRID * 0.54);
-    zoneCtx.strokeText(glyph, GRID / 2, GRID * 0.54);
+    zoneCtx.lineWidth = 14; // in 100px-font units: a tolerance band around the letter
+    zoneCtx.lineJoin = 'round';
+    drawGlyph(zoneCtx, GRID, glyph, font, true);
     const inkCtx = mk();
     inkCtx.lineWidth = GRID * 0.1;
     inkCtx.lineCap = inkCtx.lineJoin = 'round';

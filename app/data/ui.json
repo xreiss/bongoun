@@ -23,7 +23,11 @@
     "streak": "ថ្ងៃជាប់គ្នា",
     "checkTitle": "ពិនិត្យសំឡេងខ្មែរ",
     "checkHelp": "ស្តាប់ពាក្យនីមួយៗ។ ចុចសញ្ញាធីក បើត្រឹមត្រូវ។ ចុចសញ្ញាខ្វែង បើខុស។",
-    "goal": "គោលដៅថ្ងៃនេះ"
+    "goal": "គោលដៅថ្ងៃនេះ",
+    "first_sound": "តើពាក្យនេះចាប់ផ្តើមដោយអក្សរអ្វី?",
+    "missing_vowel": "ស្តាប់ ហើយជ្រើសរើសអក្សរដែលបាត់",
+    "rhyme": "តើរូបភាពមួយណាមានសំឡេងចុងដូចគ្នា?",
+    "phonics": "សំឡេងអក្សរ"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -49,6 +53,8 @@
     "alphabet": "Alphabet",
     "goal": "Today's goal",
     "checkTitle": "Native check",
-    "checkHelp": "Hand the phone to a native speaker: listen to each word and mark it right or wrong."
+    "checkHelp": "Hand the phone to a native speaker: listen to each word and mark it right or wrong.",
+    "consonant_trace": "Write this letter — start from the small circle (the “head”)",
+    "writing": "Writing"
   }
 }

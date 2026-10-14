@@ -357,3 +357,16 @@ h3 { margin: 0 0 10px; font-size: 1.05rem; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- phonics ---------- */
+.blend { display: flex; gap: 14px; font-size: 3.4rem; font-weight: 800; transition: gap 0.5s ease; }
+.blend span { opacity: 0; animation: drop 0.4s ease-out forwards; }
+.blend .vowel, .opt-letter.vowel, .blank { color: var(--bad); }
+.blend.merged { gap: 0; }
+@keyframes drop { from { opacity: 0; transform: translateY(-18px) scale(0.8); } to { opacity: 1; transform: none; } }
+.blank { display: inline-block; min-width: 0.7em; text-align: center; border-bottom: 4px solid currentColor; line-height: 1; margin: 0 2px; }
+.options.vowels { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.options.vowels .opt { min-height: 72px; }
+.options.three { grid-template-columns: repeat(3, 1fr); }
+.options.three .opt-emoji { font-size: 3.4rem; }
+.opt.speaking { border-color: var(--accent); box-shadow: 0 4px 0 var(--accent); transform: scale(1.04); }

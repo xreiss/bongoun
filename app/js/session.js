@@ -10,12 +10,13 @@ const LADDERS = {
   en: {
     word: ['listen_pick', 'read_pick', 'pick_word', 'spell'],
     phrase: ['listen_pick', 'read_pick', 'pick_word', 'sentence'],
+    phonics: ['listen_pick', 'first_sound', 'missing_vowel', 'rhyme', 'read_pick', 'spell'],
     letter: ['letter_listen', 'letter_word', 'trace'],
   },
   km: {
     word: ['listen_pick', 'read_pick', 'pick_word'],
     phrase: ['listen_pick', 'read_pick', 'pick_word'],
-    consonant: ['consonant_listen', 'consonant_sound', 'consonant_series'],
+    consonant: ['consonant_listen', 'consonant_sound', 'consonant_series', 'consonant_trace'],
     vowel: ['vowel_sound'],
   },
 };
@@ -27,6 +28,7 @@ function ladderFor(course, item) {
   const L = LADDERS[course.id];
   if (item.kind === 'word') {
     if (item.c.cat === 'phrases') return L.phrase;
+    if (course.id === 'en' && item.phonics) return item.rhymes.length ? L.phonics : L.phonics.filter((t) => t !== 'rhyme');
     if (course.id === 'en' && !/^[a-z]{2,8}$/i.test(item.c.en)) return L.word.slice(0, 3);
     return L.word;
   }
@@ -43,7 +45,7 @@ function chooseType(course, item, box) {
 /** Build the exercise queue. unitIdx = null → global daily practice. */
 export function buildQueue(course, items, pid, unitIdx = null) {
   const now = Date.now();
-  const scope = unitIdx == null ? course.units.flatMap((u) => u.items) : course.units[unitIdx].items;
+  const scope = [...new Set(unitIdx == null ? course.units.flatMap((u) => u.items) : course.units[unitIdx].items)];
   const card = (id) => store.card(pid, id);
 
   const due = scope.filter((id) => card(id).box > 0 && card(id).due <= now).sort((a, b) => card(a).due - card(b).due);
@@ -158,7 +160,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     stage.append(bar);
     bar.querySelector('button').focus({ preventScroll: true });
     // Reinforce: always hear the right answer after responding.
-    setTimeout(() => (ex.speech ? play(...ex.speech) : sayTarget(item)), 350);
+    setTimeout(() => (ex.after ? ex.after() : ex.speech ? play(...ex.speech) : sayTarget(item)), 350);
   }
 
   function finish(early = false) {
@@ -217,8 +219,8 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     );
   }
 
-  function choice(stage, ex, item, options, answerKey, correctLabel, cls) {
-    const grid = optionGrid(shuffle(options), (o, btn) => {
+  function choice(stage, ex, item, options, answerKey, correctLabel, cls, keepOrder = false) {
+    const grid = optionGrid(keepOrder ? options : shuffle(options), (o, btn) => {
       const ok = o.key === answerKey;
       btn.classList.add(ok ? 'right' : 'wrong');
       if (!ok) grid.querySelector(`[data-key="${CSS.escape(answerKey)}"]`)?.classList.add('right');
@@ -233,7 +235,16 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     const tag = h('div.tag', { lang: isKmUI ? 'km' : 'en' }, '✨ ' + (isKmUI ? ui.km.learnNew : ui.en.learnNew));
     let card;
     let speech;
-    if (item.kind === 'word' && course.target === 'en') {
+    let delay = 0;
+    if (item.kind === 'word' && course.target === 'en' && item.phonics) {
+      // Sound-it-out animation: letters drop in one by one, then slide together into the word.
+      const blend = h('div.blend', [...item.c.en.toLowerCase()].map((ch, i) =>
+        h(`span${'aeiou'.includes(ch) ? '.vowel' : ''}`, { style: `animation-delay:${i * 0.45}s` }, ch)));
+      card = h('div.intro', h('div.big-emoji', item.c.emoji), blend, kmText(item.c.km, '.meaning'));
+      delay = item.c.en.length * 450 + 300;
+      setTimeout(() => blend.classList.add('merged'), delay);
+      speech = [['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
+    } else if (item.kind === 'word' && course.target === 'en') {
       card = h('div.intro', h('div.big-emoji', item.c.emoji), h('div.word', item.c.en), kmText(item.c.km, '.meaning'));
       speech = [['en', item.c.en], ['km', item.c.km], ['en', item.c.en, { slow: true }]];
     } else if (item.kind === 'letter') {
@@ -276,7 +287,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         spokenInstructions.add('learnNew');
         await play('km', ui.km.learnNew, { slow: false });
       }
-      replay();
+      setTimeout(replay, delay);
     })();
   }
 
@@ -330,7 +341,43 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       choice(stage, ex, item, opts.map((it) => ({ key: it.id, content: h('span.big-emoji.opt-emoji', it.ex.emoji) })), item.id, `${item.ex.emoji} ${item.ex.en}`, '.pics');
       sayInstruction(t).then(() => sayTarget(item));
     } else if (t === 'trace') {
-      renderTrace(stage, ex, item);
+      const glyph = Math.random() < 0.5 ? item.L : item.L.toLowerCase();
+      renderTrace(stage, ex, item, glyph, 'system-ui, sans-serif', `${item.L} ${item.L.toLowerCase()}`, 0.55);
+    } else if (t === 'consonant_trace') {
+      stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
+      document.fonts.load('600 100px "Kantumruy Pro"').finally(() =>
+        renderTrace(stage, ex, item, item.ch, '"Kantumruy Pro", "Khmer Sangam MN", sans-serif', `${item.ch} — ${item.rom}`, 0.5));
+    } else if (t === 'first_sound') {
+      const word = c.en.toLowerCase();
+      const pool = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
+      const opts = [word[0], ...shuffle(pool.filter((l) => l !== word[0])).slice(0, 3)];
+      stage.append(h('div.prompt', h('div.big-emoji', c.emoji), h('div.word.big', h('span.blank', '_'), word.slice(1)), h('div.row', speakerBtn(() => sayTarget(item), false), slowBtn(item))));
+      choice(stage, ex, item, opts.map((l) => ({ key: l, content: h('span.opt-letter', l) })), word[0], word, '.letters');
+      sayInstruction(t).then(() => sayTarget(item));
+    } else if (t === 'missing_vowel') {
+      const word = c.en.toLowerCase();
+      const vi = [...word].findIndex((ch) => 'aeiou'.includes(ch));
+      stage.append(h('div.prompt', h('div.big-emoji', c.emoji), h('div.word.big', word.slice(0, vi), h('span.blank', '_'), word.slice(vi + 1)), h('div.row', speakerBtn(() => sayTarget(item), false), slowBtn(item))));
+      choice(stage, ex, item, [...'aeiou'].map((v) => ({ key: v, content: h('span.opt-letter.vowel', v) })), word[vi], word, '.vowels', true);
+      sayInstruction(t).then(() => sayTarget(item));
+    } else if (t === 'rhyme') {
+      const partner = items[pick(item.rhymes)];
+      const others = shuffle(Object.values(items).filter((it) => it.phonics && it !== item && !item.rhymes.includes(it.id) && it.c.emoji !== c.emoji)).slice(0, 2);
+      stage.append(h('div.prompt', h('div.big-emoji', c.emoji), h('div.row', speakerBtn(() => sayTarget(item), false))));
+      choice(stage, ex, item, [partner, ...others].map((it) => ({ key: it.id, content: h('span.big-emoji.opt-emoji', it.c.emoji) })), partner.id, `${c.en} — ${partner.c.en}`, '.pics.three');
+      ex.after = () => playSeq([['en', c.en], ['en', partner.c.en]]);
+      // She can't read the options, so read each picture's word aloud while it lights up.
+      const buttons = [...stage.querySelectorAll('button.opt')];
+      sayInstruction(t).then(async () => {
+        await sayTarget(item);
+        for (const b of buttons) {
+          if (b.disabled) return;
+          b.classList.add('speaking');
+          await new Promise((r) => setTimeout(r, 300));
+          await play('en', items[b.dataset.key].c.en);
+          b.classList.remove('speaking');
+        }
+      });
     } else if (t === 'consonant_listen') {
       const opts = [item, ...distractors(item, 'consonant', 3, (it) => it.ch)];
       stage.append(h('div.row', speakerBtn(() => sayTarget(item)), slowBtn(item)));
@@ -393,17 +440,15 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     sayInstruction(ex.type).then(() => sayTarget(item));
   }
 
-  function renderTrace(stage, ex, item) {
-    const glyph = Math.random() < 0.5 ? item.L : item.L.toLowerCase();
-    const pad = tracePad(glyph);
+  function renderTrace(stage, ex, item, glyph, font, answerLabel, threshold) {
+    const pad = tracePad(glyph, { font });
     const checkBtn = h('button.btn.primary', {
       onclick: () => {
         if (pad.empty) return;
-        const s = pad.score();
-        const ok = s >= 0.55;
+        const ok = pad.score() >= threshold;
         checkBtn.remove();
         clearBtn.remove();
-        answered(ex, item, ok, stage, `${item.L} ${item.L.toLowerCase()}`);
+        answered(ex, item, ok, stage, answerLabel);
       },
     }, isKmUI ? ui.km.check : ui.en.check);
     const clearBtn = h('button.btn', { onclick: () => pad.clear() }, '↺ ' + (isKmUI ? ui.km.clear : ui.en.clear));

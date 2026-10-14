@@ -1,5 +1,14 @@
 // Course definitions. Adding a language later = new fields in concepts.json + a new course here.
 
+// Short-vowel word families (CVC words), one unit per vowel. Ids refer to concepts.json.
+const PHONICS = {
+  a: ['cat', 'hat', 'bat', 'rat', 'cap', 'map', 'fan', 'van', 'pan'],
+  e: ['bed', 'red', 'n10', 'pen', 'net', 'jet', 'wet', 'web'],
+  i: ['pig', 'dig', 'pin', 'bin', 'n6', 'sit'],
+  o: ['dog', 'log', 'fox', 'box', 'pot', 'hot'],
+  u: ['sun', 'run', 'bug', 'hug', 'bus', 'cup', 'nut'],
+};
+
 const LETTER_WORDS = {
   A: 'apple', B: 'bag', C: 'cat', D: 'dog', E: 'egg', F: 'fish', G: 'gift', H: 'hat', I: 'ice',
   J: 'juice', K: 'key', L: 'love', M: 'milk', N: 'nose', O: 'orange', P: 'pig', Q: 'queen',
@@ -24,7 +33,13 @@ export function buildCourses(concepts, script) {
   const letters = (s) => [...s].map(letter);
   const words = (ids) => ids.map(word);
   const exWords = (s) => [...s].map((L) => word(LETTER_WORDS[L]));
-  const used = new Set(Object.values(LETTER_WORDS));
+  const used = new Set([...Object.values(LETTER_WORDS), ...Object.values(PHONICS).flat()]);
+  const phonics = (v) =>
+    PHONICS[v].map((id) => {
+      const wid = word(id);
+      items[wid].phonics = v;
+      return wid;
+    });
   const rest = (cat) => byCat(cat).filter((id) => !used.has(id)).map(word);
 
   const en = {
@@ -41,6 +56,11 @@ export function buildCourses(concepts, script) {
       { icon: '☀️', title: 'pig · sun · tea', items: exWords('NOPQRST') },
       { icon: 'Aa', title: 'U V W X Y Z', items: letters('UVWXYZ') },
       { icon: '🦓', title: 'water · box · zebra', items: exWords('UVWXYZ') },
+      { icon: 'a', title: 'a — cat · hat · map', items: phonics('a'), phonics: true },
+      { icon: 'e', title: 'e — bed · pen · jet', items: phonics('e'), phonics: true },
+      { icon: 'i', title: 'i — pig · pin · six', items: phonics('i'), phonics: true },
+      { icon: 'o', title: 'o — dog · fox · box', items: phonics('o'), phonics: true },
+      { icon: 'u', title: 'u — sun · bug · cup', items: phonics('u'), phonics: true },
       { icon: '👋', title: 'Hello · Thank you', items: rest('core') },
       { icon: '👨‍👩‍👧', title: 'Family', items: rest('family') },
       { icon: '🍚', title: 'Food', items: rest('food') },
@@ -55,6 +75,11 @@ export function buildCourses(concepts, script) {
       { icon: '💬', title: 'Sentences 2', items: words(byCat('phrases').slice(6)) },
     ],
   };
+
+  // Rhyming partners inside the phonics families (cat ↔ hat), used by the rhyme exercise.
+  const phon = Object.values(items).filter((it) => it.phonics);
+  const rime = (it) => it.c.en.toLowerCase().slice(-2);
+  for (const it of phon) it.rhymes = phon.filter((o) => o !== it && rime(o) === rime(it)).map((o) => o.id);
 
   // ---------- Khmer for an English speaker (script + vocabulary in parallel) ----------
   const cons = (series, from, to) =>
