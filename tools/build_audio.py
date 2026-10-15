@@ -60,6 +60,20 @@ def collect():
             TIMED.add(f"en|{sentence['en']}")
             TIMED.add(f"en|{sentence['en']}|slow")
             add("km", sentence["km"], slow=False)
+    grammar_path = DATA / "grammar.json"
+    for g in json.loads(grammar_path.read_text()) if grammar_path.exists() else []:
+        add("km", g["explainKm"], slow=False)
+        for en, km in zip(g["examples"], g["examplesKm"]):
+            add("en", en)
+            add("km", km, slow=False)
+        for it in g["items"]:
+            add("en", it["en"])
+            add("km", it["km"], slow=False)
+    en_dialogues_path = DATA / "dialogues-en.json"
+    for dl in json.loads(en_dialogues_path.read_text()) if en_dialogues_path.exists() else []:
+        for line in dl["lines"]:
+            add("en", line["en"])
+            add("km", line["km"], slow=False)
     dialogues_path = DATA / "dialogues.json"
     for dl in json.loads(dialogues_path.read_text()) if dialogues_path.exists() else []:
         for line in dl["lines"]:

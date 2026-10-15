@@ -21,11 +21,11 @@ const app = document.getElementById('app');
 let data;
 
 async function init() {
-  const [concepts, script, ui, stories, dialogues] = await Promise.all(
-    ['concepts', 'khmer-script', 'ui', 'stories', 'dialogues'].map((f) => fetch(`data/${f}.json`).then((r) => r.json()).catch(() => [])),
+  const [concepts, script, ui, stories, dialogues, grammar, dialoguesEn] = await Promise.all(
+    ['concepts', 'khmer-script', 'ui', 'stories', 'dialogues', 'grammar', 'dialogues-en'].map((f) => fetch(`data/${f}.json`).then((r) => r.json()).catch(() => [])),
   );
   await Promise.all([loadAudioIndex(), loadRecorded(), loadLocalVoices()]);
-  data = { ...buildCourses(concepts, script), concepts, script, ui, stories, dialogues };
+  data = { ...buildCourses(concepts, script, grammar), concepts, script, ui, stories, dialogues, dialoguesEn, grammar };
   const last = PROFILES.find((p) => p.id === store.lastProfile());
   last ? dashboard(last) : home();
 }
@@ -107,7 +107,7 @@ function dashboard(p) {
   const weakTool = tool('refresh', `${t('weak')}${weak ? ` · ${weak}` : ''}`, () => (weak ? startSession(p, 'weak') : null), { lang, disabled: !weak });
   const tools = course.id === 'km'
     ? h('div.tools', tool('book', 'Alphabet', () => alphabet(p)), tool('pencil', t('writing'), () => writing(p)), tool('globe', t('translate'), () => translator(p)), tool('headphones', t('checkTitle'), () => nativeCheck(p)), weakTool)
-    : h('div.tools', tool('pencil', t('writing'), () => writing(p), { lang: 'km' }), weakTool);
+    : h('div.tools', tool('pencil', t('writing'), () => writing(p), { lang: 'km' }), tool('book', t('grammar'), () => grammarRef(p), { lang: 'km' }), weakTool);
 
   // Lessons grouped into sections, each row with its progress.
   const current = course.units.findIndex((u) => u.items.some((id) => store.card(p.id, id).box === 0));
@@ -137,7 +137,7 @@ function dashboard(p) {
     );
   });
 
-  const extraGroup = course.id === 'en' ? storiesGroup(p, t, lang) : dialoguesGroup(p, t);
+  const extraGroup = course.id === 'en' ? [storiesGroup(p, t, lang), dialoguesGroup(p, t)] : dialoguesGroup(p, t);
   show(
     h(
       'div.screen.dash',
@@ -703,16 +703,40 @@ function storyQuiz(p, st) {
   round();
 }
 
-// ---------- conversations (Xavier) ----------
+// ---------- grammar reference (her) ----------
+function grammarRef(p) {
+  setTheme(p.theme);
+  const lang = data.courses[p.course].ui;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k];
+  show(
+    h(
+      'div.screen',
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => dashboard(p), 'aria-label': 'Back' }, icon('back')), h('div.top-title', { lang }, t('grammar')), slowToggle()),
+      data.grammar.map((g) =>
+        h(
+          'section.card.grammar-card',
+          h('h3', { onclick: () => play('km', g.explainKm, { slow: false }) }, g.title),
+          h('button.explain', { onclick: () => play('km', g.explainKm, { slow: false }), lang: 'km' }, h('span.explain-ic', icon('volume', { size: 20 })), h('span', g.explainKm)),
+          h('div.examples', g.examples.map((en, i) => h('button.example-row', { onclick: () => play('en', en) }, icon('volume', { size: 16 }), h('span.ex-en', en), h('span.ex-km', { lang: 'km' }, g.examplesKm[i])))),
+        ),
+      ),
+    ),
+  );
+}
+
+// ---------- conversations ----------
 const DIALOGUE_KEY = 'learnering:dialogues';
 
+const dialogueList = (p) => (p.course === 'en' ? data.dialoguesEn : data.dialogues);
+
 function dialoguesGroup(p, t) {
-  if (!data.dialogues.length) return '';
+  const list = dialogueList(p);
+  if (!list.length) return '';
   const done = loadJSON(DIALOGUE_KEY);
   return h(
     'section.lesson-group',
-    h('h3.group-title', t('conversations')),
-    h('div.lesson-list', data.dialogues.map((d) => {
+    h('h3.group-title', { lang: data.courses[p.course].ui }, t('conversations')),
+    h('div.lesson-list', list.map((d) => {
       const stars = done[d.id] || 0;
       return h(
         `button.lesson.${stars ? 'mastered' : 'started'}`,
@@ -725,16 +749,22 @@ function dialoguesGroup(p, t) {
   );
 }
 
+// A dialogue line: for her the English is the main text (Khmer meaning below); for Xavier the Khmer is.
+const lineSay = (p, l) => (p.course === 'en' ? ['en', l.en] : ['km', l.km]);
+
 function dialogueScreen(p, d) {
   setTheme(p.theme);
-  const t = (k) => data.ui.en[k];
+  const english = p.course === 'en';
+  const lang = data.courses[p.course].ui;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k];
   let showRom = true;
   let showEn = true;
   let running = false;
   const bubbles = d.lines.map((l) => {
-    const rom = h('div.b-rom', l.rom);
-    const en = h('div.b-en', l.en);
-    const b = h(`button.bubble.${l.speaker === 'A' ? 'me' : 'them'}`, { onclick: () => play('km', l.km) }, h('div.b-km', { lang: 'km' }, l.km), rom, en);
+    const rom = english ? h('div.b-en', { lang: 'km' }, l.km) : h('div.b-rom', l.rom);
+    const en = english ? h('span') : h('div.b-en', l.en);
+    const main = english ? h('div.b-main.hand', l.en) : h('div.b-km', { lang: 'km' }, l.km);
+    const b = h(`button.bubble.${l.speaker === 'A' ? 'me' : 'them'}`, { onclick: () => play(...lineSay(p, l)) }, main, rom, en);
     return { l, b, rom, en };
   });
   const toggles = () => bubbles.forEach((x) => { x.rom.hidden = !showRom; x.en.hidden = !showEn; });
@@ -745,7 +775,7 @@ function dialogueScreen(p, d) {
       if (!running) break;
       x.b.classList.add('active');
       x.b.scrollIntoView({ block: 'center', behavior: 'smooth' });
-      await play('km', x.l.km);
+      await play(...lineSay(p, x.l));
       x.b.classList.remove('active');
       await new Promise((r) => setTimeout(r, 350));
     }
@@ -760,16 +790,20 @@ function dialogueScreen(p, d) {
     h(
       'div.screen.dialogue',
       h('div.topbar', h('button.icon-btn.ghost', { onclick: () => { running = false; dashboard(p); }, 'aria-label': 'Back' }, icon('back')), h('div.top-title', d.title), slowToggle()),
-      h('div.set-tabs', chip('Romanization', () => showRom, (v) => { showRom = v; }), chip('English', () => showEn, (v) => { showEn = v; })),
+      english
+        ? h('div.set-tabs', chip('ខ្មែរ', () => showRom, (v) => { showRom = v; }))
+        : h('div.set-tabs', chip('Romanization', () => showRom, (v) => { showRom = v; }), chip('English', () => showEn, (v) => { showEn = v; })),
       h('div.chat', bubbles.map((x) => x.b)),
-      h('div.foot.row', h('button.btn', { onclick: playAll }, icon('play', { size: 16 }), h('span', 'Play all')), h('button.btn.primary', { onclick: () => dialogueQuiz(p, d) }, h('span', t('quiz')), icon('next', { size: 18 }))),
+      h('div.foot.row', h('button.btn', { onclick: playAll }, icon('play', { size: 16 }), h('span', english ? '' : 'Play all')), h('button.btn.primary', { onclick: () => dialogueQuiz(p, d), lang }, h('span', t('quiz')), icon('next', { size: 18 }))),
     ),
   );
 }
 
 /** For each of your lines: hear what was said before, choose your reply. */
 function dialogueQuiz(p, d) {
-  const t = (k) => data.ui.en[k];
+  const english = p.course === 'en';
+  const lang = data.courses[p.course].ui;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k];
   const mine = d.lines.map((l, i) => ({ l, i })).filter((x) => x.l.speaker === 'A');
   let k = 0;
   let right = 0;
@@ -803,18 +837,19 @@ function dialogueQuiz(p, d) {
         e.currentTarget.classList.add(ok ? 'right' : 'wrong');
         grid.querySelectorAll('.opt').forEach((b) => (b.disabled = true));
         tone(ok);
-        play('km', l.km);
+        play(...lineSay(p, l));
         setTimeout(() => { k++; round(); }, 1800);
       },
-    }, h('span', { lang: 'km' }, o.km), h('small.opt-rom', o.rom))));
+    }, english ? h('span.hand', o.en) : [h('span', { lang: 'km' }, o.km), h('small.opt-rom', o.rom)])));
     stage.replaceChildren(
-      h('p.instruction', t('dialogueQuiz')),
+      h('p.instruction', { lang }, english ? h('button.mini', { onclick: () => play('km', data.ui.km.dialogueQuiz, { slow: false }) }, icon('volume', { size: 16 })) : '', h('span', t('dialogueQuiz'))),
       before
-        ? h('button.bubble.them', { onclick: () => play('km', before.km) }, h('div.b-km', { lang: 'km' }, before.km), h('div.b-en', before.en))
-        : h('div.note', `Start the conversation: “${l.en}”`),
+        ? h('button.bubble.them', { onclick: () => play(...lineSay(p, before)) }, english ? h('div.b-main.hand', before.en) : h('div.b-km', { lang: 'km' }, before.km), h('div.b-en', { lang: english ? 'km' : 'en' }, english ? before.km : before.en))
+        : h('div.note', { lang: english ? 'km' : 'en' }, english ? l.km : `Start the conversation: “${l.en}”`),
       grid,
     );
-    if (before) play('km', before.km);
+    if (before) play(...lineSay(p, before));
+    else if (english) play('km', l.km);
   };
   round();
 }

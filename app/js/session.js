@@ -22,6 +22,8 @@ const LADDERS = {
     letter: ['letter_listen', 'trace', 'letter_word', 'write_memory'],
     // Sight words have no picture: hear → find the written word, read → find the right sound.
     sight: ['sight_listen', 'write_copy', 'sight_read', 'sight_listen', 'write_word'],
+    // Grammar sentences: meaning (picture) → when it happens → the right form → word order.
+    gram: ['gram_pic', 'gram_time', 'gram_fill', 'gram_order', 'gram_fill'],
   },
   km: {
     word: ['listen_pick', 'read_pick', 'write_copy', 'pick_word', 'write_word'],
@@ -59,12 +61,13 @@ function baseLadder(course, item) {
     if (course.id === 'en' && !/^[a-z]{2,8}$/i.test(item.c.en)) return L.word.filter((t) => t !== 'spell');
     return L.word;
   }
+  if (item.kind === 'gram') return item.time === 'none' ? L.gram.filter((t) => t !== 'gram_time') : L.gram;
   return L[item.kind];
 }
 
 function ladderFor(course, item) {
   const canWrite = Boolean(writable(course, item));
-  return baseLadder(course, item).filter((t) => (t !== 'say_it' || hasGemini()) && (!WRITING.has(t) || canWrite));
+  return baseLadder(course, item).filter((t) => (t !== 'say_it' || (hasGemini() && item.c)) && (!WRITING.has(t) || canWrite));
 }
 
 function chooseType(course, item, box) {
@@ -100,8 +103,15 @@ export function buildQueue(course, items, pid, unitIdx = null) {
     ...extra.map((id) => ({ id, type: chooseType(course, items[id], card(id).box), extra: true })),
   ]);
   const q = [];
+  const lessonShown = new Set();
   for (const id of fresh) {
     const ladder = ladderFor(course, items[id]);
+    const lesson = items[id].lesson;
+    // First sentence of a grammar lesson nobody has started yet: the spoken explanation comes first.
+    if (lesson && !lessonShown.has(lesson.id) && !items[id].lesson.items.some((_, i) => card(`g:${lesson.id}:${i}`).box > 0)) {
+      lessonShown.add(lesson.id);
+      q.push({ id, type: 'gram_lesson' });
+    }
     q.push({ id, type: 'intro' });
     if (writable(course, items[id])) q.push({ id, type: 'learn_write' });
     q.push({ id, type: ladder[0], learn: true });
@@ -164,6 +174,8 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         return ['km', item.ch, opts];
       case 'vowel':
         return ['km', 'ក' + item.v, opts];
+      case 'gram':
+        return ['en', item.en, opts];
     }
   }
   const sayTarget = (item, opts) => play(...targetSpeech(item, opts));
@@ -205,6 +217,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     const stage = h('main.stage');
     root.append(stage);
     if (ex.type === 'intro') return renderIntro(stage, item);
+    if (ex.type === 'gram_lesson') return renderGrammarLesson(stage, item.lesson);
     if (ex.type === 'learn_write') return renderLearnWrite(stage, item);
     render(stage, ex, item);
   }
@@ -329,6 +342,9 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       setTimeout(() => blend.classList.add('merged'), delay);
       const sounds = parts.every((g) => hasAudio('en', `sound:${g}`)) ? parts.map((g) => ['en', `sound:${g}`]) : [];
       speech = [...sounds, ['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
+    } else if (item.kind === 'gram') {
+      card = h('div.intro', h('div.pic', item.emoji), h('div.sentence', item.en), kmText(item.km, '.meaning'), timeBadge(item.time));
+      speech = [['en', item.en], ['km', item.km], ['en', item.en, { slow: true }]];
     } else if (item.kind === 'word' && course.target === 'en') {
       card = h('div.intro', item.sight ? '' : h('div.pic', item.c.emoji), h(`div.word${item.sight ? '.sight' : ''}`, item.c.en), item.c.km ? kmText(item.c.km, '.meaning') : '');
       speech = [['en', item.c.en], ...(item.c.km ? [['km', item.c.km]] : []), ['en', item.c.en, { slow: true }]];
@@ -374,6 +390,22 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       }
       setTimeout(replay, delay);
     })();
+  }
+
+  // ---------- grammar lesson card (spoken explanation + examples) ----------
+  function renderGrammarLesson(stage, lesson) {
+    const explain = () => play('km', lesson.explainKm, { slow: false });
+    stage.append(
+      h('div.tag', { lang }, icon('book', { size: 14 }), h('span', t('grammar'))),
+      h(
+        'div.intro.lesson-card',
+        h('h2.lesson-name', lesson.title),
+        h('button.explain', { onclick: explain, lang: 'km' }, h('span.explain-ic', icon('volume', { size: 22 })), h('span', lesson.explainKm)),
+        h('div.examples', lesson.examples.map((en, i) => h('button.example-row', { onclick: () => playSeq([['en', en], ['km', lesson.examplesKm[i]]]) }, icon('volume', { size: 16 }), h('span.ex-en', en), h('span.ex-km', { lang: 'km' }, lesson.examplesKm[i])))),
+      ),
+      h('div.foot', h('button.btn.primary.wide', { onclick: practised, lang }, t('next'), icon('next', { size: 18 }))),
+    );
+    explain().then(() => playSeq(lesson.examples.map((en) => ['en', en])));
   }
 
   // ---------- 2. write it straight away ----------
@@ -496,6 +528,32 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         renderGradedWrite(stage, ex, item, item.ch, { ...KHMER_PAD, guide, guided: guide && Boolean(RECORDED[item.ch]) }, `${item.ch} — ${item.rom}`));
     } else if (type === 'say_it') {
       renderSayIt(stage, ex, item);
+    } else if (type === 'gram_pic') {
+      // Hear a sentence, tap its picture.
+      const opts = [item, ...distractors(item, 'gram', 3, (it) => it.emoji)];
+      stage.append(h('div.row', speakerBtn(() => sayTarget(item)), slowBtn(item)));
+      choice(stage, ex, item, opts.map((it) => ({ key: it.id, content: h('span.opt-pic', it.emoji) })), item.id, `${item.emoji} ${item.en}`, '.pics');
+      sayInstruction(type).then(() => sayTarget(item));
+    } else if (type === 'gram_time') {
+      // Past, now or future? The key to following a conversation.
+      stage.append(h('div.row', speakerBtn(() => sayTarget(item)), slowBtn(item)));
+      const label = { past: t('timePast'), now: t('timeNow'), future: t('timeFuture') };
+      const ic = { past: '⏪', now: '▶️', future: '⏩' };
+      choice(stage, ex, item, ['past', 'now', 'future'].map((k) => ({ key: k, content: [h('span.opt-pic.sm', ic[k]), h('span.opt-label', { lang }, label[k])] })), item.time, `${item.en} — ${label[item.time]}`, '.three', true);
+      sayInstruction(type).then(() => sayTarget(item));
+    } else if (type === 'gram_fill') {
+      // The Khmer meaning decides which form is right (several forms can be grammatical on their own).
+      const words = item.en.split(' ');
+      const bi = words.findIndex((w) => w.replace(/[^A-Za-z']/g, '') === item.blank);
+      const shown = words.map((w, i) => (i === bi ? h('span.blank', '\u2003\u2003') : w)).flatMap((x, i) => (i ? [' ', x] : [x]));
+      stage.append(
+        h('div.prompt', h('div.pic.small', item.emoji), h('button.mini.wide', { onclick: () => play('km', item.km) }, icon('volume', { size: 16 }), kmText(item.km)), h('div.sentence', shown)),
+      );
+      choice(stage, ex, item, [item.blank, ...item.options].map((w) => ({ key: w, content: h('span.opt-word.hand', w) })), item.blank, item.en, '.words');
+      ex.speech = ['en', item.en];
+      sayInstruction(type).then(() => play('km', item.km));
+    } else if (type === 'gram_order') {
+      renderBuild(stage, ex, item, item.en.replace(/[?.!,]/g, '').split(' '), ' ', false);
     } else if (type === 'sight_listen') {
       // Hear a sight word, find it written.
       const opts = [item, ...distractors(item, 'word', 3, (it) => it.c.en.toLowerCase())];
@@ -593,7 +651,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     const chosen = [];
     const slot = h('div.answer-slot');
     const bank = h('div.tile-bank');
-    stage.append(h('div.prompt', h('div.pic', item.c.emoji), h('div.row', speakerBtn(() => sayTarget(item), false), slowBtn(item))), slot, bank);
+    stage.append(h('div.prompt', h('div.pic', item.c ? item.c.emoji : item.emoji), h('div.row', speakerBtn(() => sayTarget(item), false), slowBtn(item))), slot, bank);
     const checkBtn = h('button.btn.primary.wide', { onclick: check, disabled: true, lang }, t('check'));
     stage.append(h('div.foot', checkBtn));
 
@@ -607,7 +665,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       const ok = chosen.map((tile) => tile.p).join(joiner).toLowerCase() === target.toLowerCase();
       slot.classList.add(ok ? 'right' : 'wrong');
       checkBtn.parentElement?.remove();
-      answered(ex, item, ok, stage, item.c.en);
+      answered(ex, item, ok, stage, item.c ? item.c.en : item.en);
     }
     draw();
     sayInstruction(ex.type).then(() => sayTarget(item));
@@ -709,6 +767,11 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
   // Start once every helper above is initialised.
   if (queue.length) next();
   else finish();
+}
+
+function timeBadge(time) {
+  const map = { past: ['⏪', 'past'], now: ['▶️', 'now'], future: ['⏩', 'future'] };
+  return map[time] ? h(`span.time-badge.${time}`, map[time][0], ' ', map[time][1]) : '';
 }
 
 export function seriesBadge(s) {

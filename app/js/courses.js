@@ -18,7 +18,7 @@ const LETTER_WORDS = {
   R: 'rain', S: 'sun', T: 'tea', U: 'umbrella', V: 'violin', W: 'water', X: 'box', Y: 'yellow', Z: 'zebra',
 };
 
-export function buildCourses(concepts, script) {
+export function buildCourses(concepts, script, grammar = []) {
   const byId = Object.fromEntries(concepts.map((c) => [c.id, c]));
   const byCat = (cat) => concepts.filter((c) => c.cat === cat).map((c) => c.id);
   const items = {};
@@ -92,6 +92,18 @@ export function buildCourses(concepts, script) {
       { section: 'Words', icon: '🏠', title: 'Home', items: rest('home') },
       { section: 'Words', icon: '🌳', title: 'Nature', items: rest('nature') },
       { section: 'Words', icon: '😊', title: 'Feelings', items: rest('feel') },
+      // Grammar & tenses: each lesson = a spoken Khmer explanation + practice sentences.
+      ...grammar.map((g) => ({
+        section: 'Grammar',
+        icon: { past: '⏪', now: '▶️', future: '⏩' }[g.time] || '🧩',
+        title: g.title,
+        lesson: g,
+        items: g.items.map((it, i) => {
+          const id = `g:${g.id}:${i}`;
+          items[id] ||= { id, kind: 'gram', lesson: g, ...it };
+          return id;
+        }),
+      })),
       { section: 'Sentences', icon: '💬', title: 'Sentences 1', items: words(byCat('phrases').slice(0, 6)) },
       { section: 'Sentences', icon: '💬', title: 'Sentences 2', items: words(byCat('phrases').slice(6)) },
     ],

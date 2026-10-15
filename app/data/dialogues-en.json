@@ -1,0 +1,283 @@
+[
+ {
+  "id": "edlg1",
+  "emoji": "🛒",
+  "title": "At the shop",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "How much are these apples?",
+    "km": "ប៉ោមទាំងនេះថ្លៃប៉ុន្មានដែរ?"
+   },
+   {
+    "speaker": "B",
+    "en": "They are three dollars.",
+    "km": "បាទ បីដុល្លារ។"
+   },
+   {
+    "speaker": "A",
+    "en": "I will take four, please.",
+    "km": "ចាស អ៊ីចឹងខ្ញុំយកបួនមក។"
+   },
+   {
+    "speaker": "B",
+    "en": "That is twelve dollars total.",
+    "km": "បាទ សរុបទាំងអស់ដប់ពីរដុល្លារ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Here is a twenty dollar bill.",
+    "km": "ចាស នេះក្រដាសម្ភៃដុល្លារ។"
+   },
+   {
+    "speaker": "B",
+    "en": "Thank you, here is your change.",
+    "km": "បាទ អរគុណ នេះលុយអាប់របស់អ្នក។"
+   }
+  ]
+ },
+ {
+  "id": "edlg2",
+  "emoji": "🩺",
+  "title": "At the doctor",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Hello, I feel sick today.",
+    "km": "ជម្រាបសួរចាស ថ្ងៃនេះខ្ញុំមានអារម្មណ៍ថាមិនស្រួលខ្លួនសោះ។"
+   },
+   {
+    "speaker": "B",
+    "en": "What is the problem?",
+    "km": "បាទ តើអ្នកជំងឺកើតអីដែរ?"
+   },
+   {
+    "speaker": "A",
+    "en": "I have a bad headache.",
+    "km": "ខ្ញុំឈឺក្បាលខ្លាំងណាស់ចាស។"
+   },
+   {
+    "speaker": "B",
+    "en": "Please rest and drink water.",
+    "km": "បាទ សូមសម្រាក និងទទួលទានទឹកឱ្យបានច្រើន។"
+   },
+   {
+    "speaker": "A",
+    "en": "How much is the visit?",
+    "km": "តើថ្លៃពិនិត្យប៉ុន្មានដែរចាស?"
+   },
+   {
+    "speaker": "B",
+    "en": "That is twenty dollars, please.",
+    "km": "បាទ អស់ម្ភៃដុល្លារ។"
+   }
+  ]
+ },
+ {
+  "id": "edlg3",
+  "emoji": "📞",
+  "title": "On the phone",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Hello? Where are you now?",
+    "km": "អាឡូ? ឥឡូវបងនៅឯណាដែរ?"
+   },
+   {
+    "speaker": "B",
+    "en": "I am waiting at the coffee shop.",
+    "km": "ខ្ញុំកំពុងរង់ចាំនៅហាងកាហ្វេ។"
+   },
+   {
+    "speaker": "A",
+    "en": "I am on the road now.",
+    "km": "បាទ ឥឡូវខ្ញុំកំពុងតាមផ្លូវហើយ។"
+   },
+   {
+    "speaker": "B",
+    "en": "Great. When will you arrive here?",
+    "km": "ល្អណាស់។ តើពេលណាទើបបងមកដល់ទីនេះ?"
+   },
+   {
+    "speaker": "A",
+    "en": "I will come in ten minutes.",
+    "km": "បាទ ប្រហែលដប់នាទីទៀតខ្ញុំទៅដល់ហើយ។"
+   },
+   {
+    "speaker": "B",
+    "en": "Okay, see you very soon.",
+    "km": "ចាស អ៊ីចឹងជួបគ្នាបន្តិចទៀត។"
+   }
+  ]
+ },
+ {
+  "id": "edlg4",
+  "emoji": "👋",
+  "title": "Meeting a friend",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Hi! How are you today?",
+    "km": "សួស្ដី! ថ្ងៃនេះសុខសប្បាយជាទេ?"
+   },
+   {
+    "speaker": "B",
+    "en": "I am good, thank you.",
+    "km": "បាទ ខ្ញុំសុខសប្បាយទេ អរគុណ។"
+   },
+   {
+    "speaker": "A",
+    "en": "What did you do yesterday?",
+    "km": "ម្សិលមិញ តើអ្នកបានធ្វើអ្វីខ្លះ?"
+   },
+   {
+    "speaker": "B",
+    "en": "I went shopping for lunch.",
+    "km": "បាទ ខ្ញុំបានទៅទិញម្ហូបសម្រាប់ថ្ងៃត្រង់។"
+   },
+   {
+    "speaker": "A",
+    "en": "How much was your food?",
+    "km": "ចុះអាហាររបស់អ្នកអស់ប៉ុន្មានដែរ?"
+   },
+   {
+    "speaker": "B",
+    "en": "It was only five dollars.",
+    "km": "បាទ អស់តែប្រាំដុល្លារទេ។"
+   }
+  ]
+ },
+ {
+  "id": "edlg5",
+  "emoji": "🍽️",
+  "title": "At a restaurant",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Can I have a chicken burger?",
+    "km": "សុំបឺហ្គឺរសាច់មាន់មួយមក?"
+   },
+   {
+    "speaker": "B",
+    "en": "Sure. Do you want a drink?",
+    "km": "បាទ បាន។ ចង់ញ៉ាំភេសជ្ជៈអីដែរទេ?"
+   },
+   {
+    "speaker": "A",
+    "en": "Yes, I would like cold water.",
+    "km": "ចាស សុំទឹកត្រជាក់មួយមក។"
+   },
+   {
+    "speaker": "B",
+    "en": "That is five dollars, please.",
+    "km": "ទាំងអស់ប្រាំដុល្លារបាទ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Here is the money. Thank you.",
+    "km": "នេះលុយចាស។ អរគុណ។"
+   }
+  ]
+ },
+ {
+  "id": "edlg6",
+  "emoji": "🚌",
+  "title": "Asking the way",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Excuse me, where is the bus station?",
+    "km": "អធ្យាស្រ័យចាស តើចំណតឡានក្រុងនៅឯណាដែរ?"
+   },
+   {
+    "speaker": "B",
+    "en": "It is straight down this road.",
+    "km": "គឺដើរត្រង់តាមផ្លូវនេះទៅ បាទ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Is it far from here?",
+    "km": "តើវានៅឆ្ងាយពីទីនេះទេចាស?"
+   },
+   {
+    "speaker": "B",
+    "en": "No, just a five-minute walk.",
+    "km": "អត់ទេបាទ ដើរតែ ៥ នាទីដល់ហើយ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Thank you very much.",
+    "km": "អរគុណច្រើនណាស់ចាស។"
+   }
+  ]
+ },
+ {
+  "id": "edlg7",
+  "emoji": "🏠",
+  "title": "At home",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "What do we want for dinner tonight?",
+    "km": "យប់នេះតើយើងចង់ញ៉ាំអីដែរ?"
+   },
+   {
+    "speaker": "B",
+    "en": "Let us make some chicken and rice.",
+    "km": "តោះយើងធ្វើបាយសាច់មាន់ញ៉ាំទៅ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Good idea. Do we have chicken at home?",
+    "km": "គំនិតល្អ! ចុះនៅផ្ទះយើងមានសាច់មាន់អត់?"
+   },
+   {
+    "speaker": "B",
+    "en": "No, we need to buy some fresh chicken.",
+    "km": "អត់មានទេ យើងត្រូវទិញសាច់មាន់ស្រស់ខ្លះ។"
+   },
+   {
+    "speaker": "A",
+    "en": "Okay, it costs about five dollars at the market.",
+    "km": "ចាស នៅផ្សារប្រហែលជាអស់ប្រាំដុល្លារទេ។"
+   },
+   {
+    "speaker": "B",
+    "en": "Great, let us go together right now.",
+    "km": "ល្អណាស់ បាទ តោះយើងទៅជាមួយគ្នាឥឡូវនេះតែម្ដង។"
+   }
+  ]
+ },
+ {
+  "id": "edlg8",
+  "emoji": "📅",
+  "title": "Making plans",
+  "lines": [
+   {
+    "speaker": "A",
+    "en": "Let us go to the market tomorrow.",
+    "km": "ថ្ងៃស្អែកតោះយើងទៅផ្សារ។"
+   },
+   {
+    "speaker": "B",
+    "en": "Good idea. What time do you want?",
+    "km": "ល្អតើ។ ចុះចង់ទៅម៉ោងប៉ុន្មានដែរ?"
+   },
+   {
+    "speaker": "A",
+    "en": "Let us go at eight in the morning.",
+    "km": "តោះយើងទៅម៉ោងប្រាំបីព្រឹក។"
+   },
+   {
+    "speaker": "B",
+    "en": "Okay. We can buy fresh fruit there.",
+    "km": "បាទ។ យើងអាចទិញផ្លែឈើស្រស់ៗនៅទីនោះបាន។"
+   },
+   {
+    "speaker": "A",
+    "en": "Yes, mangoes are only two dollars.",
+    "km": "ចាស ស្វាយមួយគីឡូតែពីរដុល្លារទេ។"
+   }
+  ]
+ }
+]

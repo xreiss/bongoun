@@ -1,0 +1,1334 @@
+[
+ {
+  "id": "be",
+  "title": "I am / you are",
+  "time": "none",
+  "examples": [
+   "I am a student.",
+   "You are very nice.",
+   "She is a doctor."
+  ],
+  "items": [
+   {
+    "en": "I am a new teacher.",
+    "emoji": "👨‍🏫",
+    "time": "none",
+    "blank": "am",
+    "options": [
+     "is",
+     "are",
+     "isn't"
+    ],
+    "km": "ខ្ញុំជាគ្រូបង្រៀនថ្មី។"
+   },
+   {
+    "en": "You are a good friend.",
+    "emoji": "🤝",
+    "time": "none",
+    "blank": "are",
+    "options": [
+     "am",
+     "is",
+     "aren't"
+    ],
+    "km": "អ្នកជាមិត្តភក្តិល្អម្នាក់។"
+   },
+   {
+    "en": "He is a happy man.",
+    "emoji": "👨",
+    "time": "none",
+    "blank": "is",
+    "options": [
+     "am",
+     "are",
+     "aren't"
+    ],
+    "km": "គាត់ជាមនុស្សប្រុសរីករាយម្នាក់។"
+   },
+   {
+    "en": "She is at home today.",
+    "emoji": "🏠",
+    "time": "now",
+    "blank": "is",
+    "options": [
+     "am",
+     "are",
+     "isn't"
+    ],
+    "km": "ថ្ងៃនេះ គាត់នៅផ្ទះ។"
+   },
+   {
+    "en": "It is a hot day.",
+    "emoji": "☀️",
+    "time": "now",
+    "blank": "is",
+    "options": [
+     "am",
+     "are",
+     "aren't"
+    ],
+    "km": "ថ្ងៃនេះក្តៅណាស់។"
+   },
+   {
+    "en": "We are ready to go.",
+    "emoji": "🚗",
+    "time": "now",
+    "blank": "are",
+    "options": [
+     "am",
+     "is",
+     "isn't"
+    ],
+    "km": "ពួកយើងរួចរាល់ដើម្បីទៅហើយ។"
+   },
+   {
+    "en": "They are in the park.",
+    "emoji": "🌳",
+    "time": "none",
+    "blank": "are",
+    "options": [
+     "am",
+     "is",
+     "aren't"
+    ],
+    "km": "ពួកគេនៅឯសួនច្បារ។"
+   },
+   {
+    "en": "You aren't late for work.",
+    "emoji": "⏰",
+    "time": "now",
+    "blank": "aren't",
+    "options": [
+     "isn't",
+     "am",
+     "is"
+    ],
+    "km": "អ្នកមិនយឺតពេលធ្វើការទេ។"
+   }
+  ],
+  "explainKm": "ពាក្យ am, is, are មានន័យថា «ជា» ឬ «នៅ»។ បើនិយាយពីខ្លួនឯង ប្រើ I am បើនិយាយពីគាត់ម្នាក់ ប្រើ He is ឬ She is ហើយបើច្រើននាក់ ឬអ្នក ប្រើ You are ឬ We are។ បើមិនមែនទេ យើងគ្រាន់តែថែម not ដូចជា isn't ឬ aren't។",
+  "examplesKm": [
+   "ខ្ញុំជាសិស្ស។",
+   "អ្នកចិត្តល្អណាស់។",
+   "គាត់ជាគ្រូពេទ្យ។"
+  ]
+ },
+ {
+  "id": "article",
+  "title": "a · an · this · that",
+  "time": "none",
+  "examples": [
+   "This is an apple.",
+   "That is a cat.",
+   "These are my books."
+  ],
+  "items": [
+   {
+    "en": "This is an apple.",
+    "emoji": "🍎",
+    "time": "now",
+    "blank": "an",
+    "options": [
+     "a",
+     "these",
+     "that"
+    ],
+    "km": "នេះជាផ្លែប៉ោមមួយ។"
+   },
+   {
+    "en": "That is a dog.",
+    "emoji": "🐕",
+    "time": "now",
+    "blank": "a",
+    "options": [
+     "an",
+     "this",
+     "those"
+    ],
+    "km": "នោះជាសត្វឆ្កែមួយក្បាល។"
+   },
+   {
+    "en": "These are my keys.",
+    "emoji": "🔑",
+    "time": "now",
+    "blank": "These",
+    "options": [
+     "This",
+     "That",
+     "An"
+    ],
+    "km": "ទាំងនេះជាកូនសោរបស់ខ្ញុំ។"
+   },
+   {
+    "en": "Those are big cars.",
+    "emoji": "🚗",
+    "time": "now",
+    "blank": "Those",
+    "options": [
+     "This",
+     "That",
+     "A"
+    ],
+    "km": "ទាំងនោះជារថយន្តធំៗ។"
+   },
+   {
+    "en": "This is a pen.",
+    "emoji": "🖊️",
+    "time": "now",
+    "blank": "a",
+    "options": [
+     "an",
+     "these",
+     "those"
+    ],
+    "km": "នេះជាប៊ិចមួយដើម។"
+   },
+   {
+    "en": "That is an egg.",
+    "emoji": "🥚",
+    "time": "now",
+    "blank": "an",
+    "options": [
+     "a",
+     "this",
+     "these"
+    ],
+    "km": "នោះជាពងមាន់មួយគ្រាប់។"
+   },
+   {
+    "en": "These are red shoes.",
+    "emoji": "👟",
+    "time": "now",
+    "blank": "These",
+    "options": [
+     "This",
+     "That",
+     "An"
+    ],
+    "km": "ទាំងនេះជាស្បែកជើងពណ៌ក្រហម។"
+   },
+   {
+    "en": "Those are blue bags.",
+    "emoji": "👜",
+    "time": "now",
+    "blank": "Those",
+    "options": [
+     "This",
+     "That",
+     "A"
+    ],
+    "km": "ទាំងនោះជាកាបូបពណ៌ខៀវ។"
+   }
+  ],
+  "explainKm": "ពាក្យ This គឺ នេះ នៅជិតយើង ហើយ That គឺ នោះ នៅឆ្ងាយ។ បើរបស់ច្រើន នៅជិតយើងប្រើ These ហើយនៅឆ្ងាយយើងប្រើ Those។ ចំពោះរបស់មួយ យើងប្រើ a តែបើពាក្យផ្ដើមដោយសម្លេង អ យើងប្រើ an វិញ។",
+  "examplesKm": [
+   "នេះជាផ្លែប៉ោមមួយ។",
+   "នោះជាសត្វឆ្មាមួយក្បាល។",
+   "ទាំងនេះជាសៀវភៅរបស់ខ្ញុំ។"
+  ]
+ },
+ {
+  "id": "plural",
+  "title": "One cat, two cats",
+  "time": "none",
+  "examples": [
+   "One cat, two cats.",
+   "One box, three boxes.",
+   "One man, two men."
+  ],
+  "items": [
+   {
+    "en": "I see two cats.",
+    "emoji": "🐱",
+    "time": "now",
+    "blank": "cats",
+    "options": [
+     "cat",
+     "cates",
+     "caties"
+    ],
+    "km": "ខ្ញុំឃើញឆ្មាពីរក្បាល។"
+   },
+   {
+    "en": "She has four boxes.",
+    "emoji": "📦",
+    "time": "now",
+    "blank": "boxes",
+    "options": [
+     "box",
+     "boxs",
+     "boxies"
+    ],
+    "km": "គាត់មានប្រអប់បួន។"
+   },
+   {
+    "en": "Three men are here.",
+    "emoji": "👨",
+    "time": "now",
+    "blank": "men",
+    "options": [
+     "man",
+     "mans",
+     "menes"
+    ],
+    "km": "បុរសបីនាក់នៅទីនេះ។"
+   },
+   {
+    "en": "Five cats eat fish.",
+    "emoji": "🐈",
+    "time": "none",
+    "blank": "cats",
+    "options": [
+     "cat",
+     "cates",
+     "catz"
+    ],
+    "km": "ឆ្មាប្រាំក្បាលស៊ីត្រី។"
+   },
+   {
+    "en": "He wants two boxes.",
+    "emoji": "📦",
+    "time": "now",
+    "blank": "boxes",
+    "options": [
+     "box",
+     "boxs",
+     "boxen"
+    ],
+    "km": "គាត់ចង់បានប្រអប់ពីរ។"
+   },
+   {
+    "en": "Six men work hard.",
+    "emoji": "👷",
+    "time": "none",
+    "blank": "men",
+    "options": [
+     "man",
+     "mans",
+     "mens"
+    ],
+    "km": "បុរសប្រាំមួយនាក់ធ្វើការខ្លាំង។"
+   },
+   {
+    "en": "Ten cats run fast.",
+    "emoji": "🐈‍⬛",
+    "time": "none",
+    "blank": "cats",
+    "options": [
+     "cat",
+     "cates",
+     "caties"
+    ],
+    "km": "ឆ្មាដប់ក្បាលរត់លឿន។"
+   },
+   {
+    "en": "Two men walk home.",
+    "emoji": "🚶",
+    "time": "now",
+    "blank": "men",
+    "options": [
+     "man",
+     "mans",
+     "mens"
+    ],
+    "km": "បុរសពីរនាក់ដើរទៅផ្ទះ។"
+   }
+  ],
+  "explainKm": "នៅក្នុងភាសាអង់គ្លេស បើរបស់មានតែមួយ យើងថែមលេខ one នៅខាងមុខ។ តែបើមានចាប់ពីពីរឡើងទៅ ពាក្យភាគច្រើនត្រូវថែមសូរ «ស» នៅខាងចុង ដូចជា cat ទៅជា cats ឬ box ទៅជា boxes។ ប៉ុន្តែមានពាក្យខ្លះត្រូវដូរម៉ូដតែម្តង ដូចជា man ប្រែទៅជា men។",
+  "examplesKm": [
+   "ឆ្មាមួយក្បាល ឆ្មាពីរក្បាល។",
+   "ប្រអប់មួយ ប្រអប់បី។",
+   "បុរសម្នាក់ បុរសពីរនាក់។"
+  ]
+ },
+ {
+  "id": "have",
+  "title": "I have · she has",
+  "time": "none",
+  "examples": [
+   "I have a new car.",
+   "She has a big dog.",
+   "We don't have much time."
+  ],
+  "items": [
+   {
+    "en": "I have a cat.",
+    "emoji": "🐱",
+    "time": "now",
+    "blank": "have",
+    "options": [
+     "has",
+     "doesn't have"
+    ],
+    "km": "ខ្ញុំមានឆ្មាមួយ។"
+   },
+   {
+    "en": "He has a car.",
+    "emoji": "🚗",
+    "time": "now",
+    "blank": "has",
+    "options": [
+     "have",
+     "don't have"
+    ],
+    "km": "គាត់មានឡានមួយ។"
+   },
+   {
+    "en": "You don't have money.",
+    "emoji": "💵",
+    "time": "now",
+    "blank": "don't",
+    "options": [
+     "doesn't",
+     "has"
+    ],
+    "km": "ឯងអត់មានលុយទេ។"
+   },
+   {
+    "en": "She doesn't have time.",
+    "emoji": "⏰",
+    "time": "now",
+    "blank": "doesn't",
+    "options": [
+     "don't",
+     "has"
+    ],
+    "km": "គាត់ស្រីអត់មានពេលទេ។"
+   },
+   {
+    "en": "We have a house.",
+    "emoji": "🏠",
+    "time": "now",
+    "blank": "have",
+    "options": [
+     "has",
+     "doesn't have"
+    ],
+    "km": "ពួកយើងមានផ្ទះមួយ។"
+   },
+   {
+    "en": "They have a dog.",
+    "emoji": "🐕",
+    "time": "now",
+    "blank": "have",
+    "options": [
+     "has",
+     "doesn't have"
+    ],
+    "km": "ពួកគេមានឆ្កែមួយ។"
+   },
+   {
+    "en": "Maria has a bike.",
+    "emoji": "🚲",
+    "time": "now",
+    "blank": "has",
+    "options": [
+     "have",
+     "don't have"
+    ],
+    "km": "ម៉ារីយ៉ាមានកង់មួយ។"
+   },
+   {
+    "en": "I don't have brothers.",
+    "emoji": "👦",
+    "time": "now",
+    "blank": "don't",
+    "options": [
+     "doesn't",
+     "has"
+    ],
+    "km": "ខ្ញុំអត់មានបងប្អូនប្រុសទេ។"
+   }
+  ],
+  "explainKm": "ពាក្យ have និង has មានន័យថា «មាន»។ បើយើងនិយាយពីខ្លួនយើង ឬមនុស្សច្រើននាក់ ត្រូវប្រើ have ឬ don't have។ តែបើយើងនិយាយពីគាត់ម្នាក់ ឬនាងម្នាក់ ត្រូវប្រើ has ឬ doesn't have វិញ។",
+  "examplesKm": [
+   "ខ្ញុំមានឡានថ្មីមួយ។",
+   "គាត់ស្រីមានឆ្កែធំមួយ។",
+   "ពួកយើងមិនសូវមានពេលទេ។"
+  ]
+ },
+ {
+  "id": "present",
+  "title": "Every day",
+  "time": "now",
+  "examples": [
+   "I eat breakfast every day.",
+   "She drinks water at work.",
+   "Do you like hot coffee?"
+  ],
+  "items": [
+   {
+    "en": "I ate toast yesterday.",
+    "emoji": "🍞",
+    "time": "past",
+    "blank": "ate",
+    "options": [
+     "eat",
+     "eats"
+    ],
+    "km": "ម្សិលមិញខ្ញុំបានញ៉ាំនំបុ័ងអាំង។"
+   },
+   {
+    "en": "She eats an apple now.",
+    "emoji": "🍎",
+    "time": "now",
+    "blank": "eats",
+    "options": [
+     "eat",
+     "ate"
+    ],
+    "km": "ឥឡូវគាត់កំពុងញ៉ាំផ្លែប៉ោម។"
+   },
+   {
+    "en": "I will cook dinner tomorrow.",
+    "emoji": "🍳",
+    "time": "future",
+    "blank": "cook",
+    "options": [
+     "cooks",
+     "cooked"
+    ],
+    "km": "ថ្ងៃស្អែកខ្ញុំនឹងធ្វើម្ហូបពេលល្ងាច។"
+   },
+   {
+    "en": "You drink coffee every morning.",
+    "emoji": "☕",
+    "time": "now",
+    "blank": "drink",
+    "options": [
+     "drinks",
+     "drank"
+    ],
+    "km": "បងផឹកកាហ្វេរាល់ព្រឹក។"
+   },
+   {
+    "en": "She doesn't drink cold milk.",
+    "emoji": "🥛",
+    "time": "now",
+    "blank": "doesn't",
+    "options": [
+     "don't",
+     "didn't"
+    ],
+    "km": "គាត់មិនផឹកទឹកដោះគោត្រជាក់ទេ។"
+   },
+   {
+    "en": "Do you like fresh fruit?",
+    "emoji": "🍇",
+    "time": "now",
+    "blank": "Do",
+    "options": [
+     "Does",
+     "Did"
+    ],
+    "km": "តើបងចូលចិត្តផ្លែឈើស្រស់ទេ?"
+   },
+   {
+    "en": "He walked to work yesterday.",
+    "emoji": "🚶",
+    "time": "past",
+    "blank": "walked",
+    "options": [
+     "walk",
+     "walks"
+    ],
+    "km": "ម្សិលមិញគាត់បានដើរទៅធ្វើការ។"
+   },
+   {
+    "en": "They will travel there tomorrow.",
+    "emoji": "✈️",
+    "time": "future",
+    "blank": "travel",
+    "options": [
+     "travels",
+     "traveled"
+    ],
+    "km": "ថ្ងៃស្អែកពួកគេនឹងធ្វើដំណើរទៅទីនោះ។"
+   }
+  ],
+  "explainKm": "ពេលយើងនិយាយពីទម្លាប់រាល់ថ្ងៃ បើយើងប្រើ I គឺកិរិយាសព្ទធម្មតា ដូចជា I eat។ តែបើយើងនិយាយពីគាត់ ឬ She យើងត្រូវថែម s ទៅជា She eats។ បើបដិសេធ ប្រើ I don't តែ She doesn't ហើយបើចង់សួរ ប្រើ Do you…? ណា៎បង។",
+  "examplesKm": [
+   "ខ្ញុំញ៉ាំអាហារពេលព្រឹករាល់ថ្ងៃ។",
+   "គាត់ផឹកទឹកនៅកន្លែងធ្វើការ។",
+   "តើបងចូលចិត្តកាហ្វេក្តៅទេ?"
+  ]
+ },
+ {
+  "id": "now",
+  "title": "Right now",
+  "time": "now",
+  "examples": [
+   "I am eating now.",
+   "She is sleeping now.",
+   "They are working now."
+  ],
+  "items": [
+   {
+    "en": "I ate bread yesterday.",
+    "emoji": "🍞",
+    "time": "past",
+    "blank": "ate",
+    "options": [
+     "am eating",
+     "is eating",
+     "are eating"
+    ],
+    "km": "ម្សិលមិញ ខ្ញុំបានញ៉ាំនំបុ័ង។"
+   },
+   {
+    "en": "I am eating lunch.",
+    "emoji": "🍲",
+    "time": "now",
+    "blank": "am",
+    "options": [
+     "is",
+     "are",
+     "be"
+    ],
+    "km": "ខ្ញុំកំពុងញ៉ាំបាយថ្ងៃត្រង់។"
+   },
+   {
+    "en": "She is sleeping now.",
+    "emoji": "😴",
+    "time": "now",
+    "blank": "is",
+    "options": [
+     "am",
+     "are",
+     "be"
+    ],
+    "km": "ឥឡូវនេះ គាត់កំពុងគេង។"
+   },
+   {
+    "en": "He will cook tomorrow.",
+    "emoji": "🍳",
+    "time": "future",
+    "blank": "will",
+    "options": [
+     "is",
+     "are",
+     "am"
+    ],
+    "km": "ថ្ងៃស្អែក គាត់នឹងធ្វើម្ហូប។"
+   },
+   {
+    "en": "They are drinking water.",
+    "emoji": "💧",
+    "time": "now",
+    "blank": "are",
+    "options": [
+     "am",
+     "is",
+     "be"
+    ],
+    "km": "ពួកគេកំពុងផឹកទឹក។"
+   },
+   {
+    "en": "You walked home yesterday.",
+    "emoji": "🚶",
+    "time": "past",
+    "blank": "walked",
+    "options": [
+     "are walking",
+     "is walking",
+     "am walking"
+    ],
+    "km": "ម្សិលមិញ អ្នកបានដើរទៅផ្ទះ។"
+   },
+   {
+    "en": "We are reading books.",
+    "emoji": "📖",
+    "time": "now",
+    "blank": "are",
+    "options": [
+     "am",
+     "is",
+     "be"
+    ],
+    "km": "ពួកយើងកំពុងអានសៀវភៅ។"
+   },
+   {
+    "en": "I will leave tomorrow.",
+    "emoji": "🚪",
+    "time": "future",
+    "blank": "will",
+    "options": [
+     "am",
+     "is",
+     "are"
+    ],
+    "km": "ថ្ងៃស្អែក ខ្ញុំនឹងចេញដំណើរទៅហើយ។"
+   }
+  ],
+  "explainKm": "ពេលយើងចង់និយាយពីរឿងដែលកំពុងធ្វើឥឡូវនេះ យើងប្រើពាក្យ am, is, ឬ are ជាមួយកិរិយាសព្ទថែម ing។ ឧទាហរណ៍ដូចជា I am eating មានន័យថា ខ្ញុំកំពុងញ៉ាំបាយ។ មួយទៀត She is sleeping មានន័យថា គាត់កំពុងគេងឥឡូវនេះ។",
+  "examplesKm": [
+   "ឥឡូវនេះ ខ្ញុំកំពុងញ៉ាំបាយ។",
+   "ឥឡូវនេះ គាត់កំពុងគេង។",
+   "ឥឡូវនេះ ពួកគេកំពុងធ្វើការ។"
+  ]
+ },
+ {
+  "id": "past",
+  "title": "Yesterday",
+  "time": "past",
+  "examples": [
+   "I walked yesterday.",
+   "I ate pizza.",
+   "I went home."
+  ],
+  "items": [
+   {
+    "en": "I walked yesterday.",
+    "emoji": "🚶",
+    "time": "past",
+    "blank": "walked",
+    "options": [
+     "walk",
+     "walks",
+     "walking"
+    ],
+    "km": "ម្សិលមិញ ខ្ញុំបានដើរ។"
+   },
+   {
+    "en": "I eat lunch now.",
+    "emoji": "🍲",
+    "time": "now",
+    "blank": "eat",
+    "options": [
+     "ate",
+     "eaten",
+     "eating"
+    ],
+    "km": "ឥឡូវនេះ ខ្ញុំកំពុងញ៉ាំបាយថ្ងៃត្រង់។"
+   },
+   {
+    "en": "I ate an apple.",
+    "emoji": "🍎",
+    "time": "past",
+    "blank": "ate",
+    "options": [
+     "eat",
+     "eats",
+     "eating"
+    ],
+    "km": "ខ្ញុំបានញ៉ាំផ្លែប៉ោមមួយផ្លែ។"
+   },
+   {
+    "en": "I will go tomorrow.",
+    "emoji": "✈️",
+    "time": "future",
+    "blank": "go",
+    "options": [
+     "went",
+     "gone",
+     "going"
+    ],
+    "km": "ខ្ញុំនឹងទៅនៅថ្ងៃស្អែក។"
+   },
+   {
+    "en": "I went home.",
+    "emoji": "🏠",
+    "time": "past",
+    "blank": "went",
+    "options": [
+     "go",
+     "goes",
+     "going"
+    ],
+    "km": "ខ្ញុំបានទៅផ្ទះ។"
+   },
+   {
+    "en": "I saw a cat.",
+    "emoji": "🐱",
+    "time": "past",
+    "blank": "saw",
+    "options": [
+     "see",
+     "sees",
+     "seeing"
+    ],
+    "km": "ខ្ញុំបានឃើញឆ្មាមួយក្បាល។"
+   },
+   {
+    "en": "I was happy yesterday.",
+    "emoji": "😊",
+    "time": "past",
+    "blank": "was",
+    "options": [
+     "is",
+     "am",
+     "are"
+    ],
+    "km": "ម្សិលមិញ ខ្ញុំសប្បាយចិត្តណាស់។"
+   },
+   {
+    "en": "I watched TV last night.",
+    "emoji": "📺",
+    "time": "past",
+    "blank": "watched",
+    "options": [
+     "watch",
+     "watches",
+     "watching"
+    ],
+    "km": "យប់មិញ ខ្ញុំបានមើលទូរទស្សន៍។"
+   }
+  ],
+  "explainKm": "កាលណាពាក្យសម្ដីយើងនិយាយពីរឿងកន្លងផុតទៅដូចជា 'ម្សិលមិញ' ឬ 'យប់មិញ' យើងត្រូវប្ដូរពាក្យកិរិយាសព្ទ។ ឧទាហរណ៍ ពាក្យ eat យើងត្រូវប្ដូរទៅជា ate ហើយពាក្យ go យើងប្ដូរទៅជា went វិញ។ ចំណែកពាក្យ walk ធម្មតា គ្រាន់តែថែមសំឡេងខាងចុងទៅជា walked ជាការស្រេច។",
+  "examplesKm": [
+   "ម្សិលមិញ ខ្ញុំបានដើរ។",
+   "ខ្ញុំបានញ៉ាំភីហ្សា។",
+   "ខ្ញុំបានទៅផ្ទះ។"
+  ]
+ },
+ {
+  "id": "future",
+  "title": "Tomorrow",
+  "time": "future",
+  "examples": [
+   "I will go tomorrow.",
+   "I am going to eat.",
+   "She is going to sleep."
+  ],
+  "items": [
+   {
+    "en": "I will go tomorrow.",
+    "emoji": "🚶",
+    "time": "future",
+    "blank": "will",
+    "options": [
+     "am",
+     "was"
+    ],
+    "km": "ខ្ញុំនឹងទៅនៅថ្ងៃស្អែក។"
+   },
+   {
+    "en": "I ate yesterday.",
+    "emoji": "🍎",
+    "time": "past",
+    "blank": "ate",
+    "options": [
+     "will eat",
+     "am going to eat"
+    ],
+    "km": "ម្សិលមិញខ្ញុំបានញ៉ាំរួចហើយ។"
+   },
+   {
+    "en": "I am going to eat next week.",
+    "emoji": "🍲",
+    "time": "future",
+    "blank": "going",
+    "options": [
+     "gone",
+     "went"
+    ],
+    "km": "ខ្ញុំគ្រោងនឹងញ៉ាំនៅសប្តាហ៍ក្រោយ។"
+   },
+   {
+    "en": "She works today.",
+    "emoji": "💼",
+    "time": "now",
+    "blank": "works",
+    "options": [
+     "will work",
+     "is going to work"
+    ],
+    "km": "ថ្ងៃនេះគាត់ធ្វើការ។"
+   },
+   {
+    "en": "They will travel tomorrow.",
+    "emoji": "✈️",
+    "time": "future",
+    "blank": "will",
+    "options": [
+     "are",
+     "were"
+    ],
+    "km": "ពួកគេនឹងធ្វើដំណើរនៅថ្ងៃស្អែក។"
+   },
+   {
+    "en": "We walked yesterday.",
+    "emoji": "👟",
+    "time": "past",
+    "blank": "walked",
+    "options": [
+     "will walk",
+     "are going to walk"
+    ],
+    "km": "ម្សិលមិញពួកយើងបានដើរ។"
+   },
+   {
+    "en": "He is going to sleep next week.",
+    "emoji": "🛌",
+    "time": "future",
+    "blank": "going",
+    "options": [
+     "went",
+     "gone"
+    ],
+    "km": "គាត់គ្រោងនឹងគេងនៅសប្តាហ៍ក្រោយ។"
+   },
+   {
+    "en": "You drink water now.",
+    "emoji": "💧",
+    "time": "now",
+    "blank": "drink",
+    "options": [
+     "will drink",
+     "am going to drink"
+    ],
+    "km": "ឥឡូវនេះ អ្នកផឹកទឹក។"
+   }
+  ],
+  "explainKm": "ពេលយើងចង់និយាយពីរឿងដែលនឹងធ្វើនៅថ្ងៃស្អែក ឬសប្តាហ៍ក្រោយ យើងប្រើពាក្យ will ឬ am going to។ ពាក្យ will គឺសម្រាប់រឿងដែលយើងសម្រេចចិត្តធ្វើភ្លាមៗ រីឯ going to គឺសម្រាប់រឿងដែលយើងបានគិតទុកមុន។ គ្រាន់តែដាក់ពាក្យទាំងនេះ នៅពីមុខសកម្មភាពដែលយើងចង់ធ្វើ ជាការស្រេច។",
+  "examplesKm": [
+   "ខ្ញុំនឹងទៅនៅថ្ងៃស្អែក។",
+   "ខ្ញុំរៀបនឹងញ៉ាំបាយហើយ។",
+   "គាត់រៀបនឹងគេងហើយ។"
+  ]
+ },
+ {
+  "id": "can",
+  "title": "I can · I can't",
+  "time": "none",
+  "examples": [
+   "I can swim well.",
+   "Can you help me?",
+   "She can not drive."
+  ],
+  "items": [
+   {
+    "en": "I can cook dinner.",
+    "emoji": "🍳",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "am",
+     "do",
+     "is"
+    ],
+    "km": "ខ្ញុំអាចធ្វើម្ហូបពេលល្ងាចបាន។"
+   },
+   {
+    "en": "You can speak English.",
+    "emoji": "🗣️",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "are",
+     "do",
+     "has"
+    ],
+    "km": "អ្នកចេះនិយាយភាសាអង់គ្លេស។"
+   },
+   {
+    "en": "Birds can fly high.",
+    "emoji": "🐦",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "are",
+     "do",
+     "did"
+    ],
+    "km": "សត្វស្លាបអាចហើរបានខ្ពស់។"
+   },
+   {
+    "en": "I can not swim.",
+    "emoji": "🏊",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "do",
+     "am",
+     "will"
+    ],
+    "km": "ខ្ញុំមិនចេះហែលទឹកទេ។"
+   },
+   {
+    "en": "Can you help me?",
+    "emoji": "🙋",
+    "time": "now",
+    "blank": "Can",
+    "options": [
+     "Do",
+     "Are",
+     "Will"
+    ],
+    "km": "តើអ្នកអាចជួយខ្ញុំបានទេ?"
+   },
+   {
+    "en": "Can she play tennis?",
+    "emoji": "🎾",
+    "time": "now",
+    "blank": "Can",
+    "options": [
+     "Does",
+     "Is",
+     "Has"
+    ],
+    "km": "តើនាងចេះលេងវាយកូនបាល់ទេ?"
+   },
+   {
+    "en": "We can run fast.",
+    "emoji": "🏃",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "are",
+     "do",
+     "did"
+    ],
+    "km": "ពួកយើងអាចរត់បានលឿន។"
+   },
+   {
+    "en": "He can read books.",
+    "emoji": "📖",
+    "time": "now",
+    "blank": "can",
+    "options": [
+     "is",
+     "does",
+     "has"
+    ],
+    "km": "គាត់ចេះអានសៀវភៅ។"
+   }
+  ],
+  "explainKm": "ពាក្យ can មានន័យថា 'ចេះ' ឬ 'អាច' ធ្វើអ្វីមួយបាន។ បើយើងធ្វើមិនបានទេ យើងប្រើ can't ដែលមានន័យថា 'មិនចេះ' ឬ 'មិនអាច'។ ពេលចង់សុំឱ្យគេជួយ យើងគ្រាន់តែសួរថា Can you help me? មានន័យថា 'តើអ្នកអាចជួយខ្ញុំបានទេ?'។",
+  "examplesKm": [
+   "ខ្ញុំចេះហែលទឹកបានល្អ។",
+   "តើអ្នកអាចជួយខ្ញុំបានទេ?",
+   "គាត់ស្រីមិនចេះបើកបរទេ។"
+  ]
+ },
+ {
+  "id": "questions",
+  "title": "What? Where? Who?",
+  "time": "none",
+  "examples": [
+   "What is this?",
+   "Where is home?",
+   "Who are you?"
+  ],
+  "items": [
+   {
+    "en": "What is this?",
+    "emoji": "❓",
+    "time": "now",
+    "blank": "What",
+    "options": [
+     "Who",
+     "Where",
+     "When"
+    ],
+    "km": "នេះជាអ្វី?"
+   },
+   {
+    "en": "Where do you live?",
+    "emoji": "🏠",
+    "time": "now",
+    "blank": "Where",
+    "options": [
+     "What",
+     "Who",
+     "How"
+    ],
+    "km": "តើអ្នករស់នៅឯណា?"
+   },
+   {
+    "en": "Who is she?",
+    "emoji": "👩",
+    "time": "now",
+    "blank": "Who",
+    "options": [
+     "What",
+     "Where",
+     "When"
+    ],
+    "km": "គាត់ជានរណា?"
+   },
+   {
+    "en": "When is dinner?",
+    "emoji": "🍽️",
+    "time": "future",
+    "blank": "When",
+    "options": [
+     "Who",
+     "What",
+     "Where"
+    ],
+    "km": "តើញ៉ាំបាយល្ងាចពេលណា?"
+   },
+   {
+    "en": "How much is coffee?",
+    "emoji": "☕",
+    "time": "now",
+    "blank": "much",
+    "options": [
+     "many",
+     "what",
+     "who"
+    ],
+    "km": "កាហ្វេនេះថ្លៃប៉ុន្មាន?"
+   },
+   {
+    "en": "How many cats here?",
+    "emoji": "🐱",
+    "time": "now",
+    "blank": "many",
+    "options": [
+     "much",
+     "where",
+     "what"
+    ],
+    "km": "នៅទីនេះមានឆ្មាប៉ុន្មានក្បាល?"
+   },
+   {
+    "en": "What do you want?",
+    "emoji": "🛍️",
+    "time": "now",
+    "blank": "What",
+    "options": [
+     "Who",
+     "Where",
+     "When"
+    ],
+    "km": "តើអ្នកចង់បានអ្វី?"
+   },
+   {
+    "en": "Where is the key?",
+    "emoji": "🔑",
+    "time": "now",
+    "blank": "Where",
+    "options": [
+     "What",
+     "Who",
+     "When"
+    ],
+    "km": "តើសោនៅឯណា?"
+   }
+  ],
+  "explainKm": "ពាក្យសួរជាភាសាអង់គ្លេស គេច្រើនដាក់នៅខាងមុខគេជានិច្ច។ ដូចជា What មានន័យថា អ្វី Where នៅឯណា ហើយ Who គឺ នរណា។ ពេលចង់សួររកតម្លៃ គេប្រើ How much ឯចំនួនគេប្រើ How many។",
+  "examplesKm": [
+   "នេះជាអ្វី?",
+   "ផ្ទះនៅឯណា?",
+   "តើអ្នកជានរណា?"
+  ]
+ },
+ {
+  "id": "place",
+  "title": "In · on · under",
+  "time": "none",
+  "examples": [
+   "The cat is on the bed.",
+   "My keys are in the bag.",
+   "The shoes are under the chair."
+  ],
+  "items": [
+   {
+    "en": "The cat is on the bed.",
+    "emoji": "🐱",
+    "time": "none",
+    "blank": "on",
+    "options": [
+     "in",
+     "under",
+     "behind"
+    ],
+    "km": "ឆ្មាគឺនៅលើគ្រែ។"
+   },
+   {
+    "en": "My keys are in the bag.",
+    "emoji": "🔑",
+    "time": "none",
+    "blank": "in",
+    "options": [
+     "on",
+     "next to",
+     "under"
+    ],
+    "km": "កូនសោរបស់ខ្ញុំ គឺនៅក្នុងកាបូប។"
+   },
+   {
+    "en": "The ball is under the table.",
+    "emoji": "⚽",
+    "time": "none",
+    "blank": "under",
+    "options": [
+     "on",
+     "in",
+     "behind"
+    ],
+    "km": "បាល់ គឺនៅក្រោមតុ។"
+   },
+   {
+    "en": "The dog is behind the door.",
+    "emoji": "🐶",
+    "time": "none",
+    "blank": "behind",
+    "options": [
+     "in",
+     "on",
+     "next to"
+    ],
+    "km": "ឆ្កែ គឺនៅពីក្រោយទ្វារ។"
+   },
+   {
+    "en": "Your phone is on the desk.",
+    "emoji": "📱",
+    "time": "none",
+    "blank": "on",
+    "options": [
+     "under",
+     "behind",
+     "next to"
+    ],
+    "km": "ទូរសព្ទរបស់អ្នក គឺនៅលើតុធ្វើការ។"
+   },
+   {
+    "en": "The milk is in the fridge.",
+    "emoji": "🥛",
+    "time": "none",
+    "blank": "in",
+    "options": [
+     "on",
+     "under",
+     "behind"
+    ],
+    "km": "ទឹកដោះគោ គឺនៅក្នុងទូទឹកកក។"
+   },
+   {
+    "en": "His shoes are under the bed.",
+    "emoji": "👟",
+    "time": "none",
+    "blank": "under",
+    "options": [
+     "in",
+     "on",
+     "next to"
+    ],
+    "km": "ស្បែកជើងរបស់គាត់ គឺនៅក្រោមគ្រែ។"
+   }
+  ],
+  "explainKm": "ពាក្យទាំងនេះ គឺប្រើសម្រាប់ប្រាប់ពីកន្លែងដែលរបស់របរនៅ។ ពាក្យ in មានន័យថានៅក្នុង, on គឺនៅលើ, under គឺនៅក្រោម។ ហើយពាក្យ next to គឺនៅក្បែរ ចំណែក behind គឺនៅខាងក្រោយ។",
+  "examplesKm": [
+   "ឆ្មាគឺនៅលើគ្រែ។",
+   "កូនសោរបស់ខ្ញុំ គឺនៅក្នុងកាបូប។",
+   "ស្បែកជើង គឺនៅក្រោមកៅអី។"
+  ]
+ },
+ {
+  "id": "pronouns",
+  "title": "Me · my · her",
+  "time": "none",
+  "examples": [
+   "I like my new car.",
+   "She helps him every day.",
+   "We love our new home."
+  ],
+  "items": [
+   {
+    "en": "I drink my coffee now.",
+    "emoji": "☕",
+    "time": "now",
+    "blank": "my",
+    "options": [
+     "me",
+     "I",
+     "his"
+    ],
+    "km": "ឥឡូវនេះ ខ្ញុំផឹកកាហ្វេរបស់ខ្ញុំ។"
+   },
+   {
+    "en": "You see me there.",
+    "emoji": "👀",
+    "time": "none",
+    "blank": "me",
+    "options": [
+     "my",
+     "I",
+     "he"
+    ],
+    "km": "អ្នកឃើញខ្ញុំនៅទីនោះ។"
+   },
+   {
+    "en": "Your book is here.",
+    "emoji": "📖",
+    "time": "none",
+    "blank": "Your",
+    "options": [
+     "You",
+     "He",
+     "My"
+    ],
+    "km": "សៀវភៅរបស់អ្នកនៅទីនេះ។"
+   },
+   {
+    "en": "He calls his friend.",
+    "emoji": "📞",
+    "time": "none",
+    "blank": "his",
+    "options": [
+     "he",
+     "him",
+     "her"
+    ],
+    "km": "គាត់ទូរស័ព្ទទៅមិត្តភក្តិរបស់គាត់។"
+   },
+   {
+    "en": "She helps him today.",
+    "emoji": "🤝",
+    "time": "now",
+    "blank": "him",
+    "options": [
+     "his",
+     "he",
+     "she"
+    ],
+    "km": "ថ្ងៃនេះ នាងជួយគាត់។"
+   },
+   {
+    "en": "Her cat is cute.",
+    "emoji": "🐱",
+    "time": "none",
+    "blank": "Her",
+    "options": [
+     "She",
+     "His",
+     "Me"
+    ],
+    "km": "ឆ្មារបស់នាងគួរឱ្យស្រឡាញ់ណាស់។"
+   },
+   {
+    "en": "We eat our lunch.",
+    "emoji": "🥗",
+    "time": "now",
+    "blank": "our",
+    "options": [
+     "we",
+     "us",
+     "their"
+    ],
+    "km": "ពួកយើងញ៉ាំបាយថ្ងៃត្រង់របស់ពួកយើង។"
+   },
+   {
+    "en": "They help us now.",
+    "emoji": "🙌",
+    "time": "now",
+    "blank": "us",
+    "options": [
+     "our",
+     "we",
+     "my"
+    ],
+    "km": "ឥឡូវនេះ ពួកគេជួយពួកយើង។"
+   }
+  ],
+  "explainKm": "ពាក្យ I, you, he, she, we គឺប្រើសម្រាប់អ្នកធ្វើសកម្មភាព។ ពាក្យ me, him, us គឺប្រើពេលគេធ្វើមកលើយើងវិញ។ ចំណែកពាក្យ my, your, his, her, our គឺប្រើសម្រាប់ប្រាប់របស់ជារបស់អ្នកណា ដូចជា ឡានខ្ញុំ ឬ ផ្ទះយើងអញ្ចឹង។",
+  "examplesKm": [
+   "ខ្ញុំចូលចិត្តឡានថ្មីរបស់ខ្ញុំ។",
+   "នាងជួយគាត់រាល់ថ្ងៃ។",
+   "ពួកយើងស្រឡាញ់ផ្ទះថ្មីរបស់ពួកយើង។"
+  ]
+ }
+]

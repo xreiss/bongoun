@@ -459,3 +459,21 @@ canvas.shake { animation: shake 0.3s; }
 .b-en { color: var(--muted); font-size: 0.88rem; }
 .dialogue .foot { justify-content: space-between; }
 .stage > .bubble { align-self: center; max-width: 100%; }
+
+/* ---------- grammar ---------- */
+.sentence { font-family: var(--hand); font-size: 1.9rem; font-weight: 700; line-height: 1.35; text-align: center; }
+.hand { font-family: var(--hand); font-weight: 700; }
+.opt-word.hand { font-size: 1.4rem; }
+.time-badge { display: inline-flex; gap: 4px; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 650; background: var(--surface-2); color: var(--muted); }
+.lesson-card { gap: 14px; text-align: left; align-items: stretch; }
+.lesson-name { text-align: center; font-size: 1.5rem; }
+.explain { display: flex; gap: 12px; align-items: flex-start; text-align: left; background: var(--accent-soft); border-radius: 14px; padding: 12px 14px; font-size: 1.02rem; line-height: 1.7; }
+.explain-ic { color: var(--accent); padding-top: 3px; }
+.examples { display: grid; gap: 6px; }
+.example-row { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: center; text-align: left; padding: 8px 10px; border-radius: 12px; border: 1px solid var(--line); }
+.example-row .icon { grid-row: span 2; color: var(--accent); }
+.ex-en { font-family: var(--hand); font-weight: 700; font-size: 1.2rem; }
+.ex-km { color: var(--muted); font-size: 0.95rem; }
+.grammar-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
+.grammar-card .explain { margin-bottom: 10px; }
+.b-main { font-size: 1.35rem; line-height: 1.4; }

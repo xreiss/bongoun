@@ -55,7 +55,17 @@
     "readToMe": "អានឲ្យខ្ញុំស្តាប់",
     "quiz": "សំណួរ",
     "storyQuiz": "ស្តាប់ ហើយរកប្រយោគដែលត្រូវ",
-    "weak": "ពាក្យពិបាក"
+    "weak": "ពាក្យពិបាក",
+    "grammar": "វេយ្យាករណ៍",
+    "gram_pic": "ស្តាប់ប្រយោគ ហើយចុចលើរូបភាពដែលត្រូវ",
+    "gram_time": "ស្តាប់ ហើយប្រាប់ថា រឿងនេះកើតឡើងពេលណា",
+    "gram_fill": "ស្តាប់អត្ថន័យ ហើយជ្រើសរើសពាក្យដែលត្រូវ",
+    "gram_order": "ស្តាប់ ហើយរៀបពាក្យឲ្យត្រូវលំដាប់",
+    "timePast": "កន្លងមក",
+    "timeNow": "ឥឡូវ",
+    "timeFuture": "ថ្ងៃក្រោយ",
+    "conversations": "ការសន្ទនា",
+    "dialogueQuiz": "តើអ្នកនិយាយអ្វី?"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -115,6 +125,14 @@
     "storyQuiz": "Listen and find the sentence",
     "weak": "Weak words",
     "conversations": "Conversations",
-    "dialogueQuiz": "What do you say?"
+    "dialogueQuiz": "What do you say?",
+    "grammar": "Grammar",
+    "gram_pic": "Listen and tap the matching picture",
+    "gram_time": "When does it happen?",
+    "gram_fill": "Pick the right word",
+    "gram_order": "Put the words in order",
+    "timePast": "Past",
+    "timeNow": "Now",
+    "timeFuture": "Future"
   }
 }

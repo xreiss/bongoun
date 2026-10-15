@@ -45,6 +45,10 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
   highlighting from TTS word timings, tap a word to hear it, Khmer meaning, 3-question quiz; unlock at 80% known).
 - Xavier: 8 conversations (chat view, romanization/English toggles, play all, "what do you say?" quiz); lines are
   in Native check for her to verify.
+- Her grammar: 12 lessons (to be, a/an/this, plurals, have/has, present, now, past, future, can, questions,
+  prepositions, pronouns), 95 sentences. Each lesson opens with a spoken Khmer explanation + examples; practice =
+  picture, past/now/future, fill-in (Khmer meaning decides the form), word order. Grammar reference screen.
+  8 English conversations (English + Khmer meaning, quiz).
 - Both: "Weak words" session (most-missed / lowest-ease cards, practice only).
 
 ## Steps
