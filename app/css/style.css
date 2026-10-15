@@ -477,3 +477,12 @@ canvas.shake { animation: shake 0.3s; }
 .grammar-card h3 { font-size: 1.15rem; margin-bottom: 10px; }
 .grammar-card .explain { margin-bottom: 10px; }
 .b-main { font-size: 1.35rem; line-height: 1.4; }
+
+/* ---------- meaning & example while writing ---------- */
+.meaning-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.meaning-row .pic.small { font-size: 2.2rem; }
+.meaning-text { display: grid; text-align: left; line-height: 1.3; }
+.meaning-text b { font-size: 1.1rem; }
+.meaning-row .word.hand { font-size: 1.6rem; }
+.example-card { display: flex; align-items: center; gap: 10px; }
+.example-card .model-card { padding: 2px; }

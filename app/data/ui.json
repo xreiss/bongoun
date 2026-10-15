@@ -65,7 +65,8 @@
     "timeNow": "ឥឡូវ",
     "timeFuture": "ថ្ងៃក្រោយ",
     "conversations": "ការសន្ទនា",
-    "dialogueQuiz": "តើអ្នកនិយាយអ្វី?"
+    "dialogueQuiz": "តើអ្នកនិយាយអ្វី?",
+    "example": "គំរូ"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -97,7 +98,7 @@
     "modeTrace": "Trace",
     "modeCopy": "Copy",
     "modeMemory": "Memory",
-    "writeTrace": "Watch, then trace it stroke by stroke",
+    "writeTrace": "Look at the example, then trace over the grey letter",
     "writeCopy": "Look at the model, then write it in the box",
     "writeMemory": "Listen, then write it from memory",
     "consonant_write": "Listen and write this letter from memory",
@@ -133,6 +134,7 @@
     "gram_order": "Put the words in order",
     "timePast": "Past",
     "timeNow": "Now",
-    "timeFuture": "Future"
+    "timeFuture": "Future",
+    "example": "Example"
   }
 }

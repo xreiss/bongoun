@@ -408,10 +408,30 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
     explain().then(() => playSeq(lesson.examples.map((en) => ['en', en])));
   }
 
+  /** What the word means, shown while writing: Khmer for her English words, English + romanization for Khmer. */
+  function meaningRow(item) {
+    if (item.kind === 'word' && course.target === 'en') {
+      return h('div.meaning-row', item.sight ? '' : h('span.pic.small', item.c.emoji),
+        item.c.km ? h('button.mini.wide', { onclick: () => play('km', item.c.km) }, icon('volume', { size: 16 }), kmText(item.c.km)) : '');
+    }
+    if (item.kind === 'word') return h('div.meaning-row', h('span.pic.small', item.c.emoji), h('div.meaning-text', h('b', item.c.en), h('span.rom', item.c.rom)));
+    if (item.kind === 'letter') return h('div.meaning-row', h('span.pic.small', item.ex.emoji), h('span.word.hand', highlightLetter(item.ex.en, item.L)), h('button.mini', { onclick: () => play('km', item.ex.km) }, icon('volume', { size: 16 }), kmText(item.ex.km)));
+    if (item.kind === 'consonant') return h('div.meaning-row', h('span.rom', item.rom), seriesBadge(item.s));
+    if (item.kind === 'vowel') return h('div.meaning-row', h('span.rom', `k${item.r1} / k${item.r2}`));
+    return '';
+  }
+
+  /** Khmer letters have no stroke data unless a native writer recorded them: show the model clearly first. */
+  function exampleCard(glyph, padOpts) {
+    const strokes = /Battambang/.test(padOpts.font) ? Boolean(RECORDED[glyph]) : hasStrokes(glyph);
+    if (strokes) return '';
+    return h('div.example-card', h('div.model-card', modelCanvas(glyph, { ...padOpts, px: 96 })), h('span.note', { lang }, t('example')));
+  }
+
   // ---------- 2. write it straight away ----------
   function renderLearnWrite(stage, item) {
     const w = writable(course, item);
-    stage.append(instruction('writeTrace') || '');
+    stage.append(instruction('writeTrace') || '', meaningRow(item), exampleCard(w.glyph, w.pad));
     const continueBtn = h('button.btn.primary.wide', { onclick: practised, lang, disabled: true }, t('next'), icon('next', { size: 18 }));
     const pad = writingPad(stage, item, w.glyph, { ...w.pad, guide: true, guided: true }, {
       onComplete: () => {
@@ -514,16 +534,17 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       // Copy: the model is shown beside an empty pad.
       const w = writable(course, item);
       const model = modelCanvas(w.glyph, { ...w.pad, px: 120 });
-      stage.append(h('div.copy-row', h('div.model-card', model), item.c && !item.sight ? h('div.pic.small', item.c.emoji) : ''));
+      stage.append(h('div.copy-row', h('div.model-card', model)), meaningRow(item));
       renderGradedWrite(stage, ex, item, w.glyph, { ...w.pad, guide: false }, w.glyph, { model });
     } else if (type === 'write_word') {
       // From memory: picture + sound (+ meaning for Khmer), no model.
       const w = writable(course, item);
-      stage.append(h('div.prompt', item.sight ? '' : h('div.pic', c.emoji), enCourse ? '' : h('div.meaning', c.en)));
+      stage.append(meaningRow(item));
       renderGradedWrite(stage, ex, item, w.glyph, { ...w.pad, guide: false }, enCourse ? w.glyph : `${c.km} — ${c.rom}`);
     } else if (type === 'consonant_trace' || type === 'consonant_write') {
       const guide = type === 'consonant_trace';
-      stage.append(h('div.row', h('div.rom', item.rom), seriesBadge(item.s)));
+      stage.append(meaningRow(item));
+      if (guide) stage.append(exampleCard(item.ch, KHMER_PAD));
       document.fonts.load('400 100px Battambang').finally(() =>
         renderGradedWrite(stage, ex, item, item.ch, { ...KHMER_PAD, guide, guided: guide && Boolean(RECORDED[item.ch]) }, `${item.ch} — ${item.rom}`));
     } else if (type === 'say_it') {

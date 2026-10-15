@@ -247,6 +247,13 @@ function writingSets(course) {
     return [
       { title: 'ក ខ គ', items: consonants.map((c) => ({ g: c.ch, say: ['km', c.ch], label: c.rom, s: c.s })) },
       { title: 'ខ្ញុំ', items: subscripts.map((w) => ({ g: w.word, say: ['km', w.word], label: `${w.rom} — ${w.en}` })) },
+      // Short Khmer words, with their meaning
+      {
+        title: 'ពាក្យ',
+        items: data.concepts
+          .filter((c) => c.km && c.cat !== 'phrases' && c.cat !== 'sight' && [...c.km].length <= 6 && !/[\s/?]/.test(c.km))
+          .map((c) => ({ g: c.km, say: ['km', c.km], emoji: c.emoji, label: `${c.rom} — ${c.en}` })),
+      },
     ];
   }
   const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -254,7 +261,7 @@ function writingSets(course) {
   return [
     { title: 'A B C', items: [...L].map((x) => ({ g: x, say: ['en', `letter:${x}`] })) },
     { title: 'a b c', items: [...L.toLowerCase()].map((x) => ({ g: x, say: ['en', `letter:${x.toUpperCase()}`] })) },
-    { title: 'cat', items: phonicsWords.map((c) => ({ g: c.en.toLowerCase(), say: ['en', c.en], emoji: c.emoji })) },
+    { title: 'cat', items: phonicsWords.map((c) => ({ g: c.en.toLowerCase(), say: ['en', c.en], emoji: c.emoji, km: c.km })) },
   ];
 }
 
@@ -371,9 +378,14 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     if (state.mode === 'memory') prompt.append(h('button.speaker.big', { onclick: say, 'aria-label': 'Listen' }, icon('volume', { size: 34 })));
     else prompt.append(h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, icon('volume', { size: 22 })));
     if (canWatch && state.mode !== 'memory') prompt.append(h('button.tool.accent', { onclick: watch, lang }, icon('play', { size: 16 }), h('span', t('watch'))));
-    if (x.emoji) prompt.append(h('span.big-emoji.small', x.emoji));
+    if (x.emoji) prompt.append(h('span.pic.small', x.emoji));
+    // The meaning: Khmer for her English words (tap to hear), English for Khmer words.
+    if (x.km) prompt.append(h('button.mini.wide', { onclick: () => play('km', x.km) }, icon('volume', { size: 16 }), h('span', { lang: 'km' }, x.km)));
     if (x.label) prompt.append(h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : ''));
-    if (km && !canWatch && state.mode === 'trace') prompt.append(h('div.muted.small.center-text', 'No recorded stroke order for this letter yet — start at its small circle or hook (the “head”). Use 🎥 Record to add it.'));
+    if (km && !canWatch && state.mode === 'trace') {
+      // No recorded stroke order: show the letter clearly as the example (no guessed animation).
+      prompt.append(h('div.model-card', modelCanvas(x.g, { ...padOpts, px: 96 })));
+    }
 
     const buttons = [h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); hint.textContent = ''; }, 'aria-label': 'Clear' }, icon('refresh', { size: 20 }))];
     if (!pad.guided) {
