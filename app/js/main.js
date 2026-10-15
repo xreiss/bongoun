@@ -349,7 +349,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
         if (verdict !== 'ok') speak(feedback[verdict]);
       },
       onDone: (mistakes) => {
-        const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
+        const stars = mistakes <= 1 ? 3 : mistakes <= 3 ? 2 : 1;
         award(x, stars, result);
         hint.textContent = '';
         (lang === 'km' ? speak(stars >= 2 ? 'correct' : 'wrong') : Promise.resolve()).then(say);
@@ -378,7 +378,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
         onclick: async () => {
           if (pad.empty) return;
           const score = pad.score();
-          const stars = score >= 0.8 ? 3 : score >= 0.6 ? 2 : score >= 0.45 ? 1 : 0;
+          const stars = score >= 0.75 ? 3 : score >= 0.55 ? 2 : score >= 0.4 ? 1 : 0;
           award(x, stars, result);
           if (state.mode !== 'trace') {
             pad.reveal();

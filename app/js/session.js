@@ -558,7 +558,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       answered(ex, item, ok, stage, answerLabel, opts);
     };
     const pad = writingPad(stage, item, glyph, padOpts, {
-      onComplete: (mistakes) => finishWith(mistakes <= 2, { hard: mistakes > 0 }),
+      onComplete: (mistakes) => finishWith(mistakes <= 3, { hard: mistakes > 0 }),
     });
     if (model && pad.hasStrokes) stage.querySelector('.copy-row')?.append(h('button.tool.accent', { onclick: () => model.demo(), lang }, icon('play', { size: 16 }), h('span', t('watch'))));
     if (!pad.guided) {
@@ -567,7 +567,7 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         onclick: () => {
           if (pad.empty) return;
           const score = pad.score();
-          finishWith(score >= 0.55, { hard: score < 0.75 });
+          finishWith(score >= 0.45, { hard: score < 0.7 });
           if (!padOpts.guide) {
             pad.reveal(); // show the model to compare…
             if (pad.hasStrokes) setTimeout(() => pad.demo(), 900); // …and how it is written

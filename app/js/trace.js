@@ -209,8 +209,9 @@ function distToPoly(p, poly) {
 
 /** Compare one drawn stroke (px) with the expected one → 'ok' | 'direction' | 'start' | 'shape'. */
 export function judgeStroke(drawn, expected, size) {
-  const tol = size * 0.075;
-  if (polyLength(expected) < tol) return dist(drawn[0], expected[0]) < tol * 1.6 ? 'ok' : 'start'; // a dot
+  // Tolerance sized for a fingertip on a phone (a fingertip is ~40px wide), never below 26px.
+  const tol = Math.max(size * 0.1, 26);
+  if (polyLength(expected) < tol) return dist(drawn[0], expected[0]) < tol * 1.8 ? 'ok' : 'start'; // a dot
   const a = drawn[0];
   const b = drawn[drawn.length - 1];
   const s = expected[0];
@@ -219,15 +220,15 @@ export function judgeStroke(drawn, expected, size) {
   // Reversed: begins where it should end and ends where it should begin (clearly, for "c"-like shapes
   // whose ends are close together).
   if (!closed && dist(a, e) < tol * 1.5 && dist(b, s) < tol * 1.5 && dist(a, e) < dist(a, s) && dist(b, s) < dist(b, e)) return 'direction';
-  if (dist(a, s) > tol * 1.6) return 'start';
+  if (dist(a, s) > tol * 2) return 'start';
   const mean = drawn.reduce((sum, p) => sum + distToPoly(p, expected), 0) / drawn.length;
-  const reached = expected.filter((q) => drawn.some((p) => dist(p, q) < tol * 1.3)).length / expected.length;
-  if (mean > tol * 0.8 || reached < 0.75) return 'shape';
+  const reached = expected.filter((q) => drawn.some((p) => dist(p, q) < tol * 1.4)).length / expected.length;
+  if (mean > tol || reached < 0.6) return 'shape';
   if (closed) {
     // For loops the direction shows early in the stroke: which side of the start does it head to?
     const k = Math.min(drawn.length - 1, Math.max(2, Math.round(drawn.length * 0.2)));
     const j = Math.max(1, Math.round(expected.length * 0.2));
-    if (dist(drawn[k], expected[expected.length - 1 - j]) + tol * 0.3 < dist(drawn[k], expected[j])) return 'direction';
+    if (dist(drawn[k], expected[expected.length - 1 - j]) + tol * 0.5 < dist(drawn[k], expected[j])) return 'direction';
   }
   return 'ok';
 }
@@ -271,8 +272,11 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
   let drawing = null;
   let showGuide = guide;
   let busy = false;
-  let current = 0; // guided: index of the next stroke to write
+  const written = new Set(); // guided: strokes already written (any order is accepted)
+  const nextStroke = () => polys.findIndex((_, k) => !written.has(k)); // the one the green dot suggests
+  const finished = () => isGuided && written.size === polys.length;
   let mistakes = 0;
+  let failsHere = 0; // misses in a row on the suggested stroke
   let anim = null; // running demo; touching the pad skips it
 
   async function play(polysToShow, bg = background) {
@@ -299,8 +303,9 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     if (isGuided) {
       ctx.strokeStyle = cssVar('--ink', '#2563eb');
       ctx.lineWidth = penWidth;
-      for (let k = 0; k < current; k++) polyline(ctx, polys[k]);
-      if (current < polys.length && !drawing) startMarker(ctx, polys[current], current + 1, size);
+      for (const k of written) polyline(ctx, polys[k]);
+      const n = nextStroke();
+      if (n >= 0 && !drawing) startMarker(ctx, polys[n], n + 1, size);
     }
     ctx.strokeStyle = cssVar('--ink', '#2563eb');
     ctx.lineWidth = isGuided ? penWidth : size * ink;
@@ -313,7 +318,7 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
   };
   canvas.addEventListener('pointerdown', (e) => {
     if (anim) anim.cancel(); // skip the demo and let them write
-    if (isGuided && current === polys.length) return;
+    if (finished()) return;
     try { canvas.setPointerCapture(e.pointerId); } catch { /* synthetic or already-released pointer */ }
     drawing = [pos(e)];
     strokes.push(drawing);
@@ -329,32 +334,59 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     const done = drawing;
     drawing = null;
     if (!isGuided) return redraw();
-    const verdict = judgeStroke(done.map(([x, y]) => [x * size, y * size]), polys[current], size);
+    const drawn = done.map(([x, y]) => [x * size, y * size]);
+    const target = nextStroke();
+    // Accept the suggested stroke, any other remaining stroke (own order is fine),
+    // or two consecutive strokes drawn in one go (e.g. both sides of "A").
+    const remaining = [target, ...polys.map((_, k) => k).filter((k) => k !== target && !written.has(k))];
+    let matched = null;
+    let verdict = 'shape';
+    const drawnLen = polyLength(drawn);
+    for (const k of remaining) {
+      const v = judgeStroke(drawn, polys[k], size);
+      if (k === target) verdict = v;
+      const nxt = polys[k + 1];
+      const joinable = nxt && !written.has(k + 1) && dist(polys[k].at(-1), nxt[0]) < size * 0.15;
+      const joined = joinable && judgeStroke(drawn, [...polys[k], ...nxt], size) === 'ok';
+      // A line much longer than this one stroke is the two strokes drawn together.
+      if (joined && (v !== 'ok' || drawnLen > polyLength(polys[k]) * 1.4)) { matched = [k, k + 1]; break; }
+      if (v === 'ok') { matched = [k]; break; }
+    }
     strokes.length = 0;
-    if (verdict === 'ok') {
-      current++;
+    if (matched) {
+      matched.forEach((k) => written.add(k));
+      failsHere = 0;
       redraw();
-      onStroke?.('ok', current, polys.length);
-      if (current === polys.length) onDone?.(mistakes);
+      onStroke?.('ok', written.size, polys.length);
+      if (finished()) onDone?.(mistakes);
       return;
     }
     mistakes++;
+    failsHere++;
     redraw();
     canvas.classList.remove('shake');
     void canvas.offsetWidth; // restart the CSS animation
     canvas.classList.add('shake');
-    onStroke?.(verdict, current, polys.length);
+    onStroke?.(verdict, written.size, polys.length);
     // Show how this stroke is written, then let them try again.
     const was = showGuide;
     showGuide = true;
-    await play([polys[current]], () => {
+    await play([polys[target]], () => {
       background();
       ctx.strokeStyle = cssVar('--ink', '#2563eb');
       ctx.lineWidth = penWidth;
       ctx.lineCap = ctx.lineJoin = 'round';
-      for (let k = 0; k < current; k++) polyline(ctx, polys[k]); // keep the strokes already written
+      for (const k of written) polyline(ctx, polys[k]); // keep the strokes already written
     });
     showGuide = was;
+    // Never get stuck: after two misses on the same stroke it is filled in and the next one starts.
+    if (failsHere >= 2) {
+      failsHere = 0;
+      written.add(target);
+      redraw();
+      onStroke?.('ok', written.size, polys.length);
+      if (finished()) onDone?.(mistakes);
+    }
   };
   canvas.addEventListener('pointerup', end);
   canvas.addEventListener('pointercancel', end);
@@ -368,7 +400,7 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
    * penalising ink outside it; normalize moves/scales the writing onto the model first (copy/memory).
    */
   function score({ normalize = !guide, debug = false } = {}) {
-    if (isGuided) return current === polys.length ? Math.max(0, 1 - mistakes * 0.15) : 0;
+    if (isGuided) return finished() ? Math.max(0, 1 - mistakes * 0.15) : 0;
     const mk = () => {
       const c = document.createElement('canvas');
       c.width = c.height = GRID;
@@ -379,7 +411,7 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     shape.draw(glyphCtx, GRID);
     const zoneCtx = mk();
     zoneCtx.fillStyle = zoneCtx.strokeStyle = '#000';
-    shape.draw(zoneCtx, GRID, GRID * 0.035);
+    shape.draw(zoneCtx, GRID, GRID * 0.05);
     const g = glyphCtx.getImageData(0, 0, GRID, GRID).data;
 
     let map = (x, y) => [x * GRID, y * GRID];
@@ -416,7 +448,7 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     const thinCtx = mk(); // the learner's line itself
     strokeAll(thinCtx, 2);
     const reachCtx = mk(); // what the line "reaches", with a tolerance on each side
-    strokeAll(reachCtx, GRID * 0.085);
+    strokeAll(reachCtx, GRID * 0.11);
 
     const z = zoneCtx.getImageData(0, 0, GRID, GRID).data;
     const thin = thinCtx.getImageData(0, 0, GRID, GRID).data;
@@ -434,8 +466,8 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     }
     if (!glyphPx || !inkPx) return 0;
     const clamp = (v) => Math.min(Math.max(v, 0), 1);
-    const coverage = clamp((covered / glyphPx - 0.65) / 0.27); // ~92%+ of the model reached → full marks
-    const precision = clamp((onLetter / inkPx - 0.6) / 0.3); // ~90%+ of the ink on the model → full marks
+    const coverage = clamp((covered / glyphPx - 0.7) / 0.25); // ~95% of the model reached → full marks
+    const precision = clamp((onLetter / inkPx - 0.62) / 0.3); // ~92% of the ink on the model → full marks
     if (debug) return { coverage, precision };
     return coverage * precision;
   }
@@ -448,8 +480,9 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     hasStrokes: Boolean(polys),
     clear() {
       strokes.length = 0;
-      current = 0;
+      written.clear();
       mistakes = 0;
+      failsHere = 0;
       redraw();
     },
     /** Show the model after a copy/memory attempt so the learner can compare. */
@@ -471,10 +504,10 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
       return mistakes;
     },
     get complete() {
-      return isGuided && current === polys.length;
+      return finished();
     },
     get empty() {
-      return isGuided ? current === 0 : strokes.length === 0;
+      return isGuided ? written.size === 0 : strokes.length === 0;
     },
     /** Raw strokes in 0..1 pad units (used by the stroke recorder). */
     get strokes() {
