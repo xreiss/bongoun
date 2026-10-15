@@ -613,6 +613,9 @@ function translator(p) {
     onclick: async () => {
       const text = input.value.trim();
       if (!text) return;
+      // Asked before? Reuse it (free and instant).
+      const cached = history.find((x) => x.text.trim().toLowerCase() === text.toLowerCase());
+      if (cached) return out.replaceChildren(translationCard(text, cached.r));
       go.disabled = true;
       out.replaceChildren(h('p.muted.center-text', '…'));
       try {

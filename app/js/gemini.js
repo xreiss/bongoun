@@ -49,14 +49,32 @@ export async function connectGemini(key) {
 
 export const geminiModel = () => settings().model;
 
-async function generate(parts, schema, { temperature = 0.2 } = {}) {
+// Thinking tokens are billed like output and were ~85% of the cost of a speaking check, for no gain
+// on these short tasks: keep thinking minimal. Gemini 2.5 uses a budget, Gemini 3+ a level.
+const thinkingFor = (model) => (/gemini-2\./.test(model) ? { thinkingBudget: 0 } : { thinkingLevel: 'low' });
+
+async function generate(parts, schema, { temperature = 0.2, maxOutputTokens = 1024 } = {}) {
   const { model } = settings();
-  const out = await call(`models/${model}:generateContent`, {
+  const request = (thinking) => call(`models/${model}:generateContent`, {
     body: {
       contents: [{ role: 'user', parts }],
-      generationConfig: { temperature, responseMimeType: 'application/json', responseSchema: schema },
+      generationConfig: {
+        temperature,
+        maxOutputTokens,
+        responseMimeType: 'application/json',
+        responseSchema: schema,
+        ...(thinking ? { thinkingConfig: thinking } : {}),
+      },
     },
   });
+  let out;
+  try {
+    out = await request(thinkingFor(model));
+  } catch (err) {
+    // A model that doesn't accept the thinking setting: retry with its defaults.
+    if (!/invalid argument|thinking/i.test(err.message)) throw err;
+    out = await request(null);
+  }
   const text = out.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('') || '';
   return JSON.parse(text);
 }
@@ -72,7 +90,26 @@ const toBase64 = (blob) =>
  * Listen to a recording of a beginner saying `expected` (an English word or short phrase).
  * Returns { heard, verdict: 'correct' | 'close' | 'wrong' | 'silent', wrongLetters: [indexes], tip }.
  */
+/** Loudest sample in a recording (0..1), decoded on the phone. null if it can't be decoded. */
+async function peakLevel(blob) {
+  try {
+    const ctx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, 1, 16000);
+    const buf = await ctx.decodeAudioData(await blob.arrayBuffer());
+    let peak = 0;
+    for (let c = 0; c < buf.numberOfChannels; c++) {
+      const data = buf.getChannelData(c);
+      for (let i = 0; i < data.length; i += 4) peak = Math.max(peak, Math.abs(data[i]));
+    }
+    return peak;
+  } catch {
+    return null;
+  }
+}
+
 export async function checkSpeech(blob, expected) {
+  // Nothing was said: answer locally instead of paying for a request.
+  const peak = await peakLevel(blob);
+  if (peak !== null && peak < 0.02) return { heard: '', verdict: 'silent', wrongLetters: [], tip: '' };
   const audio = await toBase64(blob);
   const prompt = `You are a kind, accurate English pronunciation coach. The learner is an adult Khmer native speaker who is a complete beginner and cannot read well.
 They were asked to say the English word or phrase: "${expected}".
@@ -94,6 +131,7 @@ Be encouraging but honest: do not mark "correct" when the vowel or a consonant w
       },
       required: ['heard', 'verdict', 'wrongLetters', 'tip'],
     },
+    { maxOutputTokens: 256 },
   );
 }
 
@@ -121,5 +159,5 @@ Return:
       examples: { type: 'ARRAY', items: word },
     },
     required: ['khmer', 'romanization', 'words', 'notes', 'examples'],
-  });
+  }, { maxOutputTokens: 1500 });
 }
