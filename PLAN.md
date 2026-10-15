@@ -56,8 +56,10 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
       🎤 "say it" speaking exercise in her reviews (Gemini listens; wrong sounds turn red; Khmer spoken feedback;
       2 tries) and a 🌐 translator for Xavier (Khmer + romanization + word by word + examples, last 30 kept).
       Model is picked automatically from the key's model list (prefers `gemini-flash-latest`).
-- [ ] **Phonics sounds (needs the key in `.env`):** `python3 tools/gemini_phonics.py` → listen → `--accept`;
-      the phonics intro then sounds words out (c… a… t). Fallback if they sound wrong: Azure SSML phonemes.
+- [x] **Phonics sounds:** 23 isolated sounds made with Gemini TTS (paid key), each checked by Gemini listening
+      (must be one isolated sound, not a letter name). The phonics intro sounds words out (c… a… t → cat);
+      33/36 words. Missing: /h/ (the model produces a sneeze/laugh) → hat, hot, hug say the whole word only.
+      Regenerate/review: `python3 tools/gemini_phonics.py [letters]`, listen in tools/phonics-candidates/index.html, `--accept`.
 - [ ] **Step 4b — Her next level:** sight words (the, is, my…), short stories with karaoke highlighting,
       digraphs (sh, ch, th), recording her voice to compare with the model.
 - [x] **Step 5a — Khmer handwriting:** same three-mode Writing screen (33 consonants + subscript words) in the
