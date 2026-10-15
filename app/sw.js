@@ -1,5 +1,5 @@
 // Offline support: app shell is precached; audio is cached the first time it plays.
-const VERSION = 'v10';
+const VERSION = 'v11';
 const SHELL = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest', 'icon.svg',
   'js/main.js', 'js/audio.js', 'js/store.js', 'js/courses.js', 'js/session.js', 'js/trace.js', 'js/strokes.js', 'js/voice.js', 'js/gemini.js', 'js/dom.js',

@@ -545,7 +545,12 @@ async function checkSummary(p, items) {
 // ---------- settings: Gemini key ----------
 function settingsScreen(back = home) {
   setTheme('');
-  const input = h('input.key-input', { type: 'password', placeholder: 'Paste your Gemini API key', autocomplete: 'off', spellcheck: false });
+  const input = h('input.key-input', {
+    type: 'password',
+    placeholder: hasGemini() ? 'Paste a new key to replace the current one' : 'Paste your Gemini API key',
+    autocomplete: 'off',
+    spellcheck: false,
+  });
   const status = h('div.key-status', hasGemini() ? `✓ Connected — model ${geminiModel()}` : 'Not connected');
   const connect = h('button.btn.primary', {
     onclick: async () => {
@@ -562,7 +567,7 @@ function settingsScreen(back = home) {
       }
       connect.disabled = false;
     },
-  }, 'Connect');
+  }, hasGemini() ? 'Replace key' : 'Connect');
   show(
     h(
       'div.screen',
