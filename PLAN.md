@@ -26,6 +26,15 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 4. **Illiterate-friendly by design:** big picture answers, auto-played Khmer instructions, a 🔊 replay on everything,
    a 🐢 slow mode, wrong answers re-queued a few cards later at an easier level.
 
+## Repetition & writing (Oct 2026)
+
+- Schedule is SM-2 style per card: interval + ease (1 → 3 → 7 → 18 → 43 days when easy; lapses shrink the
+  interval and the ease; "right with effort" grows slowly). Old progress is converted automatically.
+- In-session repetition: a new word is met → written (guided trace) → practised → asked again 4 cards later.
+  A missed card comes back twice (soon with an easier exercise, and at the end).
+- Writing is in every ladder: English words (copy, then from memory), letters (trace, other case from memory),
+  Khmer words, consonants and vowel syllables (copy / memory). Phrases are not written.
+
 ## Steps
 
 - [x] **Step 1 — Core app (Khmer ↔ English).** 120 shared concepts with emoji, 26 letters, 33 consonants, 24 vowels,

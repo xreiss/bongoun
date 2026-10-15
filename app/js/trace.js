@@ -129,7 +129,7 @@ function startMarker(ctx, poly, n, size) {
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.font = `800 ${r * 1.3}px Nunito, sans-serif`;
+  ctx.font = `700 ${r * 1.2}px Inter, system-ui, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(String(n), x, y + 1);

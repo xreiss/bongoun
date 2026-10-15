@@ -47,7 +47,8 @@
     "spkClose": "ជិតត្រូវហើយ! ស្តាប់សំឡេងពណ៌ក្រហម ហើយសាកម្តងទៀត",
     "spkWrong": "មិនទាន់ត្រូវទេ ស្តាប់គំរូ ហើយនិយាយយឺតៗ",
     "spkSilent": "ខ្ញុំមិនឮទេ សូមនិយាយខ្លាំងជាងនេះបន្តិច",
-    "spkError": "មិនអាចពិនិត្យបានទេ ពេលនេះ"
+    "spkError": "មិនអាចពិនិត្យបានទេ ពេលនេះ",
+    "write_copy": "មើលគំរូ ហើយសរសេរវានៅក្នុងប្រអប់"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -79,7 +80,7 @@
     "modeTrace": "Trace",
     "modeCopy": "Copy",
     "modeMemory": "Memory",
-    "writeTrace": "Watch, then trace one stroke at a time from the green dot",
+    "writeTrace": "Watch, then trace it stroke by stroke",
     "writeCopy": "Look at the model, then write it in the box",
     "writeMemory": "Listen, then write it from memory",
     "consonant_write": "Listen and write this letter from memory",
@@ -96,6 +97,8 @@
     "spkSilent": "I couldn't hear you — speak a little louder",
     "spkError": "Can't check right now",
     "translate": "Translate",
-    "settings": "Settings"
+    "settings": "Settings",
+    "write_copy": "Copy it in the box",
+    "write_word": "Write it from memory"
   }
 }

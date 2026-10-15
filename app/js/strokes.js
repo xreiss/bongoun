@@ -56,6 +56,7 @@ export const LATIN = {
   x: { w: 78, s: ['M14 50 L66 100', 'M66 50 L14 100'] },
   y: { w: 80, s: ['M10 50 L40 100', 'M70 50 L30 145'] },
   z: { w: 78, s: ['M14 50 L66 50 L14 100 L66 100'] },
+  ' ': { w: 34, s: [] }, // word gap
 };
 
 const LETTER_GAP = 10;
@@ -95,7 +96,7 @@ export function strokeModel(text) {
   const polys = [];
   [...text].forEach((ch, i) => {
     const L = LATIN[ch];
-    if (i) x += LETTER_GAP;
+    if (i && ch !== ' ' && text[i - 1] !== ' ') x += LETTER_GAP;
     for (const d of L.s) polys.push(sample(d).map(([px, py]) => [px + x, py]));
     x += L.w;
   });

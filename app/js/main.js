@@ -9,14 +9,13 @@ import { buildCourses } from './courses.js';
 import { runSession, seriesBadge } from './session.js';
 import { tracePad, modelCanvas } from './trace.js';
 import { RECORDED, loadRecorded, saveRecording } from './strokes.js';
+import { icon } from './icons.js';
 
 const PROFILES = [
   { id: 'her', course: 'en', theme: 'lotus', glyph: 'Aa', title: 'English', sub: 'រៀនភាសាអង់គ្លេស', subLang: 'km' },
   { id: 'xavier', course: 'km', theme: 'temple', glyph: 'ក', title: 'ភាសាខ្មែរ', sub: 'Learn Khmer', subLang: 'en' },
 ];
 const DAILY_GOAL = 20;
-// Horizontal offsets (px) that make the lesson path wind left and right.
-const PATH_WAVE = [0, 52, 78, 52, 0, -52, -78, -52];
 
 const app = document.getElementById('app');
 let data;
@@ -49,8 +48,7 @@ function home() {
   show(
     h(
       'div.screen.home',
-      h('div.brand', h('div.brand-km', { lang: 'km' }, 'បងអូន'), h('div.brand-en', 'BongOun')),
-      h('p.tagline', 'Learn together · ', h('span', { lang: 'km' }, 'រៀនជាមួយគ្នា')),
+      h('div.brand', h('div.brand-mark', h('span', 'A'), h('span', { lang: 'km' }, 'ក')), h('div.brand-name', 'BongOun'), h('div.brand-sub', 'Learn together · ', h('span', { lang: 'km' }, 'រៀនជាមួយគ្នា'))),
       h(
         'div.profiles',
         PROFILES.map((p) =>
@@ -59,88 +57,104 @@ function home() {
             { onclick: () => { store.setLast(p.id); dashboard(p); } },
             h('span.p-glyph', { lang: p.course === 'km' ? 'km' : 'en' }, p.glyph),
             h('span.p-text', h('span.p-title', { lang: p.course === 'km' ? 'km' : 'en' }, p.title), h('span.p-sub', { lang: p.subLang }, p.sub)),
-            h('span.p-arrow', '›'),
+            icon('chevron', { size: 20 }),
           ),
         ),
       ),
-      h('div.footer', h('button.link', { onclick: () => settingsScreen() }, '⚙️ Settings'), ' · ', h('button.link', { onclick: backupDialog }, 'Backup / restore progress')),
+      h(
+        'nav.footer-links',
+        h('button.link', { onclick: () => settingsScreen() }, icon('settings', { size: 16 }), h('span', 'Settings')),
+        h('button.link', { onclick: backupDialog }, icon('download', { size: 16 }), h('span', 'Backup')),
+      ),
     ),
   );
 }
 
-// ---------- dashboard: header + winding lesson path ----------
+// ---------- dashboard ----------
 function dashboard(p) {
   setTheme(p.theme);
   const course = data.courses[p.course];
   const lang = course.ui;
-  const t = (k) => data.ui[lang][k];
-  const now = Date.now();
-  const allItems = course.units.flatMap((u) => u.items);
-  const due = allItems.filter((id) => { const c = store.card(p.id, id); return c.box > 0 && c.due <= now; }).length;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k] || '';
+  const allItems = [...new Set(course.units.flatMap((u) => u.items))];
+  const due = allItems.filter((id) => store.isDue(p.id, id)).length;
+  const learned = allItems.filter((id) => store.card(p.id, id).box > 0).length;
   const today = store.todayCount(p.id);
+  const minutes = Math.max(2, Math.round((Math.min(due, 12) + 5) * 0.4));
 
   const header = h(
     'header.dash-head',
+    h('button.icon-btn.ghost', { onclick: () => { store.setLast(null); home(); }, 'aria-label': 'Switch profile' }, icon('users')),
+    h('div.dash-title', { lang: p.course === 'km' ? 'km' : 'en' }, p.title),
+    h('div.stat', { title: t('streak') }, icon('flame', { size: 18 }), h('b', String(store.streak(p.id)))),
+    slowToggle(),
+  );
+
+  const todayCard = h(
+    'section.today',
     h(
-      'div.topbar',
-      h('button.icon-btn', { onclick: () => { store.setLast(null); home(); }, 'aria-label': 'Switch profile' }, '⇄'),
-      h('div.stat', h('span.flame', '🔥'), h('b', String(store.streak(p.id)))),
+      'div.today-top',
+      h('div', h('div.today-label', { lang }, t('practice')), h('div.today-meta', `${due} to review · ~${minutes} min`)),
       goalRing(today, DAILY_GOAL, t('goal')),
-      slowToggle(),
     ),
-    h(
-      'button.hero',
-      { onclick: () => startSession(p, null), lang },
-      h('span.hero-play', '▶'),
-      h('span.hero-text', h('span.hero-title', t('practice')), h('span.hero-sub', { lang }, t('welcome'))),
-      due ? h('span.pill', String(due)) : null,
-    ),
-    course.id === 'km'
-      ? h(
-          'div.chips',
-          h('button.chip', { onclick: () => alphabet(p) }, h('span', { lang: 'km' }, 'កខគ'), ' Alphabet'),
-          h('button.chip', { onclick: () => writing(p) }, '✍️ ', t('writing')),
-          h('button.chip', { onclick: () => nativeCheck(p) }, '🎧 ', t('checkTitle')),
-          h('button.chip', { onclick: () => translator(p) }, '🌐 ', t('translate')),
-        )
-      : h('div.chips', h('button.chip.big-chip', { onclick: () => writing(p), lang: 'km' }, h('span.chip-icon', '✍️'), ' ', t('writing'), h('span.chip-sample', 'Aa'))),
+    h('div.today-progress', h('span', { style: `width:${(learned / allItems.length) * 100}%` })),
+    h('div.today-foot', h('span.muted', `${learned} / ${allItems.length} learned`),
+      h('button.btn.primary', { onclick: () => startSession(p, null), lang }, icon('play', { size: 16 }), h('span', t('start')))),
   );
 
+  const tool = (ic, label, onclick, opts = {}) => h('button.tool-card', { onclick, ...opts }, h('span.tool-ic', icon(ic, { size: 20 })), h('span', label));
+  const tools = course.id === 'km'
+    ? h('div.tools', tool('book', 'Alphabet', () => alphabet(p)), tool('pencil', t('writing'), () => writing(p)), tool('globe', t('translate'), () => translator(p)), tool('headphones', t('checkTitle'), () => nativeCheck(p)))
+    : h('div.tools', tool('pencil', t('writing'), () => writing(p), { lang: 'km' }));
+
+  // Lessons grouped into sections, each row with its progress.
   const current = course.units.findIndex((u) => u.items.some((id) => store.card(p.id, id).box === 0));
-  const path = h(
-    'div.path',
-    course.units.map((u, i) => {
-      const total = u.items.length;
-      const seen = u.items.filter((id) => store.card(p.id, id).box > 0).length;
-      const strong = u.items.filter((id) => store.card(p.id, id).box >= 4).length;
-      const pct = Math.round(((seen + strong) / (2 * total)) * 100);
-      const state = strong === total ? 'mastered' : i === current ? 'current' : seen ? 'started' : 'fresh';
-      const isKmIcon = /^[ក-៿]/.test(u.icon);
-      return h(
-        `div.node-wrap.${state}`,
-        { style: `--x:${PATH_WAVE[i % PATH_WAVE.length]}px` },
-        state === 'current' ? h('div.bubble', { lang }, t('start')) : null,
+  const sections = [];
+  course.units.forEach((u, i) => {
+    let sec = sections.find((x) => x.name === u.section);
+    if (!sec) sections.push((sec = { name: u.section, rows: [] }));
+    const total = u.items.length;
+    const seen = u.items.filter((id) => store.card(p.id, id).box > 0).length;
+    const strong = u.items.filter((id) => store.card(p.id, id).box >= 4).length;
+    const state = strong === total ? 'mastered' : i === current ? 'current' : seen ? 'started' : 'fresh';
+    const isKmIcon = /^[ក-៿]/.test(u.icon);
+    sec.rows.push(
+      h(
+        `button.lesson.${state}`,
+        { onclick: () => startSession(p, i) },
+        h('span.lesson-ic', { lang: isKmIcon ? 'km' : 'en' }, u.icon),
         h(
-          'button.node',
-          { onclick: () => startSession(p, i), style: `--pct:${pct}`, 'aria-label': u.title },
-          h('span.node-face', { lang: isKmIcon ? 'km' : 'en' }, state === 'mastered' ? '★' : u.icon),
+          'span.lesson-body',
+          h('span.lesson-title', u.title),
+          h('span.lesson-bar', h('span', { style: `width:${((seen + strong) / (2 * total)) * 100}%` })),
         ),
-        h('div.node-label', u.title),
-      );
-    }),
-  );
+        state === 'mastered' ? h('span.lesson-end.done', icon('check', { size: 18 }))
+          : state === 'current' ? h('span.lesson-end.go', { lang }, t('start'))
+          : h('span.lesson-end', `${seen}/${total}`),
+      ),
+    );
+  });
 
-  show(h('div.screen.dash', header, h('h3.section', { lang }, t('lessons')), path));
+  show(
+    h(
+      'div.screen.dash',
+      header,
+      todayCard,
+      tools,
+      sections.map((sec) => h('section.lesson-group', h('h3.group-title', sec.name), h('div.lesson-list', sec.rows))),
+    ),
+  );
+  document.querySelector('.lesson.current')?.scrollIntoView({ block: 'nearest' });
+  window.scrollTo(0, 0);
 }
 
 function goalRing(value, goal, label) {
   const pct = Math.min(value / goal, 1);
-  const r = 17;
+  const r = 18;
   const c = 2 * Math.PI * r;
-  const svg = `<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="${r}" class="ring-bg"/><circle cx="22" cy="22" r="${r}" class="ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg>`;
   const el = h('div.goal', { title: label, 'aria-label': `${label}: ${value}/${goal}` });
-  el.innerHTML = svg;
-  el.append(h('span.goal-num', pct >= 1 ? '✓' : String(value)));
+  el.innerHTML = `<svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="${r}" class="ring-bg"/><circle cx="22" cy="22" r="${r}" class="ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - pct)}"/></svg>`;
+  el.append(h('span.goal-num', pct >= 1 ? '✓' : `${value}`));
   return el;
 }
 
@@ -159,7 +173,7 @@ function alphabet(p) {
   show(
     h(
       'div.screen.alphabet',
-      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', 'Khmer alphabet'), slowToggle()),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => dashboard(p), 'aria-label': 'Back' }, icon('back')), h('div.top-title', 'Khmer alphabet'), slowToggle()),
 
       h(
         'section.card',
@@ -217,9 +231,9 @@ function alphabet(p) {
 const KHMER_FONT = 'Battambang, "Khmer Sangam MN", serif'; // traditional forms with the "heads" you write
 const LATIN_FONT = 'Andika, "Avenir Next", sans-serif'; // school print: single-storey a and g
 const MODES = [
-  { id: 'trace', icon: '✏️' },
-  { id: 'copy', icon: '👀' },
-  { id: 'memory', icon: '🎧' },
+  { id: 'trace', icon: 'pencil' },
+  { id: 'copy', icon: 'copy' },
+  { id: 'memory', icon: 'headphones' },
 ];
 
 /** Writing sets per course: [{ title, items: [{ g, say: [lang, key], label }] }]. */
@@ -253,7 +267,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
   const bestKey = `learnering:writing:${course.id}`;
   const best = (() => { try { return JSON.parse(localStorage.getItem(bestKey)) || {}; } catch { return {}; } })();
   const starKey = (g) => `${state.mode}:${g}`;
-  const modes = km ? [...MODES, { id: 'record', icon: '🎥' }] : MODES;
+  const modes = km ? [...MODES, { id: 'record', icon: 'record' }] : MODES;
 
   const tabs = h('div.mode-tabs', { style: `grid-template-columns:repeat(${modes.length},1fr)` });
   const setTabs = h('div.set-tabs');
@@ -263,7 +277,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
   show(
     h(
       'div.screen.writing',
-      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', { lang }, '✍️ ', t('writing')), slowToggle()),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => dashboard(p), 'aria-label': 'Back' }, icon('back')), h('div.top-title', { lang }, t('writing')), slowToggle()),
       tabs,
       setTabs,
       instr,
@@ -279,11 +293,11 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     const capKey = { trace: 'modeTrace', copy: 'modeCopy', memory: 'modeMemory' };
     tabs.replaceChildren(...modes.map((m) =>
       h(`button.mode-tab${m.id === state.mode ? '.on' : ''}`, { lang, onclick: () => { state.mode = m.id; render(true); } },
-        h('span.mode-icon', m.icon), m.id === 'record' ? 'Record' : t(capKey[m.id]))));
+        h('span.mode-icon', icon(m.icon, { size: 20 })), m.id === 'record' ? 'Record' : t(capKey[m.id]))));
     setTabs.replaceChildren(...sets.map((st, j) =>
       h(`button.set-tab${j === state.set ? '.on' : ''}`, { lang: km ? 'km' : 'en', onclick: () => { state.set = j; state.i = 0; render(); } }, st.title)));
     instr.replaceChildren(
-      lang === 'km' ? h('button.mini', { onclick: () => speak(modeKey[state.mode]) }, '🔈') : '',
+      lang === 'km' ? h('button.mini', { onclick: () => speak(modeKey[state.mode]), 'aria-label': 'Repeat' }, icon('volume', { size: 16 })) : '',
       t(modeKey[state.mode]),
     );
   }
@@ -306,7 +320,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
       try { localStorage.setItem(bestKey, JSON.stringify(best)); } catch { /* ignore */ }
     }
     tone(stars >= 2);
-    result.replaceChildren(h('span.stars', '★'.repeat(stars) + '☆'.repeat(3 - stars)));
+    result.replaceChildren(h('span.stars', Array.from({ length: 3 }, (_, i) => icon(i < stars ? 'starFill' : 'star', { size: 24 }))));
     drawStrip();
   }
 
@@ -319,7 +333,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     const result = h('div.trace-result');
     const prompt = h('div.write-prompt');
     const next = () => { state.i = (state.i + 1) % items.length; render(); };
-    const nextBtn = h('button.btn', { onclick: next, 'aria-label': 'Next' }, '→');
+    const nextBtn = h('button.btn', { onclick: next, 'aria-label': 'Next' }, icon('next', { size: 20 }));
     const feedback = { start: 'strokeStart', direction: 'strokeDirection', shape: 'strokeShape' };
     const hint = h('div.stroke-hint', { lang });
 
@@ -350,14 +364,14 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
       model = modelCanvas(x.g, { ...padOpts, px: 110 });
       prompt.append(h('div.model-card', model));
     }
-    if (state.mode === 'memory') prompt.append(h('button.speaker.big', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
-    else prompt.append(h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, '🔊'));
-    if (canWatch && state.mode !== 'memory') prompt.append(h('button.watch-btn', { onclick: watch, lang }, '▶ ', t('watch')));
+    if (state.mode === 'memory') prompt.append(h('button.speaker.big', { onclick: say, 'aria-label': 'Listen' }, icon('volume', { size: 34 })));
+    else prompt.append(h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, icon('volume', { size: 22 })));
+    if (canWatch && state.mode !== 'memory') prompt.append(h('button.tool.accent', { onclick: watch, lang }, icon('play', { size: 16 }), h('span', t('watch'))));
     if (x.emoji) prompt.append(h('span.big-emoji.small', x.emoji));
     if (x.label) prompt.append(h('div.write-label', h('span.rom', x.label), x.s ? [' ', seriesBadge(x.s)] : ''));
     if (km && !canWatch && state.mode === 'trace') prompt.append(h('div.muted.small.center-text', 'No recorded stroke order for this letter yet — start at its small circle or hook (the “head”). Use 🎥 Record to add it.'));
 
-    const buttons = [h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); hint.textContent = ''; }, 'aria-label': 'Clear' }, '↺')];
+    const buttons = [h('button.btn', { onclick: () => { pad.clear(); result.replaceChildren(); hint.textContent = ''; }, 'aria-label': 'Clear' }, icon('refresh', { size: 20 }))];
     if (!pad.guided) {
       buttons.push(h('button.btn.primary', {
         lang,
@@ -390,12 +404,12 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
     const pad = tracePad(x.g, { ...padOpts, guide: true, guided: false, ink: 0.03 });
     const status = h('div.muted.small.center-text', RECORDED[x.g] ? 'Recorded ✓ — write it again to replace it.' : 'Not recorded yet.');
     stage.replaceChildren(
-      h('div.write-prompt', h('button.speaker', { onclick: say }, '🔊'), x.label ? h('span.rom', x.label) : ''),
+      h('div.write-prompt', h('button.speaker', { onclick: say, 'aria-label': 'Listen' }, icon('volume', { size: 22 })), x.label ? h('span.rom', x.label) : ''),
       pad.el,
       status,
       h(
         'div.row',
-        h('button.btn', { onclick: () => pad.clear() }, '↺'),
+        h('button.btn', { onclick: () => pad.clear(), 'aria-label': 'Clear' }, icon('refresh', { size: 20 })),
         h('button.btn.primary', {
           onclick: () => {
             const strokes = pad.strokes;
@@ -444,8 +458,8 @@ function nativeCheck(p) {
   show(
     h(
       'div.screen.session',
-      h('div.topbar', h('button.icon-btn', { onclick: () => checkSummary(p, items), 'aria-label': 'Results' }, '☰'), counter, h('span')),
-      h('div.instruction.center', { lang: 'km' }, h('button.mini', { onclick: () => play('km', data.ui.km.checkHelp, { slow: false }) }, '🔈'), data.ui.km.checkHelp),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => checkSummary(p, items), 'aria-label': 'Results' }, icon('list')), counter, h('span')),
+      h('div.instruction.center', { lang: 'km' }, h('button.mini', { onclick: () => play('km', data.ui.km.checkHelp, { slow: false }), 'aria-label': 'Repeat' }, icon('volume', { size: 16 })), data.ui.km.checkHelp),
       stage,
     ),
   );
@@ -470,9 +484,9 @@ function nativeCheck(p) {
     const drawVoice = () => {
       const has = Boolean(nativeVoice('km', it.km));
       voiceRow.replaceChildren(
-        h('button.mic', { onclick: startRecording, 'aria-label': 'Record my voice' }, '🎙️'),
-        has ? h('button.speaker', { onclick: () => play('km', it.km), 'aria-label': 'My recording' }, '👩') : '',
-        has ? h('button.mini', { onclick: async () => { await deleteClip(key); setLocalVoice(key, null); drawVoice(); }, 'aria-label': 'Delete recording' }, '🗑') : '',
+        h('button.mic.sm', { onclick: startRecording, 'aria-label': 'Record my voice' }, icon('mic', { size: 26 })),
+        has ? h('button.speaker', { onclick: () => play('km', it.km), 'aria-label': 'My recording' }, icon('play', { size: 20 })) : '',
+        has ? h('button.mini', { onclick: async () => { await deleteClip(key); setLocalVoice(key, null); drawVoice(); }, 'aria-label': 'Delete recording' }, icon('trash', { size: 16 })) : '',
         h('div.voice-hint', { lang: 'km' }, has ? '✓ ' : '', data.ui.km.recordHint),
       );
     };
@@ -482,12 +496,12 @@ function nativeCheck(p) {
       try {
         session = await record({ maxMs: 4000 });
       } catch {
-        voiceRow.querySelector('.voice-hint').textContent = '🎙️ ✗ microphone';
+        voiceRow.querySelector('.voice-hint').textContent = 'Microphone not available';
         return;
       }
       const mic = voiceRow.querySelector('.mic');
       mic.classList.add('recording');
-      mic.textContent = '■';
+      mic.replaceChildren(icon('stop', { size: 24 }));
       mic.onclick = () => session.stop();
       const blob = await session.done;
       if (blob.size > 1000) {
@@ -501,8 +515,8 @@ function nativeCheck(p) {
 
     stage.replaceChildren(
       h('div.check-card', h('div.big-emoji', it.emoji), h('div.khmer-big', { lang: 'km' }, it.km), h('div.muted', it.en)),
-      h('div.row', h('button.speaker.big', { onclick: () => machine(), 'aria-label': 'Computer voice' }, '🔊'), h('button.speaker', { onclick: () => machine(true), 'aria-label': 'Slow' }, '🐢')),
-      h('div.verdict', h('button.vbtn.bad', { onclick: () => mark('bad'), 'aria-label': 'Wrong' }, '✗'), h('button.vbtn.ok', { onclick: () => mark('ok'), 'aria-label': 'Correct' }, '✓')),
+      h('div.row', h('button.speaker.big', { onclick: () => machine(), 'aria-label': 'Computer voice' }, icon('volume', { size: 34 })), h('button.speaker.slow', { onclick: () => machine(true), 'aria-label': 'Slow' }, icon('slow', { size: 20 }), h('small', '0.7×'))),
+      h('div.verdict', h('button.vbtn.bad', { onclick: () => mark('bad'), 'aria-label': 'Wrong' }, icon('x', { size: 36 })), h('button.vbtn.ok', { onclick: () => mark('ok'), 'aria-label': 'Correct' }, icon('check', { size: 36 }))),
       voiceRow,
       i > 0 ? h('button.link', { onclick: () => { i--; render(); } }, '← back') : '',
     );
@@ -520,21 +534,21 @@ async function checkSummary(p, items) {
   show(
     h(
       'div.screen',
-      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', 'Native check'), h('span')),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => dashboard(p), 'aria-label': 'Back' }, icon('back')), h('div.top-title', 'Native check'), h('span')),
       h('section.card', h('h3', `${done} / ${items.length} checked · ${bad.length} flagged`), h('p.muted', data.ui.en.checkHelp),
         h('div.row', h('button.btn.primary', { onclick: () => nativeCheck(p) }, done < items.length ? 'Continue checking' : 'Review again'),
           done ? h('button.btn', { onclick: () => { if (confirm('Clear all verdicts?')) { Object.keys(verdicts).forEach((k) => store.setCheck(k, undefined)); checkSummary(p, items); } } }, 'Reset') : null)),
       h(
         'section.card',
-        h('h3', `🎙️ ${voiceCount} voice recording${voiceCount === 1 ? '' : 's'} on this phone`),
+        h('h3', `${voiceCount} voice recording${voiceCount === 1 ? '' : 's'} on this phone`),
         h('p.muted', 'Recordings play instead of the computer voice on this phone right away. To put them on both phones: download the file, send it to your Mac (AirDrop), save it in the project\'s “recordings” folder and ask Claude to import it.'),
-        voiceCount ? h('button.btn.primary.wide', { onclick: async (e) => { const btn = e.currentTarget; const n = await exportClips(); btn.textContent = `Downloaded ${n} ✓`; } }, '⬇ Download recordings') : '',
+        voiceCount ? h('button.btn.primary.wide', { onclick: async (e) => { const btn = e.currentTarget; const n = await exportClips(); btn.textContent = `Downloaded ${n} ✓`; } }, icon('download', { size: 18 }), h('span', 'Download recordings')) : '',
       ),
       bad.length
         ? h(
             'section.card',
             h('h3', 'Flagged — send this list to Claude'),
-            h('ul.flag-list', bad.map((it) => h('li', h('button.mini', { onclick: () => play('km', it.km) }, '🔈'), ' ', h('b', { lang: 'km' }, it.km), ` ${it.rom} — ${it.en}`))),
+            h('ul.flag-list', bad.map((it) => h('li', h('button.mini', { onclick: () => play('km', it.km), 'aria-label': 'Listen' }, icon('volume', { size: 16 })), ' ', h('b', { lang: 'km' }, it.km), ` ${it.rom} — ${it.en}`))),
             h('button.btn.wide', { onclick: (e) => { navigator.clipboard?.writeText(report); e.currentTarget.textContent = 'Copied ✓'; } }, 'Copy list'),
           )
         : null,
@@ -571,10 +585,10 @@ function settingsScreen(back = home) {
   show(
     h(
       'div.screen',
-      h('div.topbar', h('button.icon-btn', { onclick: () => back(), 'aria-label': 'Back' }, '←'), h('div.top-title', '⚙️ Settings'), h('span')),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => back(), 'aria-label': 'Back' }, icon('back')), h('div.top-title', 'Settings'), h('span')),
       h(
         'section.card',
-        h('h3', '🤖 Google Gemini'),
+        h('h3', 'Google Gemini'),
         h('p.muted', 'Turns on the 🎤 “say it” speaking exercise and the 🌐 Khmer translator. Get a free key at ',
           h('a', { href: 'https://aistudio.google.com/apikey', target: '_blank', rel: 'noopener' }, 'aistudio.google.com/apikey'),
           ', then paste it here — on each phone. The key stays on this phone only.'),
@@ -611,11 +625,11 @@ function translator(p) {
       }
       go.disabled = false;
     },
-  }, '🌐 Translate to Khmer');
+  }, icon('globe', { size: 18 }), h('span', 'Translate to Khmer'));
   show(
     h(
       'div.screen',
-      h('div.topbar', h('button.icon-btn', { onclick: () => dashboard(p), 'aria-label': 'Back' }, '←'), h('div.top-title', '🌐 Translate'), h('button.icon-btn', { onclick: () => settingsScreen(() => translator(p)), 'aria-label': 'Settings' }, '⚙️')),
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => dashboard(p), 'aria-label': 'Back' }, icon('back')), h('div.top-title', 'Translate'), h('button.icon-btn.ghost', { onclick: () => settingsScreen(() => translator(p)), 'aria-label': 'Settings' }, icon('settings'))),
       input,
       go,
       out,
@@ -629,14 +643,14 @@ function translationCard(text, r) {
   // Play a word when we happen to have audio for it (known vocabulary); new sentences have no audio.
   const known = new Set(data.concepts.map((c) => c.km));
   const wordChip = (w) =>
-    h('div.tw', h('div', { lang: 'km' }, w.khmer, known.has(w.khmer) ? h('button.mini', { onclick: () => play('km', w.khmer) }, '🔈') : ''), h('div.rom', w.romanization), h('div.muted.small', w.english));
+    h('div.tw', h('div', { lang: 'km' }, w.khmer, known.has(w.khmer) ? h('button.mini', { onclick: () => play('km', w.khmer), 'aria-label': 'Listen' }, icon('volume', { size: 14 })) : ''), h('div.rom', w.romanization), h('div.muted.small', w.english));
   return h(
     'section.card.translation',
     h('div.muted.small', text),
     h('div.khmer-big', { lang: 'km' }, r.khmer),
     h('div.rom', r.romanization),
     h('div.tw-row', (r.words || []).map(wordChip)),
-    r.notes ? h('p.muted', '💡 ', r.notes) : '',
+    r.notes ? h('p.muted', r.notes) : '',
     (r.examples || []).length ? h('div', h('h3', 'Examples'), r.examples.map((e) => h('div.example-line', h('span', { lang: 'km' }, e.khmer), h('span.rom', ` ${e.romanization}`), h('div.muted.small', e.english)))) : '',
   );
 }
@@ -650,7 +664,7 @@ function slowToggle() {
       try { localStorage.setItem('learnering:slow', audioSettings.slow ? '1' : ''); } catch { /* ignore */ }
       btn.classList.toggle('on', audioSettings.slow);
     },
-  }, '🐢');
+  }, icon('slow', { size: 20 }));
   btn.classList.toggle('on', audioSettings.slow);
   return btn;
 }
