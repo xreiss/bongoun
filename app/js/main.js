@@ -131,7 +131,6 @@ function dashboard(p) {
   );
 
   show(h('div.screen.dash', header, h('h3.section', { lang }, t('lessons')), path));
-  if (lang === 'km') setTimeout(() => play('km', data.ui.km.welcome, { slow: false }), 300);
 }
 
 function goalRing(value, goal, label) {
