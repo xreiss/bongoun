@@ -265,7 +265,7 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
   const lang = course.ui;
   const t = (k) => data.ui[lang][k];
   const font = km ? KHMER_FONT : LATIN_FONT;
-  const padOpts = km ? { font, ink: 0.045 } : { font, ink: 0.06, lines: true };
+  const padOpts = km ? { font, ink: 0.024 } : { font, ink: 0.032, lines: true };
   await document.fonts.load(`400 100px ${font}`).catch(() => {});
   const sets = writingSets(course);
   const bestKey = `learnering:writing:${course.id}`;

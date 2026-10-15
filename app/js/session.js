@@ -9,8 +9,8 @@ import { hasGemini, checkSpeech } from './gemini.js';
 import { record } from './voice.js';
 import { icon } from './icons.js';
 
-const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.06, lines: true };
-const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.045 };
+const LATIN_PAD = { font: 'Andika, "Avenir Next", sans-serif', ink: 0.032, lines: true };
+const KHMER_PAD = { font: 'Battambang, "Khmer Sangam MN", serif', ink: 0.024 };
 const STROKE_TIPS = { start: 'strokeStart', direction: 'strokeDirection', shape: 'strokeShape' };
 
 // Exercise ladders: the higher the memory level, the harder the exercise. Writing is part of every ladder.

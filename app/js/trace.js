@@ -39,6 +39,152 @@ function strokeShape(text) {
   };
 }
 
+// ---------- automatic stroke paths for font letters (Khmer) ----------
+// No stroke-order data exists for Khmer, so an example is derived from the letter itself: find the centre
+// line of every stroke (skeleton), join the pieces into long continuous strokes, and order them the way Khmer
+// is written — starting from the "head" at the top-left, then moving right/down. Used to SHOW an example
+// (animation + start dot), never to mark the learner wrong.
+const autoCache = new Map();
+
+function autoStrokes(key, drawInto) {
+  if (autoCache.has(key)) return autoCache.get(key);
+  const R = 160;
+  const c = document.createElement('canvas');
+  c.width = c.height = R;
+  const cx = c.getContext('2d', { willReadFrequently: true });
+  cx.fillStyle = cx.strokeStyle = '#000';
+  drawInto(cx, R);
+  const px = cx.getImageData(0, 0, R, R).data;
+  const m = new Uint8Array(R * R);
+  for (let i = 0; i < R * R; i++) m[i] = px[i * 4 + 3] > 110 ? 1 : 0;
+  const at = (x, y) => (x < 0 || y < 0 || x >= R || y >= R ? 0 : m[y * R + x]);
+
+  // Zhang–Suen thinning → 1-pixel centre lines.
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const step of [0, 1]) {
+      const del = [];
+      for (let y = 1; y < R - 1; y++) {
+        for (let x = 1; x < R - 1; x++) {
+          if (!m[y * R + x]) continue;
+          const p = [at(x, y - 1), at(x + 1, y - 1), at(x + 1, y), at(x + 1, y + 1), at(x, y + 1), at(x - 1, y + 1), at(x - 1, y), at(x - 1, y - 1)];
+          const b = p.reduce((a, v) => a + v, 0);
+          if (b < 2 || b > 6) continue;
+          let a = 0;
+          for (let k = 0; k < 8; k++) if (!p[k] && p[(k + 1) % 8]) a++;
+          if (a !== 1) continue;
+          if (step === 0 ? p[0] * p[2] * p[4] === 0 && p[2] * p[4] * p[6] === 0 : p[0] * p[2] * p[6] === 0 && p[0] * p[4] * p[6] === 0) del.push(y * R + x);
+        }
+      }
+      del.forEach((i) => (m[i] = 0));
+      if (del.length) changed = true;
+    }
+  }
+
+  const NB = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]];
+  const neighbours = (i) => {
+    const x = i % R, y = (i / R) | 0, out = [];
+    for (const [dx, dy] of NB) if (at(x + dx, y + dy)) out.push((y + dy) * R + x + dx);
+    return out;
+  };
+  const edge = (a, b) => (a < b ? `${a}-${b}` : `${b}-${a}`);
+  const xy = (i) => [i % R, (i / R) | 0];
+  const len = (p) => p.reduce((a, q, k) => (k ? a + Math.hypot(q[0] - p[k - 1][0], q[1] - p[k - 1][1]) : 0), 0);
+
+  /** Split the skeleton into pieces between ends/junctions (closed loops included). */
+  function split() {
+    const isNode = (i) => neighbours(i).length !== 2;
+    const used = new Set();
+    const pieces = [];
+    const walk = (start, first) => {
+      const path = [start, first];
+      used.add(edge(start, first));
+      let prev = start, cur = first;
+      while (!isNode(cur)) {
+        const nxt = neighbours(cur).find((n) => n !== prev && !used.has(edge(cur, n)));
+        if (nxt === undefined) break;
+        used.add(edge(cur, nxt));
+        path.push(nxt);
+        prev = cur;
+        cur = nxt;
+        if (cur === start) break;
+      }
+      return path;
+    };
+    const on = [];
+    for (let i = 0; i < R * R; i++) if (m[i]) on.push(i);
+    for (const i of on) if (isNode(i)) for (const n of neighbours(i)) if (!used.has(edge(i, n))) pieces.push(walk(i, n));
+    for (const i of on) for (const n of neighbours(i)) if (!used.has(edge(i, n))) pieces.push(walk(i, n));
+    return pieces;
+  }
+
+  // Prune short spurs (font serifs) repeatedly: once one goes, its neighbours merge into one piece.
+  let pieces = split();
+  for (let round = 0; round < 4; round++) {
+    const spurs = pieces.filter((p) => len(p.map(xy)) < R * 0.09 && (neighbours(p[0]).length === 1 || neighbours(p[p.length - 1]).length === 1));
+    if (!spurs.length) break;
+    for (const p of spurs) {
+      // keep the junction pixel, remove the rest of the spur
+      const keepEnd = neighbours(p[0]).length === 1 ? p[p.length - 1] : p[0];
+      for (const i of p) if (i !== keepEnd) m[i] = 0;
+    }
+    pieces = split();
+  }
+  let paths = pieces.map((p) => p.map(xy)).filter((p) => p.length > 1 && len(p) > R * 0.03);
+
+  // Join pieces into long strokes, continuing in the straightest direction at each junction.
+  const dirAt = (p, fromEnd) => {
+    const a = fromEnd ? p[p.length - 1] : p[0];
+    const b = fromEnd ? p[Math.max(0, p.length - 6)] : p[Math.min(p.length - 1, 5)];
+    return Math.atan2(a[1] - b[1], a[0] - b[0]);
+  };
+  const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) <= 4;
+  const headScore = (pt) => pt[0] * 0.6 + pt[1]; // Khmer: begin top-left
+  const strokes = [];
+  const left = new Set(paths.map((_, k) => k));
+  while (left.size) {
+    // start with the remaining end closest to the top-left
+    let best = null;
+    for (const k of left) for (const end of [0, 1]) {
+      const pt = end ? paths[k][paths[k].length - 1] : paths[k][0];
+      if (!best || headScore(pt) < headScore(best.pt)) best = { k, end, pt };
+    }
+    left.delete(best.k);
+    let stroke = best.end ? [...paths[best.k]].reverse() : [...paths[best.k]];
+    for (;;) {
+      const tail = stroke[stroke.length - 1];
+      const d = dirAt(stroke, true);
+      let pick = null;
+      for (const k of left) {
+        for (const end of [0, 1]) {
+          const p = paths[k];
+          if (!near(end ? p[p.length - 1] : p[0], tail)) continue;
+          const cont = end ? [...p].reverse() : p;
+          let turn = Math.abs(dirAt(cont, false) + Math.PI - d) % (2 * Math.PI);
+          turn = Math.min(turn, 2 * Math.PI - turn);
+          const angle = Math.PI - turn; // 0 = straight on
+          // A pen keeps going through corners (Khmer letters are mostly one continuous line): take the straightest way.
+          if (!pick || Math.abs(angle) < pick.angle) pick = { k, cont, angle: Math.abs(angle) };
+        }
+      }
+      if (!pick) break;
+      left.delete(pick.k);
+      stroke = stroke.concat(pick.cont.slice(1));
+    }
+    strokes.push(stroke);
+  }
+  // Smooth, thin out, and express in 0..1 units.
+  const result = strokes
+    .map((p) => p.map((q, k) => {
+      const a = p[Math.max(0, k - 2)], b = p[Math.min(p.length - 1, k + 2)];
+      return [(a[0] + q[0] + b[0]) / 3 / R, (a[1] + q[1] + b[1]) / 3 / R];
+    }).filter((_, k, arr) => k % 2 === 0 || k === arr.length - 1))
+    .filter((p) => p.length > 2 && len(p.map(([x, y]) => [x * R, y * R])) > R * 0.07);
+  // Only remember it once the real font is in (before that the browser may draw a fallback font).
+  if (document.fonts?.check(`400 100px ${key.split('|')[0]}`)) autoCache.set(key, result);
+  return result;
+}
+
 /** Font-drawn shape (Khmer). `recorded` = strokes a native writer recorded, in 0..1 pad units. */
 function fontShape(glyph, font, recorded) {
   const weight = /Battambang/.test(font) ? 400 : 600;
@@ -52,8 +198,11 @@ function fontShape(glyph, font, recorded) {
     const scale = (size * 0.7) / Math.max(w, ht, 1);
     return { scale, x: size / 2 + scale * (-w / 2 + m.actualBoundingBoxLeft), y: size / 2 + scale * (ht / 2 - m.actualBoundingBoxDescent) };
   };
-  return {
-    polys: recorded?.length ? (size) => recorded.map((poly) => poly.map(([x, y]) => [x * size, y * size])) : null,
+  const shape = {
+    auto: !recorded?.length,
+    polys: recorded?.length
+      ? (size) => recorded.map((poly) => poly.map(([x, y]) => [x * size, y * size]))
+      : (size) => autoStrokes(`${font}|${glyph}`, (ctx, R) => shape.draw(ctx, R)).map((poly) => poly.map(([x, y]) => [x * size, y * size])),
     draw(ctx, size, widen = 0) {
       const L = layout(ctx, size);
       ctx.save();
@@ -71,6 +220,7 @@ function fontShape(glyph, font, recorded) {
     },
     lines: null,
   };
+  return shape;
 }
 
 /** Latin text with stroke data → stroke-built model; anything else → font model. */
@@ -265,9 +415,9 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   const shape = makeShape(glyph, { font, recorded });
-  const polys = shape.polys ? shape.polys(size) : null;
-  const isGuided = guided && Boolean(polys);
-  const penWidth = Math.max(size * 0.045, 8);
+  let polys = shape.polys ? shape.polys(size) : null;
+  const isGuided = guided && Boolean(polys) && !shape.auto;
+  const penWidth = Math.max(size * 0.024, 6);
   const strokes = [];
   let drawing = null;
   let showGuide = guide;
@@ -392,7 +542,10 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
   canvas.addEventListener('pointercancel', end);
 
   // Canvas text doesn't wait for web fonts: redraw once this one has loaded.
-  document.fonts?.load(`400 100px ${font}`).then(() => !busy && redraw(), () => {});
+  document.fonts?.load(`400 100px ${font}`).then(() => {
+    if (shape.auto) polys = shape.polys(size); // example strokes from the real font, not a fallback
+    if (!busy) redraw();
+  }, () => {});
   redraw();
 
   /**
@@ -476,7 +629,7 @@ export function tracePad(glyph, { font = 'system-ui, sans-serif', ink = 0.07, gu
     el: canvas,
     guided: isGuided,
     /** Expected strokes in px (null without stroke data). */
-    expected: polys,
+    get expected() { return polys; },
     hasStrokes: Boolean(polys),
     clear() {
       strokes.length = 0;
