@@ -22,6 +22,8 @@ VOICES = {
 }
 SLOW_RATE = "-35%"
 CONCURRENCY = 8
+TIMED = set()  # keys whose word timings are saved for read-along highlighting
+TIMINGS_PATH = DATA / "timings.json"
 
 LETTER_NAMES = {
     "A": "ay", "B": "bee", "C": "see", "D": "dee", "E": "ee", "F": "eff",
@@ -45,7 +47,23 @@ def collect():
     concepts = json.loads((DATA / "concepts.json").read_text())
     for c in concepts:
         add("en", c["en"])
-        add("km", c["km"], c["km"].replace(" / ", ", "))
+        if c["km"]:
+            add("km", c["km"], c["km"].replace(" / ", ", "))
+
+    # Reading stories: English sentences are timed word by word (read-along highlighting).
+    stories_path = DATA / "stories.json"
+    for st in json.loads(stories_path.read_text()) if stories_path.exists() else []:
+        add("en", st["title"])
+        add("km", st["titleKm"], slow=False)
+        for sentence in st["sentences"]:
+            add("en", sentence["en"])
+            TIMED.add(f"en|{sentence['en']}")
+            TIMED.add(f"en|{sentence['en']}|slow")
+            add("km", sentence["km"], slow=False)
+    dialogues_path = DATA / "dialogues.json"
+    for dl in json.loads(dialogues_path.read_text()) if dialogues_path.exists() else []:
+        for line in dl["lines"]:
+            add("km", line["km"])
 
     for letter, name in LETTER_NAMES.items():
         add("en", f"letter:{letter}", name)
@@ -70,11 +88,22 @@ def path_for(lang, key):
     return f"audio/{lang}/{digest}.mp3"
 
 
-async def synth(sem, lang, say, rate, out):
+async def synth(sem, lang, say, rate, out, timing_key=None, timings=None):
     async with sem:
         for attempt in range(3):
             try:
-                await edge_tts.Communicate(say, VOICES[lang], rate=rate).save(str(out))
+                if timing_key is None:
+                    await edge_tts.Communicate(say, VOICES[lang], rate=rate).save(str(out))
+                    return True
+                audio, words = bytearray(), []
+                async for chunk in edge_tts.Communicate(say, VOICES[lang], rate=rate, boundary="WordBoundary").stream():
+                    if chunk["type"] == "audio":
+                        audio.extend(chunk["data"])
+                    elif chunk["type"] == "WordBoundary":
+                        start = chunk["offset"] / 1e7
+                        words.append([round(start, 3), round(start + chunk["duration"] / 1e7, 3), chunk["text"]])
+                out.write_bytes(bytes(audio))
+                timings[timing_key] = words
                 return True
             except Exception as exc:  # network hiccups
                 if attempt == 2:
@@ -86,6 +115,7 @@ async def synth(sem, lang, say, rate, out):
 
 async def main():
     jobs = collect()
+    timings = json.loads(TIMINGS_PATH.read_text()) if TIMINGS_PATH.exists() else {}
     index, tasks = {}, []
     sem = asyncio.Semaphore(CONCURRENCY)
     for key, (lang, say, rate) in jobs.items():
@@ -93,8 +123,9 @@ async def main():
         out = APP / rel
         out.parent.mkdir(parents=True, exist_ok=True)
         index[key] = rel
-        if not out.exists() or out.stat().st_size == 0:
-            tasks.append(synth(sem, lang, say, rate, out))
+        timed = key in TIMED
+        if not out.exists() or out.stat().st_size == 0 or (timed and key not in timings):
+            tasks.append(synth(sem, lang, say, rate, out, key if timed else None, timings))
     print(f"{len(jobs)} clips, {len(tasks)} to generate")
     results = await asyncio.gather(*tasks)
     failed = results.count(False)
@@ -105,6 +136,7 @@ async def main():
         old = json.loads(index_path.read_text())
         index.update({k: v for k, v in old.items() if (k.endswith("|native") or k.startswith("en|sound:")) and (APP / v).exists()})
     index_path.write_text(json.dumps(index, ensure_ascii=False, indent=0))
+    TIMINGS_PATH.write_text(json.dumps({k: v for k, v in timings.items() if k in TIMED}, ensure_ascii=False))
     print(f"done, {failed} failed, index has {len(index)} entries")
 
 

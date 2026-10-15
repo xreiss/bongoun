@@ -1,0 +1,340 @@
+[
+ {
+  "id": "dlg1",
+  "emoji": "👋",
+  "title": "Meeting someone",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "សួស្តីបាទ! ខ្ញុំឈ្មោះ ដេវីដ។ ចុះអ្នកវិញ?",
+    "rom": "Suosdei baat! Knhom chhmous David. Choh neak vinh?",
+    "en": "Hello! My name is David. And you?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស សួស្តី! ខ្ញុំឈ្មោះ បុប្ផា។",
+    "rom": "Chaa, suosdei! Knhom chhmous Bopha.",
+    "en": "Hello! My name is Bopha."
+   },
+   {
+    "speaker": "A",
+    "km": "រីករាយដែលបានស្គាល់អ្នក បុប្ផា។",
+    "rom": "Rikreay dael baan skoal neak, Bopha.",
+    "en": "Nice to meet you, Bopha."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស រីករាយដូចគ្នា! តើដេវីដមកពីណា?",
+    "rom": "Chaa, rikreay doch knie! Tae David mok pi na?",
+    "en": "Nice to meet you too! Where are you from, David?"
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ ខ្ញុំមកពីអាមេរិក។ ចុះបុប្ផាវិញ?",
+    "rom": "Baat, knhom mok pi Amerika. Choh Bopha vinh?",
+    "en": "I'm from America. And you, Bopha?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស ខ្ញុំជាអ្នកភ្នំពេញនេះឯង។",
+    "rom": "Chaa, knhom chea neak Phnom Penh nih aeng.",
+    "en": "I'm from right here in Phnom Penh."
+   }
+  ]
+ },
+ {
+  "id": "dlg2",
+  "emoji": "🥭",
+  "title": "At the market",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "សួស្ដីអ្នកមីង ស្វាយនេះមួយគីឡូប៉ុន្មានដែរ?",
+    "rom": "Suosdei nak-ming, svay nih mouy kilo ponman dae?",
+    "en": "Hello auntie, how much is this mango per kilo?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស មួយគីឡូប្រាំពាន់រៀល ក្មួយ។ ផ្អែមឆ្ងាញ់ណាស់!",
+    "rom": "Chaa, mouy kilo pram-poan riel kmouy. P'aem chnganh nas!",
+    "en": "Yes, five thousand riel per kilo, nephew. It's very sweet and tasty!"
+   },
+   {
+    "speaker": "A",
+    "km": "ចុះបើយកពីរគីឡូ ចុះថ្លៃបានបន្តិចទេបាទ?",
+    "rom": "Choh baeu yok pee kilo, choh thlay ban bontech te baat?",
+    "en": "If I take two kilos, can you lower the price a little bit?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស បាន! គិតតែប្រាំបួនពាន់រៀលបានហើយ។",
+    "rom": "Chaa, ban! Kit tae pram-buon poan riel ban haeuy.",
+    "en": "Sure! I'll just charge you nine thousand riel."
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ អរគុណច្រើន! ខ្ញុំយកពីរគីឡូមក។",
+    "rom": "Baat, orkun chraeun! Knhom yok pee kilo mok.",
+    "en": "Thank you very much! I'll take two kilos."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស នេះស្វាយក្មួយ អរគុណច្រើនណា!",
+    "rom": "Chaa, nih svay kmouy, orkun chraeun na!",
+    "en": "Here are your mangoes, nephew, thank you very much!"
+   }
+  ]
+ },
+ {
+  "id": "dlg3",
+  "emoji": "🛺",
+  "title": "Tuk-tuk ride",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "ពូ ទៅផ្សារថ្មី អស់ប៉ុន្មានដែរ?",
+    "rom": "Poo, tov Psar Thmey os ponman dae?",
+    "en": "Uncle, how much to go to Central Market?"
+   },
+   {
+    "speaker": "B",
+    "km": "ទៅផ្សារថ្មី មួយម៉ឺនរៀល ក្មួយ។",
+    "rom": "Tov Psar Thmey muoy meun riel, kmuoy.",
+    "en": "To Central Market is ten thousand riel, nephew."
+   },
+   {
+    "speaker": "A",
+    "km": "ប្រាំបីពាន់បានទេពូ? ខ្ញុំជិះរាល់ដង។",
+    "rom": "Pram-bei poan ban te poo? Knyom jih roal dorng.",
+    "en": "Can you do eight thousand, uncle? I ride all the time."
+   },
+   {
+    "speaker": "B",
+    "km": "អូខេ បាទ! ឡើងមកក្មួយ។",
+    "rom": "Okay baat! Laeng mok kmuoy.",
+    "en": "Okay, sure! Hop on, nephew."
+   },
+   {
+    "speaker": "A",
+    "km": "ពូ ឈប់កន្លែងនេះមក បាទ។",
+    "rom": "Poo, chop konlaeng nih mok, baat.",
+    "en": "Uncle, please stop right here."
+   },
+   {
+    "speaker": "B",
+    "km": "បាទ ដល់ហើយ អរគុណច្រើន!",
+    "rom": "Baat, dol hoey, orkun chran!",
+    "en": "Alright, here you are, thanks a lot!"
+   }
+  ]
+ },
+ {
+  "id": "dlg4",
+  "emoji": "🍜",
+  "title": "At a restaurant",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "សួស្តីបង! សុំបាយឆាសាច់មាន់មួយចាន។",
+    "rom": "suo sdei bong! som bai chaa sach moan mouy jaan.",
+    "en": "Hello! Can I have one plate of chicken fried rice, please?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាសបាន! ចុះចង់ញ៉ាំភេសជ្ជៈអីដែរ?",
+    "rom": "jaa baan! joh jong nyam pheasa-jeak ey dae?",
+    "en": "Sure! And what would you like to drink?"
+   },
+   {
+    "speaker": "A",
+    "km": "សុំកាហ្វេទឹកដោះគោទឹកកកមួយដែរ បាទ។",
+    "rom": "som kaa-feh teuk-doh-ko teuk-kok mouy dae, baat.",
+    "en": "An iced milk coffee too, please."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស រង់ចាំបន្តិចណា៎បង។",
+    "rom": "jaa, rong-jam bon-tech na bong.",
+    "en": "Yes, please wait a moment."
+   },
+   {
+    "speaker": "A",
+    "km": "បង! គិតលុយទាំងអស់ប៉ុន្មានដែរ?",
+    "rom": "bong! kit luy teang-oh pon-maan dae?",
+    "en": "Excuse me! How much is everything altogether?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស ទាំងអស់បីដុល្លារបង។",
+    "rom": "jaa, teang-oh bei dollar bong.",
+    "en": "It is three dollars in total."
+   }
+  ]
+ },
+ {
+  "id": "dlg5",
+  "emoji": "👨‍👩‍👧",
+  "title": "Meeting her family",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "ជម្រាបសួរអ៊ំ! ខ្ញុំឈ្មោះ ចន បាទ។",
+    "rom": "chom-reap-suor om! khnhom chmuoh John baat.",
+    "en": "Hello auntie! My name is John."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស ជម្រាបសួរក្មួយ! អញ្ជើញចូលមកលេងក្នុងផ្ទះសិនមក។",
+    "rom": "jaa, chom-reap-suor kmuoy! anh-chernh jool mok leing knong pteah sin mok.",
+    "en": "Hello nephew! Please, come inside the house."
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ អរគុណអ៊ំ។ ខ្ញុំមានផ្លែឈើខ្លះជូនអ៊ំ។",
+    "rom": "baat, or-kun om. khnhom mean phlae-cheu khlah joon om.",
+    "en": "Thank you, auntie. I brought some fruit for you."
+   },
+   {
+    "speaker": "B",
+    "km": "ឱ! មិនបាច់ពិបាកទេ គិតតែអរគុណច្រើនហើយណា។",
+    "rom": "oh! min-bach pi-baak te, kit tae or-kun chroeun haeuy naa.",
+    "en": "Oh! You shouldn't have, thank you so much."
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ មិនអីទេអ៊ំ ខ្ញុំរីករាយណាស់ដែលបានជួបអ៊ំ។",
+    "rom": "baat, min ey te om, khnhom rik-reay nah dael baan juob om.",
+    "en": "You're welcome, auntie. I'm very glad to meet you."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស អង្គុយលេងសិនទៅ ចាំអ៊ំទៅយកទឹកជូន។",
+    "rom": "jaa, ang-kuy leing sin tov, jam om tov yok teuk joon.",
+    "en": "Have a seat first, I'll go get some water for you."
+   }
+  ]
+ },
+ {
+  "id": "dlg6",
+  "emoji": "📞",
+  "title": "On the phone",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "អាឡូ អូន! បងប្រហែលជាទៅផ្ទះយឺតបន្តិចហើយ។",
+    "rom": "A-lo oun! Bong bra-hêl jie tow phteah yeut bon-tich hoey.",
+    "en": "Hello honey! I might be coming home a bit late."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាសបង មានការអីមែនទេ?",
+    "rom": "Chas bong, mien ka ei men te?",
+    "en": "Yes dear, is something going on?"
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ ស្ទះផ្លូវខ្លាំងណាស់ ហើយការងារមិនទាន់រួចទៀត។",
+    "rom": "Baht, steah phlow klang nah, hoey ka-ngea min tean ruoch tiet.",
+    "en": "Yeah, traffic is really bad and my work isn't done yet."
+   },
+   {
+    "speaker": "B",
+    "km": "មិនអីទេបង! ចាំញ៉ាំបាយជុំគ្នាណា។",
+    "rom": "Min ei te bong! Cham nyam bay jum knea na.",
+    "en": "That's fine! I'll wait so we can eat together, okay?"
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ! អរគុណអូន ជួបគ្នាឆាប់ៗនេះ។",
+    "rom": "Baht! Or-kun oun, juob knea chap-chap nih.",
+    "en": "Thanks honey! See you soon."
+   }
+  ]
+ },
+ {
+  "id": "dlg7",
+  "emoji": "🧭",
+  "title": "Asking the way",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "សុំទោសបង ផ្សារថ្មីទៅតាមណាដែរ?",
+    "rom": "Som-tos bong, Psar Thmey tov tam na dae?",
+    "en": "Excuse me, how do I get to Central Market?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស បងជិះត្រង់ទៅ រួចបត់ស្តាំ។",
+    "rom": "Chas, bong jih trong tov, ruoch bat sdam.",
+    "en": "Go straight ahead, and then turn right."
+   },
+   {
+    "speaker": "A",
+    "km": "ដល់ស្តុប ទើបបត់ស្តាំមែនទេបាទ?",
+    "rom": "Dol stop, teub bat sdam men te baat?",
+    "en": "At the traffic light, then turn right, correct?"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាសមែនហើយ បន្ទាប់មកបត់ឆ្វេងភ្លាម ដល់ហើយ។",
+    "rom": "Chas men haeuy, bantoap mok bat chhveng phleam, dol haeuy.",
+    "en": "Yes, exactly, then immediately turn left and you're there."
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ អរគុណច្រើនណាស់បង!",
+    "rom": "Baat, orkun chraen nah bong!",
+    "en": "Got it, thank you very much!"
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស មិនអីទេបង!",
+    "rom": "Chas, mun ey te bong!",
+    "en": "You're welcome!"
+   }
+  ]
+ },
+ {
+  "id": "dlg8",
+  "emoji": "💊",
+  "title": "At the pharmacy",
+  "lines": [
+   {
+    "speaker": "A",
+    "km": "សួស្តីអ្នកមីង! ខ្ញុំឈឺក្បាលខ្លាំងណាស់បាទ។",
+    "rom": "Suos-dey neak-ming! Knhom cheu kbal klang nas baat.",
+    "en": "Hello auntie! I have a really bad headache."
+   },
+   {
+    "speaker": "B",
+    "km": "ចាស៎ក្មួយ! ឈឺយូរប៉ុន្មានថ្ងៃហើយ?",
+    "rom": "Jaa kmuoy! Cheu yoo bon-maan thngai heuy?",
+    "en": "Yes nephew! How many days have you had it?"
+   },
+   {
+    "speaker": "A",
+    "km": "ទើបតែឈឺព្រឹកមិញនេះទេបាទ។",
+    "rom": "Teub tae cheu preuk-minh nih te baat.",
+    "en": "It just started this morning."
+   },
+   {
+    "speaker": "B",
+    "km": "អ៊ីចឹងលេបថ្នាំប៉ារ៉ានេះទៅ មួយថ្ងៃបីដង។",
+    "rom": "Ey-jeung leb thnam para nih tow, muoy thngai bei dorng.",
+    "en": "Then take this paracetamol, three times a day."
+   },
+   {
+    "speaker": "A",
+    "km": "បាទ អរគុណច្រើន! មួយបន្ទះប៉ុន្មានដែរ?",
+    "rom": "Baat, or-kun chraen! Muoy bonteah bon-maan dae?",
+    "en": "Yes, thank you! How much is one blister pack?"
+   },
+   {
+    "speaker": "B",
+    "km": "មួយបន្ទះតែពីរពាន់រៀលទេក្មួយ។",
+    "rom": "Muoy bonteah tae pii-poan riel te kmuoy.",
+    "en": "Just two thousand riel a pack, nephew."
+   }
+  ]
+ }
+]

@@ -1,0 +1,322 @@
+[
+ {
+  "id": "story1",
+  "title": "My Cat",
+  "emoji": "🐱",
+  "sentences": [
+   {
+    "en": "My cat is big.",
+    "km": "ឆ្មារបស់ខ្ញុំធំ។"
+   },
+   {
+    "en": "The cat can sleep.",
+    "km": "ឆ្មាអាចគេងបាន។"
+   },
+   {
+    "en": "I love my cat.",
+    "km": "ខ្ញុំស្រឡាញ់ឆ្មារបស់ខ្ញុំ។"
+   }
+  ],
+  "titleKm": "ឆ្មារបស់ខ្ញុំ"
+ },
+ {
+  "id": "story2",
+  "title": "the big dog",
+  "emoji": "🐕",
+  "sentences": [
+   {
+    "en": "the big dog is here.",
+    "km": "ឆ្កែធំនៅទីនេះ។"
+   },
+   {
+    "en": "he can run at the tree.",
+    "km": "វាអាចរត់ទៅរកដើមឈើបាន។"
+   },
+   {
+    "en": "the big dog is happy.",
+    "km": "ឆ្កែធំសប្បាយចិត្ត។"
+   }
+  ],
+  "titleKm": "ឆ្កែធំ"
+ },
+ {
+  "id": "story4",
+  "title": "My Family",
+  "emoji": "👨‍👩‍👧‍👦",
+  "sentences": [
+   {
+    "en": "My family is here.",
+    "km": "គ្រួសាររបស់ខ្ញុំនៅទីនេះ។"
+   },
+   {
+    "en": "We are happy.",
+    "km": "ពួកយើងសប្បាយចិត្ត។"
+   },
+   {
+    "en": "I love my family.",
+    "km": "ខ្ញុំស្រឡាញ់គ្រួសាររបស់ខ្ញុំ។"
+   }
+  ],
+  "titleKm": "គ្រួសាររបស់ខ្ញុំ"
+ },
+ {
+  "id": "story5",
+  "title": "At The Shop",
+  "emoji": "🛒",
+  "sentences": [
+   {
+    "en": "I am at the shop.",
+    "km": "ខ្ញុំនៅឯហាង។"
+   },
+   {
+    "en": "I see a big apple.",
+    "km": "ខ្ញុំឃើញផ្លែប៉ោមធំមួយ។"
+   },
+   {
+    "en": "I have money.",
+    "km": "ខ្ញុំមានលុយ។"
+   },
+   {
+    "en": "I can eat.",
+    "km": "ខ្ញុំអាចញ៉ាំបាន។"
+   }
+  ],
+  "titleKm": "នៅឯហាង"
+ },
+ {
+  "id": "story6",
+  "title": "Rain",
+  "emoji": "🌧️",
+  "sentences": [
+   {
+    "en": "The rain is cold.",
+    "km": "ភ្លៀងត្រជាក់ណាស់។"
+   },
+   {
+    "en": "I look at the rain.",
+    "km": "ខ្ញុំមើលទៅភ្លៀង។"
+   },
+   {
+    "en": "We go in the house.",
+    "km": "ពួកយើងចូលក្នុងផ្ទះ។"
+   }
+  ],
+  "titleKm": "ភ្លៀង"
+ },
+ {
+  "id": "story7",
+  "title": "the red hat",
+  "emoji": "🧢",
+  "sentences": [
+   {
+    "en": "I look at the red hat.",
+    "km": "ខ្ញុំមើលទៅមួកពណ៌ក្រហម។"
+   },
+   {
+    "en": "The red hat is big.",
+    "km": "មួកពណ៌ក្រហមនោះធំ។"
+   },
+   {
+    "en": "I like the red hat.",
+    "km": "ខ្ញុំចូលចិត្តមួកពណ៌ក្រហមនោះ។"
+   }
+  ],
+  "titleKm": "មួកពណ៌ក្រហម"
+ },
+ {
+  "id": "story8",
+  "title": "A Bug and A Duck",
+  "emoji": "🦆",
+  "sentences": [
+   {
+    "en": "A big bug is at a log.",
+    "km": "សត្វល្អិតធំមួយនៅត្រង់កំណាត់ឈើ។"
+   },
+   {
+    "en": "A duck is at the log.",
+    "km": "ទាមួយក្បាលនៅត្រង់កំណាត់ឈើ។"
+   },
+   {
+    "en": "The bug and duck look.",
+    "km": "សត្វល្អិត និងទាមើលទៅ។"
+   },
+   {
+    "en": "The bug and duck run.",
+    "km": "សត្វល្អិត និងទារត់។"
+   }
+  ],
+  "titleKm": "សត្វល្អិតមួយ និងទាមួយ"
+ },
+ {
+  "id": "story9",
+  "title": "I Can Run",
+  "emoji": "🏃",
+  "sentences": [
+   {
+    "en": "I am a man.",
+    "km": "ខ្ញុំជាមនុស្សប្រុស។"
+   },
+   {
+    "en": "I can run.",
+    "km": "ខ្ញុំអាចរត់បាន។"
+   },
+   {
+    "en": "You can run.",
+    "km": "អ្នកអាចរត់បាន។"
+   },
+   {
+    "en": "We are happy.",
+    "km": "ពួកយើងសប្បាយចិត្ត។"
+   }
+  ],
+  "titleKm": "ខ្ញុំអាចរត់បាន"
+ },
+ {
+  "id": "story10",
+  "title": "A Fish in the Box",
+  "emoji": "🐟",
+  "sentences": [
+   {
+    "en": "A fish is in the box.",
+    "km": "ត្រីមួយនៅក្នុងប្រអប់។"
+   },
+   {
+    "en": "The fish can see.",
+    "km": "ត្រីអាចមើលឃើញ។"
+   },
+   {
+    "en": "I look at the fish.",
+    "km": "ខ្ញុំមើលទៅត្រី។"
+   }
+  ],
+  "titleKm": "ត្រីមួយនៅក្នុងប្រអប់"
+ },
+ {
+  "id": "story11",
+  "title": "My Bed",
+  "emoji": "🛏️",
+  "sentences": [
+   {
+    "en": "I am tired.",
+    "km": "ខ្ញុំហត់ហើយ។"
+   },
+   {
+    "en": "My bed is good.",
+    "km": "គ្រែរបស់ខ្ញុំល្អ។"
+   },
+   {
+    "en": "I sleep on it.",
+    "km": "ខ្ញុំគេងលើវា។"
+   }
+  ],
+  "titleKm": "គ្រែរបស់ខ្ញុំ"
+ },
+ {
+  "id": "story12",
+  "title": "the sun and the moon",
+  "emoji": "☀️",
+  "sentences": [
+   {
+    "en": "the sun is hot.",
+    "km": "ព្រះអាទិត្យក្តៅណាស់។"
+   },
+   {
+    "en": "the moon is white.",
+    "km": "ព្រះចន្ទពណ៌ស។"
+   },
+   {
+    "en": "i see the big sun.",
+    "km": "ខ្ញុំឃើញព្រះអាទិត្យធំ។"
+   },
+   {
+    "en": "we look at the moon.",
+    "km": "ពួកយើងមើលទៅព្រះចន្ទ។"
+   }
+  ],
+  "titleKm": "ព្រះអាទិត្យ និងព្រះចន្ទ"
+ },
+ {
+  "id": "story13",
+  "title": "a good gift",
+  "emoji": "🎁",
+  "sentences": [
+   {
+    "en": "i see a big box.",
+    "km": "ខ្ញុំឃើញប្រអប់ធំមួយ។"
+   },
+   {
+    "en": "it is a good gift.",
+    "km": "វាជាកាដូល្អមួយ។"
+   },
+   {
+    "en": "i am happy.",
+    "km": "ខ្ញុំសប្បាយចិត្ត។"
+   }
+  ],
+  "titleKm": "កាដូល្អមួយ"
+ },
+ {
+  "id": "story14",
+  "title": "I Like Mango",
+  "emoji": "🥭",
+  "sentences": [
+   {
+    "en": "I am hungry.",
+    "km": "ខ្ញុំឃ្លានហើយ។"
+   },
+   {
+    "en": "I like mango.",
+    "km": "ខ្ញុំចូលចិត្តស្វាយ។"
+   },
+   {
+    "en": "It is delicious.",
+    "km": "វាឆ្ងាញ់ណាស់។"
+   }
+  ],
+  "titleKm": "ខ្ញុំចូលចិត្តស្វាយ"
+ },
+ {
+  "id": "story15",
+  "title": "A Big Ship",
+  "emoji": "🚢",
+  "sentences": [
+   {
+    "en": "A big ship is here.",
+    "km": "កប៉ាល់ធំមួយនៅទីនេះ។"
+   },
+   {
+    "en": "I see the blue ship.",
+    "km": "ខ្ញុំឃើញកប៉ាល់ពណ៌ខៀវ។"
+   },
+   {
+    "en": "The ship can go.",
+    "km": "កប៉ាល់អាចទៅបាន។"
+   }
+  ],
+  "titleKm": "កប៉ាល់ធំមួយ"
+ },
+ {
+  "id": "story16",
+  "title": "We Eat Rice",
+  "emoji": "🍚",
+  "sentences": [
+   {
+    "en": "We are hungry.",
+    "km": "ពួកយើងឃ្លានហើយ។"
+   },
+   {
+    "en": "I like rice.",
+    "km": "ខ្ញុំចូលចិត្តបាយ។"
+   },
+   {
+    "en": "We eat rice.",
+    "km": "ពួកយើងញ៉ាំបាយ។"
+   },
+   {
+    "en": "Rice is good.",
+    "km": "បាយគឺល្អ។"
+   }
+  ],
+  "titleKm": "យើងញ៉ាំបាយ"
+ }
+]

@@ -20,6 +20,8 @@ const LADDERS = {
     phrase: ['listen_pick', 'read_pick', 'pick_word', 'say_it', 'sentence'],
     phonics: ['listen_pick', 'first_sound', 'write_copy', 'missing_vowel', 'rhyme', 'read_pick', 'say_it', 'spell', 'write_word'],
     letter: ['letter_listen', 'trace', 'letter_word', 'write_memory'],
+    // Sight words have no picture: hear → find the written word, read → find the right sound.
+    sight: ['sight_listen', 'write_copy', 'sight_read', 'sight_listen', 'write_word'],
   },
   km: {
     word: ['listen_pick', 'read_pick', 'write_copy', 'pick_word', 'write_word'],
@@ -52,6 +54,7 @@ function baseLadder(course, item) {
   const L = LADDERS[course.id];
   if (item.kind === 'word') {
     if (item.c.cat === 'phrases') return L.phrase;
+    if (course.id === 'en' && item.sight) return L.sight;
     if (course.id === 'en' && item.phonics) return item.rhymes.length ? L.phonics : L.phonics.filter((t) => t !== 'rhyme');
     if (course.id === 'en' && !/^[a-z]{2,8}$/i.test(item.c.en)) return L.word.filter((t) => t !== 'spell');
     return L.word;
@@ -76,8 +79,9 @@ function chooseType(course, item, box) {
  * New words: intro → write it → first exercise → asked again a few cards later (learning steps).
  */
 export function buildQueue(course, items, pid, unitIdx = null) {
-  const scope = [...new Set(unitIdx == null ? course.units.flatMap((u) => u.items) : course.units[unitIdx].items)];
   const card = (id) => store.card(pid, id);
+  if (unitIdx === 'weak') return weakQueue(course, items, pid);
+  const scope = [...new Set(unitIdx == null ? course.units.flatMap((u) => u.items) : course.units[unitIdx].items)];
   const due = scope.filter((id) => store.isDue(pid, id)).sort((a, b) => card(a).due - card(b).due);
   const fresh = scope.filter((id) => card(id).box === 0).slice(0, unitIdx == null ? SESSION_NEW : SESSION_NEW + 1);
   const reviews = due.slice(0, SESSION_REVIEWS);
@@ -113,6 +117,25 @@ export function buildQueue(course, items, pid, unitIdx = null) {
   return q;
 }
 
+/** The cards most often missed (or with the lowest ease), practised without pushing their intervals. */
+export function weakItems(course, pid, n = 12) {
+  const all = [...new Set(course.units.flatMap((u) => u.items))];
+  return all
+    .map((id) => ({ id, c: store.card(pid, id) }))
+    .filter(({ c }) => c.box > 0 && (c.lapses > 0 || c.ease < 2.2))
+    .sort((a, b) => b.c.lapses - a.c.lapses || a.c.ease - b.c.ease || a.c.box - b.c.box)
+    .slice(0, n)
+    .map(({ id }) => id);
+}
+
+function weakQueue(course, items, pid) {
+  return shuffle(weakItems(course, pid)).flatMap((id) => {
+    const ladder = ladderFor(course, items[id]);
+    // an easier exercise first, then a harder one
+    return [{ id, type: ladder[0], extra: true }, { id, type: ladder[Math.min(2, ladder.length - 1)], extra: true }];
+  });
+}
+
 /** Run a session inside `root`. Calls onExit(answeredCount) when finished or closed. */
 export function runSession(root, { course, items, ui, pid, unitIdx = null, onExit }) {
   const queue = buildQueue(course, items, pid, unitIdx);
@@ -126,7 +149,8 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
   let answeredCount = 0;
   let correct = 0;
 
-  const pool = (kind) => Object.values(items).filter((it) => it.kind === kind && course.units.some((u) => u.items.includes(it.id)));
+  const inCourse = new Set(course.units.flatMap((u) => u.items));
+  const pool = (kind, sightOnly = false) => Object.values(items).filter((it) => it.kind === kind && inCourse.has(it.id) && Boolean(it.sight) === sightOnly);
   const unitOf = (id) => course.units.find((u) => u.items.includes(id));
 
   // ---------- speech ----------
@@ -151,9 +175,10 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
 
   function distractors(item, kind, n, key) {
     const seen = new Set([key(item)]);
-    const sameUnit = shuffle((unitOf(item.id)?.items || []).map((id) => items[id]).filter((it) => it.kind === kind));
+    const sightOnly = Boolean(item.sight);
+    const sameUnit = shuffle((unitOf(item.id)?.items || []).map((id) => items[id]).filter((it) => it.kind === kind && Boolean(it.sight) === sightOnly));
     const out = [];
-    for (const it of [...sameUnit, ...shuffle(pool(kind))]) {
+    for (const it of [...sameUnit, ...shuffle(pool(kind, sightOnly))]) {
       if (out.length >= n) break;
       const k = key(it);
       if (it.id === item.id || seen.has(k)) continue;
@@ -295,9 +320,18 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       const letters = [...item.c.en.toLowerCase()];
       const sounds = letters.every((ch) => hasAudio('en', `sound:${ch}`)) ? letters.map((ch) => ['en', `sound:${ch}`]) : [];
       speech = [...sounds, ['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
+    } else if (item.kind === 'word' && course.target === 'en' && item.digraph) {
+      // Two letters, one sound: the digraph is shown as one unit and sounded as one.
+      const parts = graphemes(item.c.en.toLowerCase());
+      const blend = h('div.blend', parts.map((g, i) => h(`span${g.length > 1 ? '.vowel' : ''}`, { style: `animation-delay:${i * 0.45}s` }, g)));
+      card = h('div.intro', h('div.pic', item.c.emoji), blend, h('div.tag', item.digraph), kmText(item.c.km, '.meaning'));
+      delay = parts.length * 450 + 300;
+      setTimeout(() => blend.classList.add('merged'), delay);
+      const sounds = parts.every((g) => hasAudio('en', `sound:${g}`)) ? parts.map((g) => ['en', `sound:${g}`]) : [];
+      speech = [...sounds, ['en', item.c.en, { slow: true }], ['en', item.c.en], ['km', item.c.km]];
     } else if (item.kind === 'word' && course.target === 'en') {
-      card = h('div.intro', h('div.pic', item.c.emoji), h('div.word', item.c.en), kmText(item.c.km, '.meaning'));
-      speech = [['en', item.c.en], ['km', item.c.km], ['en', item.c.en, { slow: true }]];
+      card = h('div.intro', item.sight ? '' : h('div.pic', item.c.emoji), h(`div.word${item.sight ? '.sight' : ''}`, item.c.en), item.c.km ? kmText(item.c.km, '.meaning') : '');
+      speech = [['en', item.c.en], ...(item.c.km ? [['km', item.c.km]] : []), ['en', item.c.en, { slow: true }]];
     } else if (item.kind === 'letter') {
       card = h(
         'div.intro',
@@ -448,12 +482,12 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
       // Copy: the model is shown beside an empty pad.
       const w = writable(course, item);
       const model = modelCanvas(w.glyph, { ...w.pad, px: 120 });
-      stage.append(h('div.copy-row', h('div.model-card', model), item.c ? h('div.pic.small', item.c.emoji) : ''));
+      stage.append(h('div.copy-row', h('div.model-card', model), item.c && !item.sight ? h('div.pic.small', item.c.emoji) : ''));
       renderGradedWrite(stage, ex, item, w.glyph, { ...w.pad, guide: false }, w.glyph, { model });
     } else if (type === 'write_word') {
       // From memory: picture + sound (+ meaning for Khmer), no model.
       const w = writable(course, item);
-      stage.append(h('div.prompt', h('div.pic', c.emoji), enCourse ? '' : h('div.meaning', c.en)));
+      stage.append(h('div.prompt', item.sight ? '' : h('div.pic', c.emoji), enCourse ? '' : h('div.meaning', c.en)));
       renderGradedWrite(stage, ex, item, w.glyph, { ...w.pad, guide: false }, enCourse ? w.glyph : `${c.km} — ${c.rom}`);
     } else if (type === 'consonant_trace' || type === 'consonant_write') {
       const guide = type === 'consonant_trace';
@@ -462,6 +496,35 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
         renderGradedWrite(stage, ex, item, item.ch, { ...KHMER_PAD, guide, guided: guide && Boolean(RECORDED[item.ch]) }, `${item.ch} — ${item.rom}`));
     } else if (type === 'say_it') {
       renderSayIt(stage, ex, item);
+    } else if (type === 'sight_listen') {
+      // Hear a sight word, find it written.
+      const opts = [item, ...distractors(item, 'word', 3, (it) => it.c.en.toLowerCase())];
+      stage.append(h('div.row', speakerBtn(() => sayTarget(item)), slowBtn(item)));
+      choice(stage, ex, item, opts.map((it) => ({ key: it.id, content: h('span.opt-sight', it.c.en) })), item.id, c.en, '.words');
+      sayInstruction('sight_listen').then(() => sayTarget(item));
+    } else if (type === 'sight_read') {
+      // Read a sight word, find which speaker says it (tap to listen, then confirm).
+      const opts = shuffle([item, ...distractors(item, 'word', 2, (it) => it.c.en.toLowerCase())]);
+      let picked = null;
+      const confirm = h('button.btn.primary.wide', { disabled: true, lang }, t('check'));
+      const grid = h('div.options.three', opts.map((it, i) => h('button.opt.sound-opt', {
+        'data-key': it.id,
+        onclick: (e) => {
+          picked = it;
+          grid.querySelectorAll('.opt').forEach((b) => b.classList.toggle('picked', b === e.currentTarget));
+          confirm.disabled = false;
+          play('en', it.c.en);
+        },
+      }, icon('volume', { size: 26 }), h('span.opt-num', String(i + 1)))));
+      confirm.onclick = () => {
+        const ok = picked === item;
+        grid.querySelector(`[data-key="${CSS.escape(picked.id)}"]`).classList.add(ok ? 'right' : 'wrong');
+        if (!ok) grid.querySelector(`[data-key="${CSS.escape(item.id)}"]`)?.classList.add('right');
+        confirm.parentElement.remove();
+        answered(ex, item, ok, stage, c.en);
+      };
+      stage.append(h('div.prompt', h('div.word.big.sight', c.en)), grid, h('div.foot', confirm));
+      sayInstruction('sight_read');
     } else if (type === 'first_sound') {
       const word = c.en.toLowerCase();
       const letters = [...new Set(Object.values(items).filter((it) => it.phonics).map((it) => it.c.en[0].toLowerCase()))];
@@ -650,6 +713,11 @@ export function runSession(root, { course, items, ui, pid, unitIdx = null, onExi
 
 export function seriesBadge(s) {
   return h(`span.badge.s${s === 1 ? 'A' : 'O'}`, s === 1 ? 'Series A' : 'Series O');
+}
+
+/** Split a word into sound units, keeping digraphs together: "ship" → sh · i · p. */
+function graphemes(word) {
+  return word.match(/sh|ch|th|./g) || [];
 }
 
 /** Bold the letter being taught inside its example word ("bo<b>x</b>" for X). */

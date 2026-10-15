@@ -1,12 +1,12 @@
 // App shell: profile picker, course path, Khmer alphabet reference, native-speaker check.
 
 import { h } from './dom.js';
-import { loadAudioIndex, loadLocalVoices, setLocalVoice, nativeVoice, play, audioSettings, stop, tone } from './audio.js';
+import { loadAudioIndex, loadLocalVoices, setLocalVoice, nativeVoice, play, playTimed, audioSettings, stop, tone } from './audio.js';
 import { record, saveClip, deleteClip, exportClips, allClips } from './voice.js';
 import { hasGemini, connectGemini, forgetGemini, geminiModel, translateToKhmer } from './gemini.js';
 import * as store from './store.js';
 import { buildCourses } from './courses.js';
-import { runSession, seriesBadge } from './session.js';
+import { runSession, seriesBadge, weakItems } from './session.js';
 import { tracePad, modelCanvas } from './trace.js';
 import { RECORDED, loadRecorded, saveRecording } from './strokes.js';
 import { icon } from './icons.js';
@@ -21,11 +21,11 @@ const app = document.getElementById('app');
 let data;
 
 async function init() {
-  const [concepts, script, ui] = await Promise.all(
-    ['concepts', 'khmer-script', 'ui'].map((f) => fetch(`data/${f}.json`).then((r) => r.json())),
+  const [concepts, script, ui, stories, dialogues] = await Promise.all(
+    ['concepts', 'khmer-script', 'ui', 'stories', 'dialogues'].map((f) => fetch(`data/${f}.json`).then((r) => r.json()).catch(() => [])),
   );
   await Promise.all([loadAudioIndex(), loadRecorded(), loadLocalVoices()]);
-  data = { ...buildCourses(concepts, script), concepts, script, ui };
+  data = { ...buildCourses(concepts, script), concepts, script, ui, stories, dialogues };
   const last = PROFILES.find((p) => p.id === store.lastProfile());
   last ? dashboard(last) : home();
 }
@@ -103,9 +103,11 @@ function dashboard(p) {
   );
 
   const tool = (ic, label, onclick, opts = {}) => h('button.tool-card', { onclick, ...opts }, h('span.tool-ic', icon(ic, { size: 20 })), h('span', label));
+  const weak = weakItems(course, p.id).length;
+  const weakTool = tool('refresh', `${t('weak')}${weak ? ` · ${weak}` : ''}`, () => (weak ? startSession(p, 'weak') : null), { lang, disabled: !weak });
   const tools = course.id === 'km'
-    ? h('div.tools', tool('book', 'Alphabet', () => alphabet(p)), tool('pencil', t('writing'), () => writing(p)), tool('globe', t('translate'), () => translator(p)), tool('headphones', t('checkTitle'), () => nativeCheck(p)))
-    : h('div.tools', tool('pencil', t('writing'), () => writing(p), { lang: 'km' }));
+    ? h('div.tools', tool('book', 'Alphabet', () => alphabet(p)), tool('pencil', t('writing'), () => writing(p)), tool('globe', t('translate'), () => translator(p)), tool('headphones', t('checkTitle'), () => nativeCheck(p)), weakTool)
+    : h('div.tools', tool('pencil', t('writing'), () => writing(p), { lang: 'km' }), weakTool);
 
   // Lessons grouped into sections, each row with its progress.
   const current = course.units.findIndex((u) => u.items.some((id) => store.card(p.id, id).box === 0));
@@ -135,6 +137,7 @@ function dashboard(p) {
     );
   });
 
+  const extraGroup = course.id === 'en' ? storiesGroup(p, t, lang) : dialoguesGroup(p, t);
   show(
     h(
       'div.screen.dash',
@@ -142,6 +145,7 @@ function dashboard(p) {
       todayCard,
       tools,
       sections.map((sec) => h('section.lesson-group', h('h3.group-title', sec.name), h('div.lesson-list', sec.rows))),
+      extraGroup,
     ),
   );
   document.querySelector('.lesson.current')?.scrollIntoView({ block: 'nearest' });
@@ -436,13 +440,14 @@ async function writing(p, state = { set: 0, i: 0, mode: 'trace' }) {
 
 // ---------- native-speaker check: listen to every Khmer clip, mark ✓ / ✗ ----------
 function checkItems() {
-  const out = data.concepts.map((c) => ({ key: `w:${c.id}`, km: c.km, label: `${c.emoji} ${c.en}`, emoji: c.emoji, en: c.en, rom: c.rom }));
+  const out = data.concepts.filter((c) => c.km).map((c) => ({ key: `w:${c.id}`, km: c.km, label: `${c.emoji} ${c.en}`, emoji: c.emoji, en: c.en, rom: c.rom }));
   for (const c of data.script.consonants) out.push({ key: `C:${c.ch}`, km: c.ch, emoji: '🔤', en: `consonant ${c.rom}`, rom: c.rom });
   for (const v of data.script.vowels) {
     out.push({ key: `V1:${v.v}`, km: 'ក' + v.v, emoji: '🔤', en: 'syllable', rom: 'k' + v.r1 });
     out.push({ key: `V2:${v.v}`, km: 'គ' + v.v, emoji: '🔤', en: 'syllable', rom: 'k' + v.r2 });
   }
   for (const s of data.script.subscripts) out.push({ key: `S:${s.word}`, km: s.word, emoji: '🔤', en: s.en, rom: s.rom });
+  for (const d of data.dialogues) d.lines.forEach((l, i) => out.push({ key: `D:${d.id}:${i}`, km: l.km, emoji: d.emoji, en: l.en, rom: l.rom }));
   return out;
 }
 
@@ -554,6 +559,264 @@ async function checkSummary(p, items) {
         : null,
     ),
   );
+}
+
+// ---------- reading stories (her) ----------
+const STORY_KEY = 'learnering:stories';
+const loadJSON = (k) => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } };
+const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } };
+const tokens = (sentence) => sentence.split(/\s+/).filter(Boolean);
+const bare = (w) => w.toLowerCase().replace(/[^a-z']/g, '');
+
+/** The vocabulary item for a word in a story (to play it and to know whether it has been learned). */
+function wordItem(w) {
+  const c = data.concepts.find((x) => x.en.toLowerCase() === bare(w));
+  return c ? { audio: c.en, id: `w:${c.id}` } : null;
+}
+
+/** Share of a story's words she has already met (stories unlock at 80%). */
+function storyReadiness(p, story) {
+  const words = [...new Set(story.sentences.flatMap((s) => tokens(s.en).map(bare)))];
+  const known = words.filter((w) => { const it = wordItem(w); return !it || store.card(p.id, it.id).box > 0; }).length;
+  return known / words.length;
+}
+
+function storiesGroup(p, t, lang) {
+  if (!data.stories.length) return '';
+  const done = loadJSON(STORY_KEY);
+  return h(
+    'section.lesson-group',
+    h('h3.group-title', { lang }, t('stories')),
+    h('div.lesson-list', data.stories.map((st) => {
+      const ready = storyReadiness(p, st);
+      const open = ready >= 0.8;
+      const stars = done[st.id] || 0;
+      return h(
+        `button.lesson.${stars ? 'mastered' : open ? 'started' : 'fresh'}`,
+        { onclick: () => open && storyReader(p, st), disabled: !open },
+        h('span.lesson-ic', st.emoji),
+        h('span.lesson-body', h('span.lesson-title', st.title), h('span.lesson-bar', h('span', { style: `width:${Math.min(ready / 0.8, 1) * 100}%` }))),
+        open
+          ? (stars ? h('span.lesson-end.done', Array.from({ length: stars }, () => icon('starFill', { size: 14 }))) : h('span.lesson-end.go', { lang }, t('start')))
+          : h('span.lesson-end', icon('lock', { size: 16 })),
+      );
+    })),
+  );
+}
+
+function storyReader(p, st) {
+  setTheme(p.theme);
+  const course = data.courses[p.course];
+  const lang = course.ui;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k];
+  let running = false;
+
+  const lines = st.sentences.map((s) => {
+    const spans = tokens(s.en).map((w) => {
+      const it = wordItem(w);
+      return h('button.rw', { onclick: () => it && play('en', it.audio) }, w);
+    });
+    const row = h(
+      'div.read-line',
+      h('button.tool', { onclick: () => readLine(s, spans), 'aria-label': 'Read' }, icon('volume', { size: 18 })),
+      h('div.read-text', h('div.read-words', spans), h('button.read-km', { onclick: () => play('km', s.km), lang: 'km' }, icon('volume', { size: 14 }), h('span', s.km))),
+    );
+    return { s, spans, row };
+  });
+
+  async function readLine(s, spans) {
+    spans.forEach((x) => x.classList.remove('lit'));
+    await playTimed('en', s.en, { onWord: (i) => spans.forEach((x, k) => x.classList.toggle('lit', k === i)) });
+  }
+
+  async function readAll() {
+    if (running) { running = false; stop(); return; }
+    running = true;
+    for (const l of lines) {
+      if (!running) break;
+      l.row.classList.add('active');
+      l.row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      await readLine(l.s, l.spans);
+      l.row.classList.remove('active');
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    running = false;
+  }
+
+  show(
+    h(
+      'div.screen.reader',
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => { running = false; dashboard(p); }, 'aria-label': 'Back' }, icon('back')), h('div.top-title', st.title), slowToggle()),
+      h('div.story-head', h('div.pic', st.emoji), h('h2.story-title', st.title), h('button.read-km', { onclick: () => play('km', st.titleKm), lang: 'km' }, icon('volume', { size: 14 }), h('span', st.titleKm))),
+      h('div.read-list', lines.map((l) => l.row)),
+      h('div.foot.row', h('button.btn', { onclick: readAll, lang }, icon('play', { size: 16 }), h('span', t('readToMe'))), h('button.btn.primary', { onclick: () => storyQuiz(p, st), lang }, h('span', t('quiz')), icon('next', { size: 18 }))),
+    ),
+  );
+  setTimeout(readAll, 500);
+}
+
+/** Hear a sentence of the story, find it written (3 rounds). */
+function storyQuiz(p, st) {
+  const lang = data.courses[p.course].ui;
+  const t = (k) => data.ui[lang][k] || data.ui.en[k];
+  const rounds = [...st.sentences].sort(() => Math.random() - 0.5).slice(0, 3);
+  let i = 0;
+  let right = 0;
+  const stage = h('main.stage');
+  show(h('div.screen.session', h('header.s-head', h('button.icon-btn.ghost', { onclick: () => storyReader(p, st), 'aria-label': 'Close' }, icon('close')), h('div.progress', h('div.bar'))), stage));
+  const bar = document.querySelector('.s-head .bar');
+  const round = () => {
+    if (i >= rounds.length) {
+      const stars = right === rounds.length ? 3 : right >= 2 ? 2 : 1;
+      const done = loadJSON(STORY_KEY);
+      done[st.id] = Math.max(done[st.id] || 0, stars);
+      saveJSON(STORY_KEY, done);
+      store.recordSession(p.id, rounds.length);
+      stage.replaceChildren(
+        h('div.done-badge', icon('check', { size: 44 })),
+        h('div.done-stars', Array.from({ length: 3 }, (_, k) => icon(k < stars ? 'starFill' : 'star', { size: 30 }))),
+        h('div.foot', h('button.btn.primary.wide', { onclick: () => dashboard(p), lang }, t('next'), icon('next', { size: 18 }))),
+      );
+      tone(true);
+      return;
+    }
+    bar.style.width = `${(i / rounds.length) * 100}%`;
+    const target = rounds[i];
+    const opts = [target, ...st.sentences.filter((s) => s !== target).sort(() => Math.random() - 0.5).slice(0, 2)].sort(() => Math.random() - 0.5);
+    const grid = h('div.options.one', opts.map((s) => h('button.opt.sentence-opt', {
+      onclick: (e) => {
+        const ok = s === target;
+        if (ok) right++;
+        e.currentTarget.classList.add(ok ? 'right' : 'wrong');
+        grid.querySelectorAll('.opt').forEach((b) => (b.disabled = true));
+        tone(ok);
+        setTimeout(() => { i++; round(); }, 1100);
+      },
+    }, s.en)));
+    stage.replaceChildren(
+      h('p.instruction', { lang }, lang === 'km' ? h('button.mini', { onclick: () => play('km', data.ui.km.storyQuiz, { slow: false }) }, icon('volume', { size: 16 })) : '', h('span', t('storyQuiz'))),
+      h('button.speaker.big', { onclick: () => play('en', target.en), 'aria-label': 'Listen' }, icon('volume', { size: 34 })),
+      grid,
+    );
+    (i === 0 && lang === 'km' ? play('km', data.ui.km.storyQuiz, { slow: false }) : Promise.resolve()).then(() => play('en', target.en));
+  };
+  round();
+}
+
+// ---------- conversations (Xavier) ----------
+const DIALOGUE_KEY = 'learnering:dialogues';
+
+function dialoguesGroup(p, t) {
+  if (!data.dialogues.length) return '';
+  const done = loadJSON(DIALOGUE_KEY);
+  return h(
+    'section.lesson-group',
+    h('h3.group-title', t('conversations')),
+    h('div.lesson-list', data.dialogues.map((d) => {
+      const stars = done[d.id] || 0;
+      return h(
+        `button.lesson.${stars ? 'mastered' : 'started'}`,
+        { onclick: () => dialogueScreen(p, d) },
+        h('span.lesson-ic', d.emoji),
+        h('span.lesson-body', h('span.lesson-title', d.title), h('span.note', `${d.lines.length} lines`)),
+        stars ? h('span.lesson-end.done', Array.from({ length: stars }, () => icon('starFill', { size: 14 }))) : h('span.lesson-end.go', t('start')),
+      );
+    })),
+  );
+}
+
+function dialogueScreen(p, d) {
+  setTheme(p.theme);
+  const t = (k) => data.ui.en[k];
+  let showRom = true;
+  let showEn = true;
+  let running = false;
+  const bubbles = d.lines.map((l) => {
+    const rom = h('div.b-rom', l.rom);
+    const en = h('div.b-en', l.en);
+    const b = h(`button.bubble.${l.speaker === 'A' ? 'me' : 'them'}`, { onclick: () => play('km', l.km) }, h('div.b-km', { lang: 'km' }, l.km), rom, en);
+    return { l, b, rom, en };
+  });
+  const toggles = () => bubbles.forEach((x) => { x.rom.hidden = !showRom; x.en.hidden = !showEn; });
+  async function playAll() {
+    if (running) { running = false; stop(); return; }
+    running = true;
+    for (const x of bubbles) {
+      if (!running) break;
+      x.b.classList.add('active');
+      x.b.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      await play('km', x.l.km);
+      x.b.classList.remove('active');
+      await new Promise((r) => setTimeout(r, 350));
+    }
+    running = false;
+  }
+  const chip = (label, get, set) => {
+    const b = h('button.set-tab', { onclick: () => { set(!get()); b.classList.toggle('on', get()); toggles(); } }, label);
+    b.classList.toggle('on', get());
+    return b;
+  };
+  show(
+    h(
+      'div.screen.dialogue',
+      h('div.topbar', h('button.icon-btn.ghost', { onclick: () => { running = false; dashboard(p); }, 'aria-label': 'Back' }, icon('back')), h('div.top-title', d.title), slowToggle()),
+      h('div.set-tabs', chip('Romanization', () => showRom, (v) => { showRom = v; }), chip('English', () => showEn, (v) => { showEn = v; })),
+      h('div.chat', bubbles.map((x) => x.b)),
+      h('div.foot.row', h('button.btn', { onclick: playAll }, icon('play', { size: 16 }), h('span', 'Play all')), h('button.btn.primary', { onclick: () => dialogueQuiz(p, d) }, h('span', t('quiz')), icon('next', { size: 18 }))),
+    ),
+  );
+}
+
+/** For each of your lines: hear what was said before, choose your reply. */
+function dialogueQuiz(p, d) {
+  const t = (k) => data.ui.en[k];
+  const mine = d.lines.map((l, i) => ({ l, i })).filter((x) => x.l.speaker === 'A');
+  let k = 0;
+  let right = 0;
+  const stage = h('main.stage');
+  show(h('div.screen.session', h('header.s-head', h('button.icon-btn.ghost', { onclick: () => dialogueScreen(p, d), 'aria-label': 'Close' }, icon('close')), h('div.progress', h('div.bar'))), stage));
+  const bar = document.querySelector('.s-head .bar');
+  const round = () => {
+    if (k >= mine.length) {
+      const stars = right === mine.length ? 3 : right >= mine.length - 1 ? 2 : 1;
+      const done = loadJSON(DIALOGUE_KEY);
+      done[d.id] = Math.max(done[d.id] || 0, stars);
+      saveJSON(DIALOGUE_KEY, done);
+      store.recordSession(p.id, mine.length);
+      stage.replaceChildren(
+        h('div.done-badge', icon('check', { size: 44 })),
+        h('div.done-stars', Array.from({ length: 3 }, (_, n) => icon(n < stars ? 'starFill' : 'star', { size: 30 }))),
+        h('div.foot', h('button.btn.primary.wide', { onclick: () => dialogueScreen(p, d) }, 'Done', icon('next', { size: 18 }))),
+      );
+      tone(true);
+      return;
+    }
+    bar.style.width = `${(k / mine.length) * 100}%`;
+    const { l, i } = mine[k];
+    const before = d.lines[i - 1];
+    const others = mine.filter((x) => x.l !== l).map((x) => x.l).sort(() => Math.random() - 0.5).slice(0, 2);
+    const opts = [l, ...others].sort(() => Math.random() - 0.5);
+    const grid = h('div.options.one', opts.map((o) => h('button.opt.sentence-opt', {
+      onclick: (e) => {
+        const ok = o === l;
+        if (ok) right++;
+        e.currentTarget.classList.add(ok ? 'right' : 'wrong');
+        grid.querySelectorAll('.opt').forEach((b) => (b.disabled = true));
+        tone(ok);
+        play('km', l.km);
+        setTimeout(() => { k++; round(); }, 1800);
+      },
+    }, h('span', { lang: 'km' }, o.km), h('small.opt-rom', o.rom))));
+    stage.replaceChildren(
+      h('p.instruction', t('dialogueQuiz')),
+      before
+        ? h('button.bubble.them', { onclick: () => play('km', before.km) }, h('div.b-km', { lang: 'km' }, before.km), h('div.b-en', before.en))
+        : h('div.note', `Start the conversation: “${l.en}”`),
+      grid,
+    );
+    if (before) play('km', before.km);
+  };
+  round();
 }
 
 // ---------- settings: Gemini key ----------

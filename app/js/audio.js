@@ -8,9 +8,50 @@ let current = null;
 let ctx = null;
 export const audioSettings = { slow: false };
 
+let timings = {};
+
 export async function loadAudioIndex() {
-  const res = await fetch('data/audio-index.json');
-  index = await res.json();
+  const [idx, tim] = await Promise.all([
+    fetch('data/audio-index.json').then((r) => r.json()),
+    fetch('data/timings.json').then((r) => r.json()).catch(() => ({})),
+  ]);
+  index = idx;
+  timings = tim;
+}
+
+/**
+ * Play a clip and report which word is being spoken (read-along highlighting).
+ * onWord(i) is called with the word index, and with -1 at the end.
+ */
+export function playTimed(lang, text, { slow = audioSettings.slow, onWord } = {}) {
+  const words = timings[`${lang}|${text}${slow ? '|slow' : ''}`] || timings[`${lang}|${text}`];
+  const src = (slow && index[`${lang}|${text}|slow`]) || index[`${lang}|${text}`];
+  if (!src || !words) return play(lang, text, { slow }).then(() => onWord?.(-1));
+  stop();
+  return new Promise((resolve) => {
+    const a = new Audio(src);
+    current = a;
+    let last = -2;
+    let timer = null;
+    const tick = () => {
+      const t = a.currentTime;
+      let i = -1;
+      for (let k = 0; k < words.length; k++) if (t >= words[k][0] - 0.05) i = k;
+      if (i !== last) {
+        last = i;
+        onWord?.(i);
+      }
+    };
+    const done = () => {
+      clearInterval(timer);
+      onWord?.(-1);
+      resolve();
+    };
+    a.onended = a.onerror = done;
+    a.onpause = () => { if (current !== a) done(); };
+    timer = setInterval(tick, 40);
+    a.play().catch(done);
+  });
 }
 
 // Recordings made on this phone (object URLs), keyed like the index: "km|សួស្តី".

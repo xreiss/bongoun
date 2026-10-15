@@ -35,6 +35,18 @@ French, Indonesian, Chinese and Spanish come later, once these two work well.
 - Writing is in every ladder: English words (copy, then from memory), letters (trace, other case from memory),
   Khmer words, consonants and vowel syllables (copy / memory). Phrases are not written.
 
+## Content & cost (Oct 2026)
+
+- All content is generated ONCE (`tools/gen_content.py`) and shipped as data + free neural audio, so using the
+  app costs nothing. Lightest model that passes: flash-lite for English stories (every word checked against the
+  taught vocabulary), flash with low thinking for all Khmer (lite garbles Khmer). Runtime Gemini calls (speaking
+  check, translator) use low thinking + output caps; silent recordings are rejected on the phone.
+- Her: 22 sight words (+ "I") in 4 units, sh/ch/th unit with sounded-out digraphs, 15 read-along stories (word
+  highlighting from TTS word timings, tap a word to hear it, Khmer meaning, 3-question quiz; unlock at 80% known).
+- Xavier: 8 conversations (chat view, romanization/English toggles, play all, "what do you say?" quiz); lines are
+  in Native check for her to verify.
+- Both: "Weak words" session (most-missed / lowest-ease cards, practice only).
+
 ## Steps
 
 - [x] **Step 1 — Core app (Khmer ↔ English).** 120 shared concepts with emoji, 26 letters, 33 consonants, 24 vowels,

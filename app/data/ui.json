@@ -48,7 +48,14 @@
     "spkWrong": "មិនទាន់ត្រូវទេ ស្តាប់គំរូ ហើយនិយាយយឺតៗ",
     "spkSilent": "ខ្ញុំមិនឮទេ សូមនិយាយខ្លាំងជាងនេះបន្តិច",
     "spkError": "មិនអាចពិនិត្យបានទេ ពេលនេះ",
-    "write_copy": "មើលគំរូ ហើយសរសេរវានៅក្នុងប្រអប់"
+    "write_copy": "មើលគំរូ ហើយសរសេរវានៅក្នុងប្រអប់",
+    "sight_listen": "ស្តាប់ ហើយចុចលើពាក្យដែលត្រូវ",
+    "sight_read": "អានពាក្យនេះ ហើយរកសំឡេងដែលត្រូវ",
+    "stories": "រឿង",
+    "readToMe": "អានឲ្យខ្ញុំស្តាប់",
+    "quiz": "សំណួរ",
+    "storyQuiz": "ស្តាប់ ហើយរកប្រយោគដែលត្រូវ",
+    "weak": "ពាក្យពិបាក"
   },
   "en": {
     "welcome": "Let's learn Khmer",
@@ -99,6 +106,15 @@
     "translate": "Translate",
     "settings": "Settings",
     "write_copy": "Copy it in the box",
-    "write_word": "Write it from memory"
+    "write_word": "Write it from memory",
+    "sight_listen": "Listen and tap the word",
+    "sight_read": "Read the word, then find the speaker that says it",
+    "stories": "Stories",
+    "readToMe": "Read to me",
+    "quiz": "Quiz",
+    "storyQuiz": "Listen and find the sentence",
+    "weak": "Weak words",
+    "conversations": "Conversations",
+    "dialogueQuiz": "What do you say?"
   }
 }

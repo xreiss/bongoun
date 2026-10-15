@@ -42,6 +42,8 @@ SOUNDS = {
     "k": ("k", "key", {"k"}), "l": ("l", "log", {"l"}), "m": ("m", "map", {"m"}), "n": ("n", "net", {"n"}),
     "p": ("p", "pen", {"p"}), "r": ("ɹ", "red", {"ɹ", "r"}), "s": ("s", "sun", {"s"}), "t": ("t", "ten", {"t"}),
     "v": ("v", "van", {"v"}), "w": ("w", "web", {"w"}), "x": ("ks", "box", {"ks"}), "z": ("z", "zebra", {"z"}),
+    # digraphs: two letters, one sound
+    "sh": ("ʃ", "ship", {"ʃ"}), "ch": ("tʃ", "chip", {"tʃ", "ʧ"}), "th": ("θ", "thumb", {"θ"}),
 }
 
 # The speech model reads its input aloud (it does not follow instructions), so the input must BE the
@@ -53,7 +55,8 @@ SPELLINGS = {
     "g": ["/ɡ/", "g.", "gh"], "h": ["hh", "/h/", "hhh", "h", "hhhh"], "j": ["/dʒ/", "j."], "k": ["/k/", "k.", "kh"],
     "l": ["lll", "/l/"], "m": ["mmm", "/m/"], "n": ["nnn", "/n/"], "p": ["/p/", "p.", "pp"],
     "r": ["rrr", "/ɹ/"], "s": ["sss", "/s/"], "t": ["/t/", "t.", "tt"], "v": ["vvv", "/v/"],
-    "w": ["/w/", "ww", "w.", "www"], "x": ["ks", "/ks/", "kss"], "z": ["zzz", "/z/"],
+    "w": ["/w/", "ww", "w.", "www"], "x": ["ks", "/ks/", "kss"],
+    "sh": ["shh", "/ʃ/", "shhh"], "ch": ["/tʃ/", "ch.", "tch"], "th": ["/θ/", "thh", "th."], "z": ["zzz", "/z/"],
 }
 
 

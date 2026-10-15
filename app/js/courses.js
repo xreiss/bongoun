@@ -9,6 +9,9 @@ const PHONICS = {
   u: ['sun', 'run', 'bug', 'hug', 'bus', 'cup', 'nut'],
 };
 
+// Two letters, one sound.
+const DIGRAPHS = { sh: ['ship', 'shop', 'fish', 'dish'], ch: ['chip', 'chick', 'chop'], th: ['bath', 'thumb', 'think'] };
+
 const LETTER_WORDS = {
   A: 'apple', B: 'bag', C: 'cat', D: 'dog', E: 'egg', F: 'fish', G: 'gift', H: 'hat', I: 'ice',
   J: 'juice', K: 'key', L: 'love', M: 'milk', N: 'nose', O: 'orange', P: 'pig', Q: 'queen',
@@ -33,7 +36,20 @@ export function buildCourses(concepts, script) {
   const letters = (s) => [...s].map(letter);
   const words = (ids) => ids.map(word);
   const exWords = (s) => [...s].map((L) => word(LETTER_WORDS[L]));
-  const used = new Set([...Object.values(LETTER_WORDS), ...Object.values(PHONICS).flat()]);
+  const used = new Set([...Object.values(LETTER_WORDS), ...Object.values(PHONICS).flat(), ...Object.values(DIGRAPHS).flat()]);
+  const sight = (from, to) =>
+    byCat('sight').slice(from, to).map((id) => {
+      const wid = word(id);
+      items[wid].sight = true;
+      return wid;
+    });
+  const digraphs = () =>
+    Object.entries(DIGRAPHS).flatMap(([dg, ids]) =>
+      ids.map((id) => {
+        const wid = word(id);
+        items[wid].digraph = dg;
+        return wid;
+      }));
   const phonics = (v) =>
     PHONICS[v].map((id) => {
       const wid = word(id);
@@ -61,6 +77,11 @@ export function buildCourses(concepts, script) {
       { section: 'Phonics', icon: 'i', title: 'i — pig · pin · six', items: phonics('i'), phonics: true },
       { section: 'Phonics', icon: 'o', title: 'o — dog · fox · box', items: phonics('o'), phonics: true },
       { section: 'Phonics', icon: 'u', title: 'u — sun · bug · cup', items: phonics('u'), phonics: true },
+      { section: 'Phonics', icon: 'sh', title: 'sh · ch · th — ship · chip · bath', items: digraphs() },
+      { section: 'Sight words', icon: 'the', title: 'the · a · is · my · it · and · I', items: [word('i'), ...sight(0, 6)] },
+      { section: 'Sight words', icon: 'see', title: 'see · like · have · can · we · he', items: sight(6, 12) },
+      { section: 'Sight words', icon: 'she', title: 'she · this · in · on · look · here', items: sight(12, 18) },
+      { section: 'Sight words', icon: 'am', title: 'am · are · at · to', items: sight(18, 22) },
       { section: 'Words', icon: '👋', title: 'Hello · Thank you', items: rest('core') },
       { section: 'Words', icon: '👨‍👩‍👧', title: 'Family', items: rest('family') },
       { section: 'Words', icon: '🍚', title: 'Food', items: rest('food') },
